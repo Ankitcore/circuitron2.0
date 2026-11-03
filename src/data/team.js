@@ -23,19 +23,22 @@ export const executiveTeam = [
   {
     name: "Umang Kumar Sharma",
     position: "President",
-    description: "Leading the club with vision and innovation",
+    description: "Inspiring leadership, driving innovation, and shaping the club’s future.",
+    tagline: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     img: "/assets/gallery2/umang kumar sharma.jpg",
   },
   {
     name: "Akshat Anand",
     position: "PR & Communication Head",
     description: "Building connections, strengthening communication, and creating a lasting impact.",
+    tagline: "Building connections, strengthening communication, and creating a lasting impact.",
     img: "/assets/gallery2/akshat anand.jpg",
   },
   {
     name: "Subha Pain",
     position: "Technical Head",
-    description: "Driving technical excellence and team coordination",
+    description: "Inspiring leadership, driving innovation, and shaping the club’s future.",
+    tagline: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     img: "/assets/gallery2/subha pain.jpg",
   },
 ];

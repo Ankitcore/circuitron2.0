@@ -112,9 +112,9 @@ export default function HomeTeam() {
                     </span>
                   )}
                 </div>
-                {member.description && (
+                {(member.tagline || member.description) && (
                   <p className="text-gray-300 text-xs mt-3 leading-relaxed pt-2 border-t border-white/5">
-                    "{member.description}"
+                    {member.tagline || member.description}
                   </p>
                 )}
               </div>

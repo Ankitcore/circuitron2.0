@@ -144,25 +144,23 @@ export default function Team() {
                   </div>
                 </div>
 
-                <div className="space-y-2.5 text-center flex-1 flex flex-col items-center justify-between">
+                <div className="space-y-2 text-center flex-1 flex flex-col items-center justify-between w-full">
                   <div>
                     <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
                       {exec.name}
                     </h3>
-                    <div className="mt-2">
-                      <span className="px-3.5 py-1 rounded-full bg-accent/15 border border-accent/30 text-xs font-bold text-accent uppercase tracking-wider">
-                        {exec.position}
-                      </span>
-                    </div>
+                    <p className="text-primary font-semibold text-sm mt-1">
+                      {exec.position}
+                    </p>
                     {exec.rollNo && (
-                      <p className="text-xs font-mono text-gray-400 mt-1.5">
+                      <p className="text-xs font-mono text-gray-400 mt-1">
                         Roll No: {exec.rollNo}
                       </p>
                     )}
                   </div>
-                  {exec.description && (
-                    <p className="text-gray-300 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto pt-3 border-t border-white/5 mt-4">
-                      "{exec.description}"
+                  {(exec.tagline || exec.description) && (
+                    <p className="text-gray-300 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto pt-3 border-t border-white/10 mt-3">
+                      {exec.tagline || exec.description}
                     </p>
                   )}
                 </div>
