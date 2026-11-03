@@ -42,15 +42,15 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav
-          className={`flex items-center justify-between px-3 sm:px-6 py-2 sm:py-2.5 rounded-2xl transition-all duration-300 ${
+          className={`flex items-center justify-between px-2.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl transition-all duration-300 ${
             isScrolled
               ? "glass-panel shadow-2xl border-primary/25"
               : "bg-secondary/40 backdrop-blur-md border border-white/10"
           }`}
         >
           {/* Logo & Branding */}
-          <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group min-w-0">
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 flex items-center justify-center shadow-neon flex-shrink-0">
+          <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group min-w-0 flex-shrink">
+            <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 flex items-center justify-center shadow-neon flex-shrink-0">
               <img
                 src="/logo.png"
                 alt="Circuitron Logo"
@@ -59,12 +59,12 @@ export default function Navbar() {
             </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1">
-                <span className="font-orbitron font-extrabold text-sm sm:text-lg gradient-text tracking-wide whitespace-nowrap">
+                <span className="font-orbitron font-extrabold text-xs xs:text-sm sm:text-lg gradient-text tracking-wide whitespace-nowrap">
                   Circuitron
                 </span>
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse flex-shrink-0" />
               </div>
-              <p className="text-[9px] sm:text-[10px] text-gray-300/90 font-mono tracking-tight block whitespace-nowrap font-medium">
+              <p className="text-[8px] xs:text-[9px] sm:text-[10px] text-gray-300 font-mono tracking-tight block whitespace-nowrap font-medium">
                 RVSCET &bull; TECHXPO 2.O
               </p>
             </div>
@@ -110,24 +110,24 @@ export default function Navbar() {
             </motion.a>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="lg:hidden flex items-center space-x-2">
+          {/* Mobile Menu Button & Compact Register */}
+          <div className="lg:hidden flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
             <motion.a
               href="https://forms.gle/mNU3damnJBMfnmSU7"
               target="_blank"
               rel="noopener noreferrer"
               whileTap={{ scale: 0.95 }}
-              className="btn-primary text-xs py-1.5 px-3 sm:hidden"
+              className="sm:hidden inline-flex items-center justify-center text-[10px] xs:text-[11px] font-bold font-orbitron py-1 px-2.5 xs:px-3 rounded-full bg-gradient-to-r from-primary to-accent text-darkNavy shadow-neon flex-shrink-0"
             >
               Register
             </motion.a>
 
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 sm:p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-300 hover:text-white focus:outline-none"
+              className="p-1.5 sm:p-2.5 min-w-[34px] min-h-[34px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-300 hover:text-white focus:outline-none flex-shrink-0"
               aria-label="Toggle menu"
             >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
           </div>
         </nav>
