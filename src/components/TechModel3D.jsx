@@ -89,7 +89,7 @@ export default function TechModel3D() {
             <img
               src="/logo.png"
               alt="Circuitron Core"
-              className="w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(0,191,255,0.8)]"
+              className="w-20 h-20 object-contain drop-shadow-[0_0_15px_rgba(0,191,255,0.8)] rounded-xl bg-white p-1"
             />
           </div>
 

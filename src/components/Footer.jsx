@@ -45,7 +45,7 @@ export default function Footer() {
           {/* Brand Info (5 cols) */}
           <div className="lg:col-span-5 space-y-4">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl p-0.5 bg-darkNavy border border-primary/40 shadow-neon flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl p-0.5 bg-white border border-primary/40 shadow-neon flex items-center justify-center overflow-hidden">
                 <img
                   src="/logo.png"
                   alt="Circuitron Logo"
