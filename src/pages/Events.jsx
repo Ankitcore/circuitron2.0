@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { events } from "../data/events";
-import { Bot, Cpu, Sparkles, ExternalLink, X, ShieldCheck, Trophy, MapPin, Calendar } from "lucide-react";
+import { Bot, Cpu, Sparkles, ExternalLink, X, ShieldCheck, Trophy, MapPin, Calendar, Layers } from "lucide-react";
 
 export default function Events() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [selectedEvent, setSelectedEvent] = useState(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const categories = ["All", "Robotics", "Exhibition", "Technical", "Workshop"];
 
@@ -88,97 +92,126 @@ export default function Events() {
       {/* Events Grid */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredEvents.map((event, index) => (
-              <motion.div
-                key={event.id}
-                onClick={() => setSelectedEvent(event)}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.06,
-                  ease: [0.25, 0.1, 0.25, 1],
-                }}
-                whileHover={{ y: -4 }}
-                className="glass-card rounded-2xl p-7 border border-primary/20 flex flex-col justify-between cursor-pointer group hover:border-accent/50 relative overflow-hidden"
-              >
-                <div className="space-y-5">
-                  <div className="flex items-center justify-between">
-                    <div className="w-14 h-14 rounded-2xl bg-darkNavy/80 border border-primary/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                      {getEventIcon(event.id)}
-                    </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(event.category)}`}>
-                      {event.category}
-                    </span>
-                  </div>
-
-                  <div>
-                    <h3 className="text-2xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
-                      {event.title}
-                    </h3>
-                    <p className="text-accent font-semibold text-sm mt-1">
-                      {event.tagline}
-                    </p>
-                  </div>
-
-                  <p className="text-gray-300 text-sm leading-relaxed line-clamp-3">
-                    {event.description}
-                  </p>
-
-                  {event.requirements && (
-                    <div className="flex items-center space-x-2 text-xs text-gray-400 bg-darkNavy/60 px-3.5 py-2.5 rounded-xl border border-white/5">
-                      <ShieldCheck className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>{event.requirements}</span>
-                    </div>
-                  )}
-
-                  {/* Quota Progress Bar */}
-                  <div className="pt-2 space-y-1">
-                    <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
-                      <span>SLOT QUOTA</span>
-                      <span className="text-accent font-semibold">
-                        {event.id === 1 ? "80% Filled" : event.id === 2 ? "90% Filled" : event.id === 3 ? "75% Filled" : "85% Filled"}
+          {filteredEvents.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              className="glass-card p-12 rounded-3xl border border-primary/20 text-center max-w-lg mx-auto space-y-5"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center mx-auto text-primary shadow-neon">
+                <Layers className="w-8 h-8" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl sm:text-2xl font-orbitron font-bold text-white">
+                  No Events in "{activeCategory}" Track
+                </h3>
+                <p className="text-sm text-gray-300 leading-relaxed">
+                  Additional tracks and hands-on workshops are currently being finalized by the organizing team. Check out our featured robotics and exhibition challenges!
+                </p>
+              </div>
+              <div>
+                <button
+                  onClick={() => setActiveCategory("All")}
+                  className="btn-primary py-2.5 px-6 text-xs font-bold font-orbitron uppercase tracking-wider"
+                >
+                  View All Competitions
+                </button>
+              </div>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredEvents.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  onClick={() => setSelectedEvent(event)}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{
+                    duration: 0.5,
+                    delay: index * 0.06,
+                    ease: [0.25, 0.1, 0.25, 1],
+                  }}
+                  whileHover={{ y: -4 }}
+                  className="glass-card rounded-2xl p-7 border border-primary/20 flex flex-col justify-between cursor-pointer group hover:border-accent/50 relative overflow-hidden"
+                >
+                  <div className="space-y-5">
+                    <div className="flex items-center justify-between">
+                      <div className="w-14 h-14 rounded-2xl bg-darkNavy/80 border border-primary/30 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        {getEventIcon(event.id)}
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(event.category)}`}>
+                        {event.category}
                       </span>
                     </div>
-                    <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: event.id === 1 ? "80%" : event.id === 2 ? "90%" : event.id === 3 ? "75%" : "85%" }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.1, delay: 0.15 + (index % 3) * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-                        className="h-full bg-gradient-to-r from-primary via-accent to-cyberPurple rounded-full"
-                      />
+
+                    <div>
+                      <h3 className="text-2xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
+                        {event.title}
+                      </h3>
+                      <p className="text-accent font-semibold text-sm mt-1">
+                        {event.tagline}
+                      </p>
+                    </div>
+
+                    <p className="text-gray-300 text-sm leading-relaxed line-clamp-3">
+                      {event.description}
+                    </p>
+
+                    {event.requirements && (
+                      <div className="flex items-center space-x-2 text-xs text-gray-400 bg-darkNavy/60 px-3.5 py-2.5 rounded-xl border border-white/5">
+                        <ShieldCheck className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span>{event.requirements}</span>
+                      </div>
+                    )}
+
+                    {/* Quota Progress Bar */}
+                    <div className="pt-2 space-y-1">
+                      <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
+                        <span>SLOT QUOTA</span>
+                        <span className="text-accent font-semibold">
+                          {event.id === 1 ? "80% Filled" : event.id === 2 ? "90% Filled" : event.id === 3 ? "75% Filled" : "85% Filled"}
+                        </span>
+                      </div>
+                      <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: event.id === 1 ? "80%" : event.id === 2 ? "90%" : event.id === 3 ? "75%" : "85%" }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 1.1, delay: 0.15 + (index % 3) * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+                          className="h-full bg-gradient-to-r from-primary via-accent to-cyberPurple rounded-full"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="pt-6 mt-6 border-t border-white/10 flex items-center space-x-3">
-                  {event.registrationLink ? (
-                    <a
-                      href={event.registrationLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1"
-                      onClick={(e) => e.stopPropagation()}
+                  <div className="pt-6 mt-6 border-t border-white/10 flex items-center space-x-3">
+                    {event.registrationLink ? (
+                      <a
+                        href={event.registrationLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button className="w-full btn-primary py-2.5 text-xs font-bold">
+                          <span>Register Now</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </button>
+                      </a>
+                    ) : null}
+                    <button
+                      onClick={() => setSelectedEvent(event)}
+                      className="flex-1 btn-secondary py-2.5 text-xs font-bold"
                     >
-                      <button className="w-full btn-primary py-2.5 text-xs font-bold">
-                        <span>Register Now</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </button>
-                    </a>
-                  ) : null}
-                  <button
-                    onClick={() => setSelectedEvent(event)}
-                    className="flex-1 btn-secondary py-2.5 text-xs font-bold"
-                  >
-                    View Details
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                      View Details
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
@@ -9,14 +9,15 @@ import ScrollToTop from "./components/ScrollToTop";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import RobotMascotBackground from "./components/RobotMascotBackground";
 import InteractiveCyberGrid from "./components/InteractiveCyberGrid";
+import PageLoader from "./components/PageLoader";
 
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Events from "./pages/Events";
-import Team from "./pages/Team";
-import Gallery from "./pages/Gallery";
-import Schedule from "./pages/Schedule";
-import Contact from "./pages/Contact";
+const Home = lazy(() => import("./pages/Home"));
+const About = lazy(() => import("./pages/About"));
+const Events = lazy(() => import("./pages/Events"));
+const Team = lazy(() => import("./pages/Team"));
+const Gallery = lazy(() => import("./pages/Gallery"));
+const Schedule = lazy(() => import("./pages/Schedule"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 function ScrollToTopOnRoute() {
   const { pathname } = useLocation();
@@ -46,17 +47,21 @@ export default function App() {
       />
       <Navbar />
       <main className="relative z-10">
-        <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/events" element={<Events />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/schedule" element={<Schedule />} />
-            <Route path="/contact" element={<Contact />} />
-          </Routes>
-        </AnimatePresence>
+        <Suspense fallback={<PageLoader />}>
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/gallery" element={<Gallery />} />
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="/contact" element={<Contact />} />
+              {/* Fallback route */}
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </AnimatePresence>
+        </Suspense>
       </main>
       <Footer />
       <ScrollToTop />

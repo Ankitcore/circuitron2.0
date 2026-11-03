@@ -7,12 +7,17 @@ export default function Gallery() {
   const [selectedIdx, setSelectedIdx] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const categories = ["All", "Ceremony", "Exhibition", "Workshop"];
+  const categories = ["All", "Ceremony", "Exhibition", "Robotics", "Workshop"];
 
   const filteredImages =
     activeCategory === "All"
       ? galleryItems
       : galleryItems.filter((img) => img.category === activeCategory);
+
+  const handleCategoryChange = (cat) => {
+    setActiveCategory(cat);
+    setSelectedIdx(null);
+  };
 
   // Keyboard navigation for lightbox
   useEffect(() => {
@@ -69,7 +74,7 @@ export default function Gallery() {
             {categories.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => handleCategoryChange(cat)}
                 className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 border whitespace-nowrap flex-shrink-0 ${
                   activeCategory === cat
                     ? "bg-gradient-to-r from-primary to-accent text-darkNavy font-bold border-transparent shadow-neon"
