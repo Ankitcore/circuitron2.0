@@ -28,8 +28,11 @@ export default function Stats() {
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           <p className="text-gray-300 max-w-3xl mx-auto text-base sm:text-lg leading-relaxed">
-            TechXpo 2.O is a high-octane celebration of innovation, embedded systems, and autonomous robotics.
-            Organized by Circuitron at RVSCET, it gathers tech visionaries, student creators, and developers across Eastern India.
+            TechXpo 2.0 is where innovation meets imagination and technology shapes tomorrow. More than just a tech festival, it's an immersive experience celebrating creativity, emerging technologies. Organized by{" "}
+            <strong className="text-white font-bold">
+              Circuitron &ndash; The IoT &amp; Embedded Systems Club of RVSCET
+            </strong>
+            , TechXpo 2.0 brings together passionate innovators, tech enthusiasts, and future engineers to explore ideas, showcase talent, build solutions, and push the boundaries of what's possible.
           </p>
         </motion.div>
 
