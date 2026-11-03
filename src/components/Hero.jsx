@@ -39,11 +39,11 @@ export default function Hero() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.3 }}
-                className="text-5xl sm:text-7xl lg:text-8xl font-black font-orbitron tracking-tight"
+                className="text-4xl sm:text-6xl lg:text-7xl font-black font-orbitron tracking-tight"
               >
-                <span className="gradient-text">TechXpo</span>
-                <span className="block text-4xl sm:text-6xl text-white mt-1">
-                  2.O
+                <span className="gradient-text whitespace-nowrap block">TechXpo 2.O</span>
+                <span className="block text-3xl sm:text-5xl lg:text-6xl text-white mt-2">
+                  2026
                 </span>
               </motion.h1>
 
