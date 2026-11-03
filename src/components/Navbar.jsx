@@ -45,7 +45,7 @@ export default function Navbar() {
         >
           {/* Logo & Branding */}
           <Link to="/" className="flex items-center space-x-3 group">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-white flex items-center justify-center shadow-neon">
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 flex items-center justify-center shadow-neon">
               <img
                 src="/logo.png"
                 alt="Circuitron Logo"
