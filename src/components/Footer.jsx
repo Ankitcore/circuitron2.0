@@ -75,10 +75,10 @@ export default function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.name}
-                  className="w-9 h-9 rounded-xl bg-darkNavy border border-primary/30 flex items-center justify-center text-primary hover:text-white hover:bg-primary/20 hover:border-accent transition-all duration-200"
+                  className="w-10 h-10 rounded-xl bg-darkNavy border border-primary/40 flex items-center justify-center text-accent hover:text-white hover:bg-primary/20 hover:border-accent hover:shadow-neon transition-all duration-200 group"
                 >
-                  <svg className="w-4 h-4 fill-currentColor" viewBox="0 0 24 24">
-                    <path d={s.icon} />
+                  <svg className="w-5 h-5 fill-current" fill="currentColor" viewBox="0 0 24 24">
+                    <path d={s.icon} fill="currentColor" />
                   </svg>
                 </a>
               ))}
