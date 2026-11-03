@@ -1,14 +1,51 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { facultyCoordinators, executiveTeam } from "../data/team";
 import { Users, ArrowRight, Sparkles, Shield } from "lucide-react";
 
+function HomeAvatar({ src, name }) {
+  const [hasError, setHasError] = useState(false);
+  const initials = name
+    ? name
+        .split(" ")
+        .filter(Boolean)
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "CT";
+
+  if (hasError || !src) {
+    return (
+      <div className="w-full h-full bg-gradient-to-tr from-darkNavy via-primary/20 to-accent/20 flex flex-col items-center justify-center text-center p-3">
+        <span className="font-orbitron font-extrabold text-2xl text-accent tracking-wider">
+          {initials}
+        </span>
+        <span className="text-[10px] text-gray-400 font-mono mt-1 line-clamp-1 max-w-[100px]">
+          {name}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      onError={() => setHasError(true)}
+      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      loading="lazy"
+    />
+  );
+}
+
 export default function HomeTeam() {
   const showcase = [
     { ...facultyCoordinators[0], category: "Faculty Mentor" },
-    { ...executiveTeam[0], category: "Student Leadership" },
-    { ...executiveTeam[1], category: "Student Leadership" },
+    { ...executiveTeam[0], category: "Executive President" },
+    { ...executiveTeam[1], category: "PR & Communications" },
+    { ...executiveTeam[2], category: "Technical Leadership" },
   ];
 
   return (
@@ -37,57 +74,50 @@ export default function HomeTeam() {
         </motion.div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {showcase.map((member, index) => (
             <motion.div
               key={member.name}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.15 }}
+              transition={{ duration: 0.6, delay: index * 0.12 }}
               viewport={{ once: true }}
-              className="glass-card rounded-2xl p-8 border border-primary/20 flex flex-col items-center text-center group relative overflow-hidden"
+              className="glass-card rounded-2xl p-6 border border-primary/20 flex flex-col items-center text-center group relative overflow-hidden justify-between"
             >
               {/* Category Pill */}
-              <div className="mb-6 px-3 py-1 rounded-full bg-darkNavy/80 border border-primary/20 text-[11px] font-semibold text-accent uppercase tracking-wider">
+              <div className="mb-5 px-3 py-1 rounded-full bg-darkNavy/80 border border-primary/20 text-[10px] font-semibold text-accent uppercase tracking-wider">
                 {member.category}
               </div>
 
               {/* Avatar with Animated Glow Ring */}
-              <div className="relative w-36 h-36 mb-6">
+              <div className="relative w-32 h-32 mb-5">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary to-cyberPurple blur-md opacity-40 group-hover:opacity-80 transition-opacity duration-300" />
-                <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/40 group-hover:border-accent transition-colors duration-300 bg-secondary">
-                  {member.img ? (
-                    <img
-                      src={member.img}
-                      alt={member.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-primary text-3xl font-bold">
-                      {member.name.charAt(0)}
-                    </div>
-                  )}
+                <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/40 group-hover:border-accent transition-colors duration-300 bg-secondary flex items-center justify-center">
+                  <HomeAvatar src={member.img} name={member.name} />
                 </div>
               </div>
 
               {/* Information */}
-              <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
-                {member.name}
-              </h3>
-              <p className="text-primary font-semibold text-sm mt-1">
-                {member.position}
-              </p>
-              {member.rollNo && (
-                <span className="text-[11px] font-mono text-gray-400 mt-1 bg-white/5 px-2.5 py-0.5 rounded">
-                  Roll: {member.rollNo}
-                </span>
-              )}
-              {member.description && (
-                <p className="text-gray-300 text-xs mt-3 leading-relaxed">
-                  {member.description}
-                </p>
-              )}
+              <div className="flex-1 flex flex-col justify-between w-full">
+                <div>
+                  <h3 className="text-lg font-bold font-orbitron text-white group-hover:text-primary transition-colors">
+                    {member.name}
+                  </h3>
+                  <p className="text-primary font-semibold text-xs mt-1">
+                    {member.position}
+                  </p>
+                  {member.rollNo && (
+                    <span className="text-[10px] font-mono text-gray-400 mt-1 inline-block bg-white/5 px-2 py-0.5 rounded">
+                      Roll: {member.rollNo}
+                    </span>
+                  )}
+                </div>
+                {member.description && (
+                  <p className="text-gray-300 text-xs mt-3 leading-relaxed pt-2 border-t border-white/5">
+                    "{member.description}"
+                  </p>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>

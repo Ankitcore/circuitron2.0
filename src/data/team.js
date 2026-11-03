@@ -21,18 +21,22 @@ export const facultyCoordinators = [
 
 export const executiveTeam = [
   {
-    name: "Shashank Raj",
+    name: "Umang Kumar Sharma",
     position: "President",
-    rollNo: "ECE/201/22",
-    img: "/assets/gallery2/shanshank sinha.jpg",
     description: "Leading the club with vision and innovation",
+    img: "/assets/gallery2/umang kumar sharma.jpg",
   },
   {
-    name: "Shreyanshu Ranjan",
-    position: "Vice President",
-    rollNo: "ECE/496/23L",
-    img: "/assets/gallery2/shreyanshu ranjan.jpg",
+    name: "Akshat Anand",
+    position: "PR & Communication Head",
+    description: "Building connections, strengthening communication, and creating a lasting impact.",
+    img: "/assets/gallery2/akshat anand.jpg",
+  },
+  {
+    name: "Subha Pain",
+    position: "Technical Head",
     description: "Driving technical excellence and team coordination",
+    img: "/assets/gallery2/subha pain.jpg",
   },
 ];
 

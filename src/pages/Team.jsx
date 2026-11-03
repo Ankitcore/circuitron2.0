@@ -1,7 +1,43 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { facultyCoordinators, executiveTeam, coreTeam } from "../data/team";
 import { Sparkles, Award, Shield, UserCheck } from "lucide-react";
+
+function MemberAvatar({ src, name }) {
+  const [hasError, setHasError] = useState(false);
+  const initials = name
+    ? name
+        .split(" ")
+        .filter(Boolean)
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "CT";
+
+  if (hasError || !src) {
+    return (
+      <div className="w-full h-full bg-gradient-to-tr from-darkNavy via-primary/20 to-accent/20 flex flex-col items-center justify-center text-center p-3">
+        <span className="font-orbitron font-extrabold text-2xl text-accent tracking-wider">
+          {initials}
+        </span>
+        <span className="text-[10px] text-gray-400 font-mono mt-1 line-clamp-1 max-w-[100px]">
+          {name}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={name}
+      onError={() => setHasError(true)}
+      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      loading="lazy"
+    />
+  );
+}
 
 export default function Team() {
   useEffect(() => {
@@ -57,13 +93,8 @@ export default function Team() {
               >
                 <div className="relative w-36 h-36 mb-6">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary to-accent blur-md opacity-50 group-hover:opacity-90 transition-opacity duration-300" />
-                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/40 group-hover:border-accent transition-colors bg-darkNavy shadow-xl">
-                    <img
-                      src={mentor.img}
-                      alt={mentor.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/40 group-hover:border-accent transition-colors bg-darkNavy shadow-xl flex items-center justify-center">
+                    <MemberAvatar src={mentor.img} name={mentor.name} />
                   </div>
                 </div>
 
@@ -91,45 +122,47 @@ export default function Team() {
             <span className="text-xs font-mono uppercase tracking-wider text-cyberPurple font-semibold">
               OFFICE BEARERS
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white">
+            <h2 className="text-3xl sm:text-5xl font-black font-orbitron text-white">
               Executive Team
             </h2>
-            <div className="w-16 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+            <div className="w-20 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full mt-2" />
+            <p className="text-gray-300 max-w-2xl mx-auto text-sm sm:text-base mt-3">
+              The leadership team that drives our vision and ensures the success of every event
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {executiveTeam.map((exec) => (
               <div
                 key={exec.name}
-                className="glass-card p-8 rounded-3xl border border-primary/25 flex flex-col sm:flex-row items-center space-y-6 sm:space-y-0 sm:space-x-6 group"
+                className="glass-card p-8 rounded-3xl border border-primary/25 flex flex-col items-center text-center group hover:border-accent/40 transition-all duration-300"
               >
-                <div className="relative w-36 h-36 flex-shrink-0">
+                <div className="relative w-36 h-36 mb-6 flex-shrink-0">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-primary to-cyberPurple blur-md opacity-40 group-hover:opacity-80 transition-opacity duration-300" />
-                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/40 group-hover:border-accent transition-colors bg-darkNavy shadow-xl">
-                    <img
-                      src={exec.img}
-                      alt={exec.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/40 group-hover:border-accent transition-colors bg-darkNavy shadow-xl flex items-center justify-center">
+                    <MemberAvatar src={exec.img} name={exec.name} />
                   </div>
                 </div>
 
-                <div className="space-y-2 text-center sm:text-left">
-                  <span className="px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-[11px] font-bold text-accent uppercase tracking-wider">
-                    {exec.position}
-                  </span>
-                  <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
-                    {exec.name}
-                  </h3>
-                  {exec.rollNo && (
-                    <p className="text-xs font-mono text-gray-400">
-                      Roll No: {exec.rollNo}
-                    </p>
-                  )}
+                <div className="space-y-2.5 text-center flex-1 flex flex-col items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
+                      {exec.name}
+                    </h3>
+                    <div className="mt-2">
+                      <span className="px-3.5 py-1 rounded-full bg-accent/15 border border-accent/30 text-xs font-bold text-accent uppercase tracking-wider">
+                        {exec.position}
+                      </span>
+                    </div>
+                    {exec.rollNo && (
+                      <p className="text-xs font-mono text-gray-400 mt-1.5">
+                        Roll No: {exec.rollNo}
+                      </p>
+                    )}
+                  </div>
                   {exec.description && (
-                    <p className="text-gray-300 text-xs leading-relaxed">
-                      {exec.description}
+                    <p className="text-gray-300 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto pt-3 border-t border-white/5 mt-4">
+                      "{exec.description}"
                     </p>
                   )}
                 </div>
@@ -162,13 +195,8 @@ export default function Team() {
                 className="glass-card p-6 rounded-2xl border border-primary/20 flex flex-col items-center text-center group hover:border-primary/50"
               >
                 <div className="relative w-28 h-28 mb-4">
-                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-accent transition-colors bg-darkNavy shadow-md">
-                    <img
-                      src={member.img}
-                      alt={member.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
+                  <div className="relative w-full h-full rounded-full overflow-hidden border-2 border-primary/30 group-hover:border-accent transition-colors bg-darkNavy shadow-md flex items-center justify-center">
+                    <MemberAvatar src={member.img} name={member.name} />
                   </div>
                 </div>
 
