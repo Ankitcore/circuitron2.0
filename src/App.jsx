@@ -6,6 +6,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ParticlesBackground from "./components/ParticlesBackground";
 import ScrollToTop from "./components/ScrollToTop";
+import ScrollProgressBar from "./components/ScrollProgressBar";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -28,6 +29,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy">
+      <ScrollProgressBar />
       <ScrollToTopOnRoute />
       <ParticlesBackground />
       <div

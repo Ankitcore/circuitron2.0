@@ -126,35 +126,113 @@ export default function About() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="glass-card p-8 rounded-2xl border border-primary/25 text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center text-primary mx-auto shadow-neon">
-                <Rocket className="w-8 h-8" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+              whileHover={{ y: -4 }}
+              className="glass-card p-6 sm:p-8 rounded-2xl border border-primary/25 text-center space-y-4 flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center text-primary mx-auto shadow-neon">
+                  <Rocket className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold font-orbitron text-white">Empower</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Provide young engineers with high-tier laboratory access, prototyping modules, microcontrollers, and mentorship.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold font-orbitron text-white">Empower</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                Provide young engineers with high-tier laboratory access, prototyping modules, microcontrollers, and mentorship.
-              </p>
-            </div>
 
-            <div className="glass-card p-8 rounded-2xl border border-accent/25 text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent mx-auto shadow-neon">
-                <Target className="w-8 h-8" />
+              {/* Progress metric */}
+              <div className="pt-3 border-t border-primary/15 space-y-1">
+                <div className="flex justify-between text-[10px] font-mono text-gray-400">
+                  <span>Lab Prototyping Access</span>
+                  <span className="text-primary font-bold">100% Equipped</span>
+                </div>
+                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "100%" }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.1, delay: 0.3 }}
+                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                  />
+                </div>
               </div>
-              <h3 className="text-2xl font-bold font-orbitron text-white">Innovate</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                Instill a problem-solving mindset tackling actual challenges in industrial automation, smart agriculture, and green tech.
-              </p>
-            </div>
+            </motion.div>
 
-            <div className="glass-card p-8 rounded-2xl border border-cyberPurple/25 text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-cyberPurple/20 border border-cyberPurple/40 flex items-center justify-center text-cyberPurple mx-auto shadow-neon">
-                <Compass className="w-8 h-8" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+              whileHover={{ y: -4 }}
+              className="glass-card p-6 sm:p-8 rounded-2xl border border-accent/25 text-center space-y-4 flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent mx-auto shadow-neon">
+                  <Target className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold font-orbitron text-white">Innovate</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Instill a problem-solving mindset tackling actual challenges in industrial automation, smart agriculture, and green tech.
+                </p>
               </div>
-              <h3 className="text-2xl font-bold font-orbitron text-white">Connect</h3>
-              <p className="text-gray-300 text-sm leading-relaxed">
-                Foster cross-departmental collaboration uniting Electrical, Electronics, Computer Science, and Mechanical innovators.
-              </p>
-            </div>
+
+              {/* Progress metric */}
+              <div className="pt-3 border-t border-accent/15 space-y-1">
+                <div className="flex justify-between text-[10px] font-mono text-gray-400">
+                  <span>Applied Project Success</span>
+                  <span className="text-accent font-bold">95% Verified</span>
+                </div>
+                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-accent/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "95%" }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.1, delay: 0.4 }}
+                    className="h-full bg-gradient-to-r from-accent to-yellow-400 rounded-full"
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              whileHover={{ y: -4 }}
+              className="glass-card p-6 sm:p-8 rounded-2xl border border-cyberPurple/25 text-center space-y-4 flex flex-col justify-between"
+            >
+              <div className="space-y-4">
+                <div className="w-16 h-16 rounded-2xl bg-cyberPurple/20 border border-cyberPurple/40 flex items-center justify-center text-cyberPurple mx-auto shadow-neon">
+                  <Compass className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold font-orbitron text-white">Connect</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  Foster cross-departmental collaboration uniting Electrical, Electronics, Computer Science, and Mechanical innovators.
+                </p>
+              </div>
+
+              {/* Progress metric */}
+              <div className="pt-3 border-t border-cyberPurple/15 space-y-1">
+                <div className="flex justify-between text-[10px] font-mono text-gray-400">
+                  <span>Cross-Branch Synergy</span>
+                  <span className="text-cyberPurple font-bold">100% Unified</span>
+                </div>
+                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-cyberPurple/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "100%" }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.1, delay: 0.5 }}
+                    className="h-full bg-gradient-to-r from-cyberPurple to-primary rounded-full"
+                  />
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>

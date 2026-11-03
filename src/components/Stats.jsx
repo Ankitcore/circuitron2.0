@@ -74,67 +74,121 @@ export default function Stats() {
 
           {/* Bento Item 2: Prize Pool */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             viewport={{ once: true }}
-            className="glass-card p-8 rounded-2xl border border-amber-500/30 flex flex-col justify-between relative overflow-hidden group"
+            whileHover={{ y: -4 }}
+            className="glass-card p-6 sm:p-8 rounded-2xl border border-amber-500/30 flex flex-col justify-between relative overflow-hidden group"
           >
-            <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-4 shadow-sm group-hover:scale-110 transition-transform">
               <Trophy className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-4xl font-black font-orbitron text-amber-400">
+              <div className="text-3xl sm:text-4xl font-black font-orbitron text-amber-400">
                 ₹1,00,000+
               </div>
               <h4 className="text-lg font-bold text-white mt-1">Prize Pool</h4>
-              <p className="text-gray-400 text-xs mt-2 leading-relaxed">
+              <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
                 Cash rewards, championship trophies, and certificates for arena winners.
               </p>
+
+              {/* Progress Bar: Prize Pool Allocation */}
+              <div className="mt-4 pt-3 border-t border-amber-500/15 space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-mono text-amber-300/80">
+                  <span>Prize Pool Backing</span>
+                  <span className="font-bold text-amber-400">100% Unlocked</span>
+                </div>
+                <div className="w-full h-1.5 bg-darkNavy/80 rounded-full overflow-hidden p-[1px] border border-amber-500/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "100%" }}
+                    transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+                    viewport={{ once: true }}
+                    className="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 rounded-full"
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
 
           {/* Bento Item 3: Participants */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
             viewport={{ once: true }}
-            className="glass-card p-8 rounded-2xl border border-primary/25 flex flex-col justify-between"
+            whileHover={{ y: -4 }}
+            className="glass-card p-6 sm:p-8 rounded-2xl border border-primary/25 flex flex-col justify-between group"
           >
-            <div className="w-12 h-12 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent mb-4">
+            <div className="w-12 h-12 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent mb-4 shadow-sm group-hover:scale-110 transition-transform">
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-4xl font-black font-orbitron text-white">
+              <div className="text-3xl sm:text-4xl font-black font-orbitron text-white">
                 500+
               </div>
               <h4 className="text-lg font-bold text-white mt-1">Innovators</h4>
-              <p className="text-gray-400 text-xs mt-2 leading-relaxed">
+              <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
                 Talented engineering students from colleges across Jharkhand, Bihar, and West Bengal.
               </p>
+
+              {/* Progress Bar: Capacity Fill */}
+              <div className="mt-4 pt-3 border-t border-primary/15 space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-mono text-accent/80">
+                  <span>Slot Intake</span>
+                  <span className="font-bold text-accent">85% Enrolled</span>
+                </div>
+                <div className="w-full h-1.5 bg-darkNavy/80 rounded-full overflow-hidden p-[1px] border border-primary/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "85%" }}
+                    transition={{ duration: 1.2, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                    viewport={{ once: true }}
+                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
 
           {/* Bento Item 4: Challenges */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             viewport={{ once: true }}
-            className="glass-card p-8 rounded-2xl border border-cyberPurple/30 flex flex-col justify-between"
+            whileHover={{ y: -4 }}
+            className="glass-card p-6 sm:p-8 rounded-2xl border border-cyberPurple/30 flex flex-col justify-between group"
           >
-            <div className="w-12 h-12 rounded-xl bg-cyberPurple/20 border border-cyberPurple/40 flex items-center justify-center text-cyberPurple mb-4">
+            <div className="w-12 h-12 rounded-xl bg-cyberPurple/20 border border-cyberPurple/40 flex items-center justify-center text-cyberPurple mb-4 shadow-sm group-hover:scale-110 transition-transform">
               <Target className="w-6 h-6" />
             </div>
             <div>
-              <div className="text-4xl font-black font-orbitron text-cyberPurple">
+              <div className="text-3xl sm:text-4xl font-black font-orbitron text-cyberPurple">
                 20+
               </div>
               <h4 className="text-lg font-bold text-white mt-1">Events &amp; Demos</h4>
-              <p className="text-gray-400 text-xs mt-2 leading-relaxed">
+              <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
                 Multi-category robotics, project stalls, technical exhibits, and workshops.
               </p>
+
+              {/* Progress Bar: Arena Prepped */}
+              <div className="mt-4 pt-3 border-t border-cyberPurple/15 space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-mono text-cyberPurple/90">
+                  <span>Arena Specs</span>
+                  <span className="font-bold text-cyberPurple">92% Ready</span>
+                </div>
+                <div className="w-full h-1.5 bg-darkNavy/80 rounded-full overflow-hidden p-[1px] border border-cyberPurple/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: "92%" }}
+                    transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                    viewport={{ once: true }}
+                    className="h-full bg-gradient-to-r from-cyberPurple via-primary to-accent rounded-full"
+                  />
+                </div>
+              </div>
             </div>
           </motion.div>
 

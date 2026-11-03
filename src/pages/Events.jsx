@@ -89,10 +89,19 @@ export default function Events() {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredEvents.map((event) => (
-              <div
+            {filteredEvents.map((event, index) => (
+              <motion.div
                 key={event.id}
                 onClick={() => setSelectedEvent(event)}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.06,
+                  ease: [0.25, 0.1, 0.25, 1],
+                }}
+                whileHover={{ y: -4 }}
                 className="glass-card rounded-2xl p-7 border border-primary/20 flex flex-col justify-between cursor-pointer group hover:border-accent/50 relative overflow-hidden"
               >
                 <div className="space-y-5">
@@ -124,6 +133,25 @@ export default function Events() {
                       <span>{event.requirements}</span>
                     </div>
                   )}
+
+                  {/* Quota Progress Bar */}
+                  <div className="pt-2 space-y-1">
+                    <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
+                      <span>SLOT QUOTA</span>
+                      <span className="text-accent font-semibold">
+                        {event.id === 1 ? "80% Filled" : event.id === 2 ? "90% Filled" : event.id === 3 ? "75% Filled" : "85% Filled"}
+                      </span>
+                    </div>
+                    <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: event.id === 1 ? "80%" : event.id === 2 ? "90%" : event.id === 3 ? "75%" : "85%" }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.1, delay: 0.15 + (index % 3) * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+                        className="h-full bg-gradient-to-r from-primary via-accent to-cyberPurple rounded-full"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="pt-6 mt-6 border-t border-white/10 flex items-center space-x-3">
@@ -148,7 +176,7 @@ export default function Events() {
                     View Details
                   </button>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>

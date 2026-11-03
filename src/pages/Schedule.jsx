@@ -67,8 +67,17 @@ export default function Schedule() {
               {/* Timeline Container with Left Glowing Trace */}
               <div className="relative border-l-2 border-primary/30 ml-2 xs:ml-4 sm:ml-8 pl-5 xs:pl-6 sm:pl-10 space-y-4 sm:space-y-6">
                 {dayGroup.events.map((event, idx) => (
-                  <div
+                  <motion.div
                     key={idx}
+                    initial={{ opacity: 0, x: -15 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-40px" }}
+                    transition={{
+                      duration: 0.5,
+                      delay: idx * 0.07,
+                      ease: [0.25, 0.1, 0.25, 1],
+                    }}
+                    whileHover={{ x: 3 }}
                     className="relative glass-card p-4 sm:p-6 rounded-2xl border border-primary/20 group hover:border-accent/50 transition-all duration-300"
                   >
                     {/* Glowing Node on the timeline */}
@@ -100,7 +109,7 @@ export default function Schedule() {
                         {event.type}
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>

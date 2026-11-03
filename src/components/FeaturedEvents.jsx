@@ -101,6 +101,25 @@ export default function FeaturedEvents() {
                     <span>Req: {event.requirements}</span>
                   </div>
                 )}
+
+                {/* Event Slot Progress Bar */}
+                <div className="pt-2 space-y-1">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
+                    <span>REGISTRATION SLOTS</span>
+                    <span className="text-accent font-semibold">
+                      {event.id === 1 ? "80% Reserved" : event.id === 2 ? "90% Reserved" : "75% Reserved"}
+                    </span>
+                  </div>
+                  <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: event.id === 1 ? "80%" : event.id === 2 ? "90%" : "75%" }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.1, delay: 0.2 + index * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+                      className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Action Buttons */}

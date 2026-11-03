@@ -123,21 +123,74 @@ export default function Hero() {
 
             {/* Highlights Chips Below 3D Model */}
             <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-sm mt-6 sm:mt-8">
-              <div className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20">
-                <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 mx-auto mb-1" />
-                <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">₹100K+</div>
-                <div className="text-[9px] sm:text-[10px] text-gray-400">Prize Pool</div>
-              </div>
-              <div className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20">
-                <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary mx-auto mb-1" />
-                <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">3 Arenas</div>
-                <div className="text-[9px] sm:text-[10px] text-gray-400">Combat &amp; Race</div>
-              </div>
-              <div className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20">
-                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent mx-auto mb-1" />
-                <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">500+</div>
-                <div className="text-[9px] sm:text-[10px] text-gray-400">Innovators</div>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
+              >
+                <div>
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 mx-auto mb-1" />
+                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">₹100K+</div>
+                  <div className="text-[9px] sm:text-[10px] text-gray-400">Prize Pool</div>
+                </div>
+                {/* Micro Progress Bar */}
+                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden mt-2 p-[0.5px] border border-yellow-400/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full"
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
+              >
+                <div>
+                  <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary mx-auto mb-1" />
+                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">3 Arenas</div>
+                  <div className="text-[9px] sm:text-[10px] text-gray-400">Combat &amp; Race</div>
+                </div>
+                {/* Micro Progress Bar */}
+                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden mt-2 p-[0.5px] border border-primary/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+                  />
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+                whileHover={{ y: -3, scale: 1.02 }}
+                className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
+              >
+                <div>
+                  <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent mx-auto mb-1" />
+                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">500+</div>
+                  <div className="text-[9px] sm:text-[10px] text-gray-400">Innovators</div>
+                </div>
+                {/* Micro Progress Bar */}
+                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden mt-2 p-[0.5px] border border-accent/20">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: "85%" }}
+                    transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-accent to-cyberPurple rounded-full"
+                  />
+                </div>
+              </motion.div>
             </div>
           </motion.div>
 
