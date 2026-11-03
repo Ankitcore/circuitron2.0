@@ -14,7 +14,7 @@ export default function ScrollToTop() {
   }, []);
 
   const handleClick = () => {
-    window.open("https://forms.gle/mmUiZV4xpYRamn5r8", "_blank", "noopener,noreferrer");
+    window.open("https://forms.gle/mNU3damnJBMfnmSU7", "_blank", "noopener,noreferrer");
   };
 
   return (

@@ -87,7 +87,7 @@ export default function Hero() {
             {/* Action CTA Buttons */}
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <motion.a
-                href="https://forms.gle/mmUiZV4xpYRamn5r8"
+                href="https://forms.gle/mNU3damnJBMfnmSU7"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
@@ -99,7 +99,7 @@ export default function Hero() {
               </motion.a>
 
               <motion.a
-                href="https://drive.google.com/file/d/1Zv-wZ5zcP8t6_KfL859mo2oRgRSMpr4r/view?usp=drivesdk"
+                href="https://drive.google.com/file/d/1AInB0u15DomA8HFDeoEd3eXsWX3ppwJe/view?usp=drivesdk"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}

@@ -136,7 +136,7 @@ export default function Footer() {
 
             <div className="pt-2">
               <a
-                href="https://forms.gle/mmUiZV4xpYRamn5r8"
+                href="https://forms.gle/mNU3damnJBMfnmSU7"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full btn-primary text-xs py-2.5 px-4 font-bold inline-flex items-center justify-center space-x-1"

@@ -7,7 +7,7 @@ export const events = [
       "Exhibit your innovative projects and prototypes. A platform to present your work to peers and judges.",
     category: "Exhibition",
     requirements: "Working project/prototype",
-    registrationLink: "https://forms.gle/mmUiZV4xpYRamn5r8",
+    registrationLink: "https://forms.gle/mNU3damnJBMfnmSU7",
   },
   {
     id: 2,
@@ -17,7 +17,7 @@ export const events = [
       "Robots compete head-to-head in arena battles. Bring your best combat bot and strategies.",
     category: "Robotics",
     requirements: "Combat-ready robot",
-    registrationLink: "https://forms.gle/Qduy3CAPHwR2KWm86",
+    registrationLink: "https://forms.gle/EGqdueaPzzKsWuuBA",
   },
   {
     id: 3,
@@ -27,6 +27,6 @@ export const events = [
       "Autonomous robots navigate challenging tracks to finish fastest. Test your robotics and programming skills.",
     category: "Robotics",
     requirements: "Robot kit, Programming skills",
-    registrationLink: "https://forms.gle/Qduy3CAPHwR2KWm86",
+    registrationLink: "https://forms.gle/EGqdueaPzzKsWuuBA",
   },
 ];

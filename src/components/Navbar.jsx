@@ -93,7 +93,7 @@ export default function Navbar() {
           {/* Right Action: Register Now */}
           <div className="hidden sm:flex items-center space-x-3">
             <motion.a
-              href="https://forms.gle/mmUiZV4xpYRamn5r8"
+              href="https://forms.gle/mNU3damnJBMfnmSU7"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.05 }}
@@ -108,7 +108,7 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <div className="lg:hidden flex items-center space-x-2">
             <motion.a
-              href="https://forms.gle/mmUiZV4xpYRamn5r8"
+              href="https://forms.gle/mNU3damnJBMfnmSU7"
               target="_blank"
               rel="noopener noreferrer"
               whileTap={{ scale: 0.95 }}
@@ -158,7 +158,7 @@ export default function Navbar() {
 
               <div className="pt-2">
                 <a
-                  href="https://forms.gle/mmUiZV4xpYRamn5r8"
+                  href="https://forms.gle/mNU3damnJBMfnmSU7"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full btn-primary py-3 text-xs font-bold flex items-center justify-center space-x-1"
