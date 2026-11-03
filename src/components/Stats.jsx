@@ -82,7 +82,7 @@ export default function Stats() {
             </div>
             <div>
               <div className="text-4xl font-black font-orbitron text-amber-400">
-                ₹50,000+
+                ₹1,00,000+
               </div>
               <h4 className="text-lg font-bold text-white mt-1">Prize Pool</h4>
               <p className="text-gray-400 text-xs mt-2 leading-relaxed">

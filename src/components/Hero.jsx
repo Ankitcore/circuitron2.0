@@ -125,8 +125,8 @@ export default function Hero() {
             <div className="grid grid-cols-3 gap-3 w-full max-w-sm mt-8">
               <div className="glass-card p-3 rounded-xl text-center border border-primary/20">
                 <Trophy className="w-4 h-4 text-yellow-400 mx-auto mb-1" />
-                <div className="text-xs font-bold text-white font-orbitron">₹50K+</div>
-                <div className="text-[10px] text-gray-400">Prizes</div>
+                <div className="text-xs font-bold text-white font-orbitron">₹100K+</div>
+                <div className="text-[10px] text-gray-400">Prize Pool</div>
               </div>
               <div className="glass-card p-3 rounded-xl text-center border border-primary/20">
                 <Bot className="w-4 h-4 text-primary mx-auto mb-1" />
