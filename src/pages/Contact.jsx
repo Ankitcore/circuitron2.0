@@ -4,8 +4,8 @@ import { Mail, Phone, MapPin, Send, CheckCircle2, Sparkles, ExternalLink, Messag
 
 const faqs = [
   {
-    q: "Who is eligible to participate in TechXpo 2025?",
-    a: "TechXpo 2025 is open to all bona-fide students currently enrolled in B.Tech, Diploma, BCA/MCA, or B.Sc programs across recognized universities and polytechnics.",
+    q: "Who is eligible to participate in TechXpo 2026?",
+    a: "TechXpo 2026 is open to all bona-fide students currently enrolled in B.Tech, Diploma, BCA/MCA, or B.Sc programs across recognized universities and polytechnics.",
   },
   {
     q: "Can team members be from different colleges or branches?",
@@ -48,7 +48,7 @@ export default function Contact() {
     {
       icon: <Mail className="w-6 h-6 text-primary" />,
       title: "Direct Emails",
-      details: ["circuitron@rvscet.ac.in", "techxpo2025@rvscet.ac.in"],
+      details: ["circuitron@rvscet.ac.in", "techxpo2026@rvscet.ac.in"],
       action: "mailto:circuitron@rvscet.ac.in",
       actionText: "Send Email",
     },

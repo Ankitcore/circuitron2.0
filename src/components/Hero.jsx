@@ -43,7 +43,7 @@ export default function Hero() {
               >
                 <span className="gradient-text">TechXpo</span>
                 <span className="block text-4xl sm:text-6xl text-white mt-1">
-                  2025
+                  2026
                 </span>
               </motion.h1>
 
@@ -71,7 +71,7 @@ export default function Hero() {
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-sm text-gray-300">
               <div className="flex items-center space-x-2 bg-darkNavy/80 px-4 py-2 rounded-xl border border-primary/20">
                 <Calendar className="w-4 h-4 text-primary" />
-                <span className="font-semibold text-white">10 November 2025</span>
+                <span className="font-semibold text-white">30 November 2026</span>
               </div>
               <div className="flex items-center space-x-2 bg-darkNavy/80 px-4 py-2 rounded-xl border border-primary/20">
                 <MapPin className="w-4 h-4 text-accent" />

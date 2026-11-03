@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 
 export default function CountdownTimer() {
-  const targetDate = new Date("2025-11-10T09:00:00+05:30").getTime();
+  const targetDate = new Date("2026-11-30T09:00:00+05:30").getTime();
 
   const calculateTimeLeft = () => {
     const now = new Date().getTime();
@@ -41,7 +41,7 @@ export default function CountdownTimer() {
     <div className="inline-flex flex-col items-center p-3 sm:p-4 rounded-2xl glass-card border border-primary/30 max-w-xl mx-auto shadow-neon">
       <div className="flex items-center space-x-2 text-xs font-orbitron font-semibold text-accent mb-3 tracking-wider">
         <Clock className="w-3.5 h-3.5 animate-spin-slow" />
-        <span>COUNTDOWN TO TECHXPO 2025</span>
+        <span>COUNTDOWN TO TECHXPO 2026</span>
       </div>
 
       <div className="grid grid-cols-4 gap-2 sm:gap-4">

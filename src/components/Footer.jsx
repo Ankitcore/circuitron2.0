@@ -141,7 +141,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
                 className="w-full btn-primary text-xs py-2.5 px-4 font-bold inline-flex items-center justify-center space-x-1"
               >
-                <span>Register for TechXpo 2025</span>
+                <span>Register for TechXpo 2026</span>
                 <ArrowUpRight className="w-4 h-4" />
               </a>
             </div>

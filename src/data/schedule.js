@@ -1,6 +1,6 @@
 export const scheduleDays = [
   {
-    day: "November 10, 2025",
+    day: "November 30, 2026",
     events: [
       {
         time: "09:00 - 10:00",

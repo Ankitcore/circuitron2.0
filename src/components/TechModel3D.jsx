@@ -112,7 +112,7 @@ export default function TechModel3D() {
         >
           <Zap className="w-3.5 h-3.5 text-accent animate-bounce" />
           <span className="font-orbitron font-bold text-white text-[11px]">
-            10.NOV.2025
+            30.NOV.2026
           </span>
         </motion.div>
 

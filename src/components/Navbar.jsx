@@ -60,7 +60,7 @@ export default function Navbar() {
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               </div>
               <p className="text-[10px] text-gray-400 font-mono tracking-tight hidden sm:block">
-                RVSCET &bull; TECHXPO '25
+                RVSCET &bull; TECHXPO '26
               </p>
             </div>
           </Link>
@@ -163,7 +163,7 @@ export default function Navbar() {
                   rel="noopener noreferrer"
                   className="w-full btn-primary py-3 text-xs font-bold flex items-center justify-center space-x-1"
                 >
-                  <span>Register for TechXpo 2025</span>
+                  <span>Register for TechXpo 2026</span>
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
               </div>
