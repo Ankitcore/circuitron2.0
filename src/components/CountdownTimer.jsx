@@ -38,22 +38,22 @@ export default function CountdownTimer() {
   ];
 
   return (
-    <div className="inline-flex flex-col items-center p-3 sm:p-4 rounded-2xl glass-card border border-primary/30 max-w-xl mx-auto shadow-neon">
-      <div className="flex items-center space-x-2 text-xs font-orbitron font-semibold text-accent mb-3 tracking-wider">
-        <Clock className="w-3.5 h-3.5 animate-spin-slow" />
-        <span>COUNTDOWN TO TECHXPO 2.O</span>
+    <div className="inline-flex flex-col items-center p-2.5 xs:p-3 sm:p-4 rounded-2xl glass-card border border-primary/30 max-w-full sm:max-w-xl mx-auto shadow-neon">
+      <div className="flex items-center space-x-1.5 sm:space-x-2 text-[10px] sm:text-xs font-orbitron font-semibold text-accent mb-2.5 sm:mb-3 tracking-wider">
+        <Clock className="w-3.5 h-3.5 animate-spin-slow flex-shrink-0" />
+        <span className="truncate">COUNTDOWN TO TECHXPO 2.O</span>
       </div>
 
-      <div className="grid grid-cols-4 gap-2 sm:gap-4">
+      <div className="grid grid-cols-4 gap-1.5 xs:gap-2 sm:gap-4 w-full">
         {timeUnits.map((unit) => (
           <div
             key={unit.label}
-            className="flex flex-col items-center bg-darkNavy/70 px-3 py-2 sm:px-4 sm:py-3 rounded-xl border border-primary/20 min-w-[65px] sm:min-w-[85px]"
+            className="flex flex-col items-center justify-center bg-darkNavy/70 px-2 py-1.5 xs:px-2.5 xs:py-2 sm:px-4 sm:py-3 rounded-xl border border-primary/20 min-w-[50px] xs:min-w-[58px] sm:min-w-[85px]"
           >
-            <span className="font-orbitron font-extrabold text-xl sm:text-3xl text-white tracking-wider">
+            <span className="font-orbitron font-extrabold text-base xs:text-xl sm:text-3xl text-white tracking-wider">
               {String(unit.value).padStart(2, "0")}
             </span>
-            <span className="text-[9px] sm:text-[10px] font-mono text-gray-400 mt-0.5 tracking-wider font-semibold">
+            <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-mono text-gray-400 mt-0.5 tracking-wider font-semibold">
               {unit.label}
             </span>
           </div>

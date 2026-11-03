@@ -26,6 +26,11 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close mobile drawer when route changes
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
@@ -119,7 +124,7 @@ export default function Navbar() {
 
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-300 hover:text-white focus:outline-none"
+              className="p-2 sm:p-2.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-300 hover:text-white focus:outline-none"
               aria-label="Toggle menu"
             >
               {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -137,7 +142,7 @@ export default function Navbar() {
             exit={{ opacity: 0, y: -20 }}
             className="lg:hidden max-w-7xl mx-auto px-4 mt-2"
           >
-            <div className="glass-panel p-5 rounded-2xl border border-primary/30 space-y-3 shadow-2xl">
+            <div className="bg-darkNavy/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-primary/30 space-y-2 shadow-2xl">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
@@ -145,9 +150,9 @@ export default function Navbar() {
                     key={item.name}
                     to={item.path}
                     onClick={() => setIsOpen(false)}
-                    className={`block px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all min-h-[44px] flex items-center ${
                       isActive
-                        ? "bg-gradient-to-r from-primary/30 to-accent/30 text-white border border-primary/40"
+                        ? "bg-gradient-to-r from-primary/30 to-accent/30 text-white border border-primary/40 font-bold"
                         : "text-gray-300 hover:text-white hover:bg-white/5"
                     }`}
                   >
@@ -161,7 +166,7 @@ export default function Navbar() {
                   href="https://forms.gle/mNU3damnJBMfnmSU7"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full btn-primary py-3 text-xs font-bold flex items-center justify-center space-x-1"
+                  className="w-full btn-primary py-3 text-xs font-bold flex items-center justify-center space-x-1.5 min-h-[44px]"
                 >
                   <span>Register for TechXpo 2.O</span>
                   <ArrowUpRight className="w-4 h-4" />

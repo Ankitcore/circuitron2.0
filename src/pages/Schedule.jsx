@@ -65,38 +65,38 @@ export default function Schedule() {
               </div>
 
               {/* Timeline Container with Left Glowing Trace */}
-              <div className="relative border-l-2 border-primary/30 ml-4 sm:ml-8 pl-6 sm:pl-10 space-y-6">
+              <div className="relative border-l-2 border-primary/30 ml-2 xs:ml-4 sm:ml-8 pl-5 xs:pl-6 sm:pl-10 space-y-4 sm:space-y-6">
                 {dayGroup.events.map((event, idx) => (
                   <div
                     key={idx}
-                    className="relative glass-card p-6 rounded-2xl border border-primary/20 group hover:border-accent/50 transition-all duration-300"
+                    className="relative glass-card p-4 sm:p-6 rounded-2xl border border-primary/20 group hover:border-accent/50 transition-all duration-300"
                   >
                     {/* Glowing Node on the timeline */}
-                    <div className="absolute -left-[31px] sm:-left-[47px] top-6 w-4 h-4 rounded-full bg-darkNavy border-2 border-primary group-hover:border-accent group-hover:scale-125 transition-all shadow-[0_0_10px_#00bfff]" />
+                    <div className="absolute -left-[28px] xs:-left-[32px] sm:-left-[48px] top-5 sm:top-6 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-darkNavy border-2 border-primary group-hover:border-accent group-hover:scale-125 transition-all shadow-[0_0_10px_#00bfff]" />
 
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                      <div className="space-y-1.5 sm:space-y-2">
                         {/* Time & Venue */}
-                        <div className="flex flex-wrap items-center gap-3 text-xs">
-                          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-lg bg-primary/20 border border-primary/40 font-mono font-bold text-accent">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+                          <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-primary/20 border border-primary/40 font-mono font-bold text-accent text-[11px] sm:text-xs">
                             <Clock className="w-3.5 h-3.5" />
                             <span>{event.time}</span>
                           </span>
 
-                          <span className="inline-flex items-center space-x-1 text-gray-400">
-                            <MapPin className="w-3.5 h-3.5 text-primary" />
+                          <span className="inline-flex items-center space-x-1 text-gray-400 text-[11px] sm:text-xs">
+                            <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                             <span>{event.location}</span>
                           </span>
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
+                        <h3 className="text-lg sm:text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
                           {event.title}
                         </h3>
                       </div>
 
                       {/* Type Badge */}
-                      <span className={`self-start sm:self-center px-3.5 py-1 rounded-full text-xs font-semibold border ${getTypeBadgeClass(event.type)}`}>
+                      <span className={`self-start sm:self-center px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold border ${getTypeBadgeClass(event.type)}`}>
                         {event.type}
                       </span>
                     </div>
@@ -109,10 +109,10 @@ export default function Schedule() {
       </section>
 
       {/* Important Information Cards */}
-      <section className="py-16">
+      <section className="py-10 sm:py-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-primary/30">
-            <h3 className="text-2xl font-bold font-orbitron text-white mb-6 flex items-center space-x-2">
+          <div className="glass-panel p-5 sm:p-10 rounded-2xl sm:rounded-3xl border border-primary/30">
+            <h3 className="text-xl sm:text-2xl font-bold font-orbitron text-white mb-6 flex items-center space-x-2">
               <Info className="w-6 h-6 text-primary" />
               <span>Participant Guidelines &amp; Directives</span>
             </h3>

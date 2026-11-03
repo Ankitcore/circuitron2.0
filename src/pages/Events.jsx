@@ -65,14 +65,14 @@ export default function Events() {
       </section>
 
       {/* Category Pills */}
-      <section className="py-6">
+      <section className="py-4 sm:py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex items-center overflow-x-auto no-scrollbar gap-2 sm:gap-3 sm:justify-center py-2 px-1">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 border ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 border whitespace-nowrap flex-shrink-0 ${
                   activeCategory === cat
                     ? "bg-gradient-to-r from-primary to-accent text-darkNavy font-bold border-transparent shadow-neon"
                     : "glass-card text-gray-300 hover:text-white border-primary/20 hover:border-primary/40"
@@ -161,64 +161,64 @@ export default function Events() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-darkNavy/90 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-darkNavy/90 backdrop-blur-xl z-50 flex items-center justify-center p-3 sm:p-4"
             onClick={() => setSelectedEvent(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="glass-panel p-8 sm:p-10 rounded-3xl max-w-2xl w-full border border-primary/30 shadow-2xl relative max-h-[90vh] overflow-y-auto"
+              className="glass-panel p-5 sm:p-10 rounded-2xl sm:rounded-3xl max-w-2xl w-full border border-primary/30 shadow-2xl relative max-h-[85vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition-colors min-w-[36px] min-h-[36px] flex items-center justify-center"
                 aria-label="Close"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="space-y-6">
-                <div className="space-y-2">
+              <div className="space-y-5 sm:space-y-6">
+                <div className="space-y-2 pr-8">
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(selectedEvent.category)}`}>
                     {selectedEvent.category}
                   </span>
-                  <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white">
+                  <h2 className="text-2xl sm:text-4xl font-black font-orbitron text-white mt-1">
                     {selectedEvent.title}
                   </h2>
-                  <p className="text-accent font-semibold text-base">
+                  <p className="text-accent font-semibold text-sm sm:text-base">
                     {selectedEvent.tagline}
                   </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   <h4 className="text-xs font-mono uppercase tracking-wider text-gray-400">
                     Event Overview
                   </h4>
-                  <p className="text-gray-300 text-sm leading-relaxed">
+                  <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                     {selectedEvent.description}
                   </p>
                 </div>
 
                 {selectedEvent.requirements && (
-                  <div className="space-y-2 bg-darkNavy/80 p-5 rounded-2xl border border-primary/20">
+                  <div className="space-y-2 bg-darkNavy/80 p-4 sm:p-5 rounded-xl sm:rounded-2xl border border-primary/20">
                     <h4 className="text-xs font-mono uppercase tracking-wider text-primary font-bold">
                       Kit &amp; Participation Specifications
                     </h4>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-300 text-xs sm:text-sm">
                       {selectedEvent.requirements}
                     </p>
                   </div>
                 )}
 
-                <div className="pt-4 flex flex-col sm:flex-row items-center gap-4">
+                <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
                   {selectedEvent.registrationLink && (
                     <a
                       href={selectedEvent.registrationLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto flex-1 btn-primary text-center"
+                      className="w-full sm:w-auto flex-1 btn-primary text-center text-xs sm:text-sm py-3 px-5"
                     >
                       <span>Proceed to Official Registration Form</span>
                       <ExternalLink className="w-4 h-4 ml-1.5 inline" />
@@ -226,7 +226,7 @@ export default function Events() {
                   )}
                   <button
                     onClick={() => setSelectedEvent(null)}
-                    className="w-full sm:w-auto btn-secondary"
+                    className="w-full sm:w-auto btn-secondary text-xs sm:text-sm py-3 px-5"
                   >
                     Close Dossier
                   </button>

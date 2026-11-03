@@ -191,31 +191,31 @@ export default function Contact() {
 
             {/* Form Column (7 cols) */}
             <div className="lg:col-span-7">
-              <div className="glass-panel p-8 sm:p-10 rounded-3xl border border-primary/30 shadow-2xl space-y-6">
+              <div className="glass-panel p-5 sm:p-10 rounded-2xl sm:rounded-3xl border border-primary/30 shadow-2xl space-y-5 sm:space-y-6">
                 <div>
-                  <h3 className="text-2xl font-black font-orbitron text-white">
+                  <h3 className="text-xl sm:text-2xl font-black font-orbitron text-white">
                     Send a Message
                   </h3>
-                  <p className="text-gray-400 text-sm mt-1">
+                  <p className="text-gray-400 text-xs sm:text-sm mt-1">
                     Fill out the inquiry form and our response team will email you promptly.
                   </p>
                 </div>
 
                 {submitted ? (
-                  <div className="p-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3">
-                    <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto" />
-                    <h4 className="text-xl font-bold font-orbitron text-white">
+                  <div className="p-6 sm:p-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3">
+                    <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400 mx-auto" />
+                    <h4 className="text-lg sm:text-xl font-bold font-orbitron text-white">
                       Message Received!
                     </h4>
-                    <p className="text-gray-300 text-sm">
+                    <p className="text-gray-300 text-xs sm:text-sm">
                       Thank you for contacting Circuitron. A coordinator will reply via email shortly.
                     </p>
                   </div>
                 ) : (
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                        <label className="text-[11px] sm:text-xs font-semibold text-gray-300 uppercase tracking-wider">
                           Full Name *
                         </label>
                         <input
@@ -225,12 +225,12 @@ export default function Contact() {
                           onChange={handleChange}
                           required
                           placeholder="Your full name"
-                          className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
+                          className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                        <label className="text-[11px] sm:text-xs font-semibold text-gray-300 uppercase tracking-wider">
                           Email Address *
                         </label>
                         <input
@@ -240,13 +240,13 @@ export default function Contact() {
                           onChange={handleChange}
                           required
                           placeholder="you@domain.com"
-                          className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
+                          className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                      <label className="text-[11px] sm:text-xs font-semibold text-gray-300 uppercase tracking-wider">
                         Subject / Query Domain *
                       </label>
                       <input
@@ -256,12 +256,12 @@ export default function Contact() {
                         onChange={handleChange}
                         required
                         placeholder="e.g. Robo War Rules Clarification"
-                        className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
+                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                      <label className="text-[11px] sm:text-xs font-semibold text-gray-300 uppercase tracking-wider">
                         Message *
                       </label>
                       <textarea
@@ -269,15 +269,15 @@ export default function Contact() {
                         value={formData.message}
                         onChange={handleChange}
                         required
-                        rows={5}
+                        rows={4}
                         placeholder="Describe your inquiry with relevant details..."
-                        className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm resize-none"
+                        className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm resize-none"
                       />
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full btn-primary py-4 text-sm font-bold"
+                      className="w-full btn-primary py-3 sm:py-4 text-xs sm:text-sm font-bold min-h-[44px]"
                     >
                       <Send className="w-4 h-4 mr-1.5 inline" />
                       <span>Transmit Inquiries</span>
@@ -314,13 +314,13 @@ export default function Contact() {
                 >
                   <button
                     onClick={() => setOpenFaq(isOpen ? null : index)}
-                    className="w-full p-6 text-left flex items-center justify-between space-x-4 focus:outline-none"
+                    className="w-full p-4 sm:p-6 text-left flex items-center justify-between space-x-3 sm:space-x-4 focus:outline-none min-h-[48px]"
                   >
-                    <span className="font-orbitron font-bold text-white text-sm sm:text-base">
+                    <span className="font-orbitron font-bold text-white text-xs sm:text-base">
                       {faq.q}
                     </span>
                     <ChevronDown
-                      className={`w-5 h-5 text-accent flex-shrink-0 transition-transform duration-300 ${
+                      className={`w-4 h-4 sm:w-5 sm:h-5 text-accent flex-shrink-0 transition-transform duration-300 ${
                         isOpen ? "rotate-180" : ""
                       }`}
                     />
@@ -334,7 +334,7 @@ export default function Contact() {
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <div className="px-6 pb-6 text-sm text-gray-300 leading-relaxed border-t border-white/5 pt-4">
+                        <div className="px-4 pb-4 sm:px-6 sm:pb-6 text-xs sm:text-sm text-gray-300 leading-relaxed border-t border-white/5 pt-3 sm:pt-4">
                           {faq.a}
                         </div>
                       </motion.div>

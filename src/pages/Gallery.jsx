@@ -63,14 +63,14 @@ export default function Gallery() {
       </section>
 
       {/* Filter Tabs */}
-      <section className="py-6">
+      <section className="py-4 sm:py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-center gap-3">
+          <div className="flex items-center overflow-x-auto no-scrollbar gap-2 sm:gap-3 sm:justify-center py-2 px-1">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 border ${
+                className={`px-4 sm:px-5 py-2 rounded-full text-xs font-semibold transition-all duration-200 border whitespace-nowrap flex-shrink-0 ${
                   activeCategory === cat
                     ? "bg-gradient-to-r from-primary to-accent text-darkNavy font-bold border-transparent shadow-neon"
                     : "glass-card text-gray-300 hover:text-white border-primary/20 hover:border-primary/40"
@@ -126,16 +126,16 @@ export default function Gallery() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-darkNavy/95 backdrop-blur-2xl z-50 flex items-center justify-center p-4 sm:p-8"
+            className="fixed inset-0 bg-darkNavy/95 backdrop-blur-2xl z-50 flex items-center justify-center p-3 sm:p-8"
             onClick={() => setSelectedIdx(null)}
           >
             {/* Close Button */}
             <button
               onClick={() => setSelectedIdx(null)}
-              className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-20"
+              className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 sm:p-3 rounded-full bg-darkNavy/80 border border-primary/30 hover:bg-white/20 text-white transition-colors z-30 min-w-[38px] min-h-[38px] flex items-center justify-center"
               aria-label="Close"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
             {/* Left Button */}
@@ -144,10 +144,10 @@ export default function Gallery() {
                 e.stopPropagation();
                 handlePrev();
               }}
-              className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-20"
+              className="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full bg-darkNavy/80 border border-primary/30 hover:bg-white/20 text-white transition-colors z-30 min-w-[38px] min-h-[38px] flex items-center justify-center shadow-lg"
               aria-label="Previous"
             >
-              <ChevronLeft className="w-6 h-6" />
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
             {/* Right Button */}
@@ -156,27 +156,27 @@ export default function Gallery() {
                 e.stopPropagation();
                 handleNext();
               }}
-              className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors z-20"
+              className="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full bg-darkNavy/80 border border-primary/30 hover:bg-white/20 text-white transition-colors z-30 min-w-[38px] min-h-[38px] flex items-center justify-center shadow-lg"
               aria-label="Next"
             >
-              <ChevronRight className="w-6 h-6" />
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
             {/* Active Image Container */}
             <div
-              className="relative max-w-5xl w-full flex flex-col items-center"
+              className="relative max-w-5xl w-full flex flex-col items-center px-8 sm:px-12"
               onClick={(e) => e.stopPropagation()}
             >
               <img
                 src={filteredImages[selectedIdx].src}
                 alt={filteredImages[selectedIdx].alt}
-                className="max-w-full max-h-[80vh] object-contain rounded-2xl border border-primary/40 shadow-2xl"
+                className="max-w-full max-h-[70vh] sm:max-h-[80vh] object-contain rounded-2xl border border-primary/40 shadow-2xl"
               />
-              <div className="mt-4 text-center">
-                <h3 className="text-lg font-bold font-orbitron text-white">
+              <div className="mt-3 sm:mt-4 text-center">
+                <h3 className="text-base sm:text-lg font-bold font-orbitron text-white">
                   {filteredImages[selectedIdx].title}
                 </h3>
-                <p className="text-xs text-accent font-mono mt-1">
+                <p className="text-xs text-accent font-mono mt-0.5 sm:mt-1">
                   Item {selectedIdx + 1} of {filteredImages.length}
                 </p>
               </div>
