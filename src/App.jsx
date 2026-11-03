@@ -7,6 +7,8 @@ import Footer from "./components/Footer";
 import ParticlesBackground from "./components/ParticlesBackground";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollProgressBar from "./components/ScrollProgressBar";
+import RobotMascotBackground from "./components/RobotMascotBackground";
+import InteractiveCyberGrid from "./components/InteractiveCyberGrid";
 
 import Home from "./pages/Home";
 import About from "./pages/About";
@@ -31,7 +33,9 @@ export default function App() {
     <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy">
       <ScrollProgressBar />
       <ScrollToTopOnRoute />
+      <InteractiveCyberGrid />
       <ParticlesBackground />
+      <RobotMascotBackground />
       <div
         className="fixed inset-0 circuit-bg opacity-30 pointer-events-none"
         style={{ zIndex: 0 }}

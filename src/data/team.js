@@ -87,9 +87,9 @@ export const coreTeam = [
     img: "/assets/gallery2/shashi bhage.jpg",
   },
   {
-    name: "Sachin Singh",
-    role: "Software Head",
-    rollNo: "EEE/235/22",
-    img: "/assets/gallery2/sachin singh.jpg",
+    name: "Mohit Kumar",
+    role: "Designer Head",
+    rollNo: "ECE/276/26",
+    img: "/assets/gallery2/mohit kumar.jpeg",
   },
 ];
