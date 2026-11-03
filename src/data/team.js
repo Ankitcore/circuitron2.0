@@ -11,12 +11,6 @@ export const facultyCoordinators = [
     description: "Guiding research and innovation initiatives",
     img: "/assets/gallery2/prof vikash kumar.jpg",
   },
-  {
-    name: "Prof. Deepak Kumar",
-    position: "Coordinator",
-    description: "Coordinating club activities and student development",
-    img: "/assets/gallery2/prof deepak kumar.jpg",
-  },
 ];
 
 export const executiveTeam = [

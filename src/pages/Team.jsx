@@ -85,7 +85,7 @@ export default function Team() {
             <div className="w-16 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-8">
             {facultyCoordinators.map((mentor) => (
               <div
                 key={mentor.name}
