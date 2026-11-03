@@ -42,29 +42,29 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav
-          className={`flex items-center justify-between px-4 sm:px-6 py-2.5 rounded-2xl transition-all duration-300 ${
+          className={`flex items-center justify-between px-3 sm:px-6 py-2 sm:py-2.5 rounded-2xl transition-all duration-300 ${
             isScrolled
               ? "glass-panel shadow-2xl border-primary/25"
               : "bg-secondary/40 backdrop-blur-md border border-white/10"
           }`}
         >
           {/* Logo & Branding */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 flex items-center justify-center shadow-neon">
+          <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3 group min-w-0">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 flex items-center justify-center shadow-neon flex-shrink-0">
               <img
                 src="/logo.png"
                 alt="Circuitron Logo"
                 className="w-full h-full object-contain"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center space-x-1">
-                <span className="font-orbitron font-extrabold text-base sm:text-lg gradient-text tracking-wide">
+                <span className="font-orbitron font-extrabold text-sm sm:text-lg gradient-text tracking-wide whitespace-nowrap">
                   Circuitron
                 </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse flex-shrink-0" />
               </div>
-              <p className="text-[10px] text-gray-400 font-mono tracking-tight hidden sm:block">
+              <p className="text-[9px] sm:text-[10px] text-gray-300/90 font-mono tracking-tight block whitespace-nowrap font-medium">
                 RVSCET &bull; TECHXPO 2.O
               </p>
             </div>
