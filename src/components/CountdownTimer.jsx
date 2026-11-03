@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Zap } from "lucide-react";
 
-export default function CountdownTimer() {
-  const targetDate = new Date("2026-11-30T09:00:00+05:30").getTime();
+// Target countdown deadline: 29th November 2026 at 11:59:00 PM IST
+const TARGET_DATE = new Date("2026-11-29T23:59:00+05:30").getTime();
 
+export default function CountdownTimer() {
   const calculateTimeLeft = () => {
     const now = new Date().getTime();
-    const difference = targetDate - now;
+    const difference = TARGET_DATE - now;
 
     if (difference <= 0) {
       return { days: 0, hours: 0, minutes: 0, seconds: 0, expired: true };
@@ -78,18 +79,18 @@ export default function CountdownTimer() {
       <div className="w-full mt-3 pt-2.5 border-t border-white/5 space-y-1.5">
         <div className="flex items-center justify-between text-[8px] xs:text-[9px] font-mono text-gray-400">
           <span className="flex items-center space-x-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
+            <span className={`w-1.5 h-1.5 rounded-full ${timeLeft.expired ? "bg-red-400" : "bg-accent animate-ping"}`} />
             <span className="text-gray-300">TIMELINE STATUS</span>
           </span>
           <span className="text-accent font-semibold flex items-center space-x-1">
             <Zap className="w-2.5 h-2.5" />
-            <span>REGISTRATIONS LIVE</span>
+            <span>{timeLeft.expired ? "COUNTDOWN CONCLUDED" : "REGISTRATIONS LIVE"}</span>
           </span>
         </div>
         <div className="w-full h-1.5 bg-darkNavy/90 rounded-full overflow-hidden p-[1px] border border-primary/20">
           <motion.div
             initial={{ width: 0 }}
-            animate={{ width: "72%" }}
+            animate={{ width: timeLeft.expired ? "100%" : "72%" }}
             transition={{ duration: 1.4, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
             className="h-full bg-gradient-to-r from-primary via-accent to-cyberPurple rounded-full relative"
           >
