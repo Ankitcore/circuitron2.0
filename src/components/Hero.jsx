@@ -43,7 +43,7 @@ export default function Hero() {
               >
                 <span className="gradient-text">TechXpo</span>
                 <span className="block text-4xl sm:text-6xl text-white mt-1">
-                  2026
+                  2.O
                 </span>
               </motion.h1>
 
@@ -94,7 +94,7 @@ export default function Hero() {
                 whileTap={{ scale: 0.95 }}
                 className="btn-primary w-full sm:w-auto"
               >
-                <span>Register for TechXpo</span>
+                <span>Register for TechXpo 2.O</span>
                 <ArrowRight className="w-4 h-4" />
               </motion.a>
 

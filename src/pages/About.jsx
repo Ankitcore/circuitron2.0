@@ -27,7 +27,7 @@ export default function About() {
             <span>ORIGIN &amp; MISSION</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-black font-orbitron gradient-text">
-            About TechXpo &amp; Circuitron
+            About TechXpo 2.O &amp; Circuitron
           </h1>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
@@ -67,7 +67,7 @@ export default function About() {
                   Our journey was sparked by a clear objective: bridging the divide between classroom theoretical concepts and applied engineering reality. Over the seasons, we have orchestrated high-impact hands-on bootcamps, competitive hackathons, and state-level robotics challenges.
                 </p>
                 <p>
-                  Today, TechXpo stands as our premier annual showcase &mdash; a vibrant stage where passionate engineers demonstrate autonomous machines, smart systems, and groundbreaking projects.
+                  Today, TechXpo 2.O stands as our premier annual showcase &mdash; a vibrant stage where passionate engineers demonstrate autonomous machines, smart systems, and groundbreaking projects.
                 </p>
               </div>
             </motion.div>
@@ -159,12 +159,12 @@ export default function About() {
         </div>
       </section>
 
-      {/* Why TechXpo Matters */}
+      {/* Why TechXpo 2.O Matters */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl sm:text-5xl font-black font-orbitron gradient-text">
-              Why TechXpo Matters
+              Why TechXpo 2.O Matters
             </h2>
             <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           </div>

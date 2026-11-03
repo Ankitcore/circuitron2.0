@@ -41,7 +41,7 @@ export default function CountdownTimer() {
     <div className="inline-flex flex-col items-center p-3 sm:p-4 rounded-2xl glass-card border border-primary/30 max-w-xl mx-auto shadow-neon">
       <div className="flex items-center space-x-2 text-xs font-orbitron font-semibold text-accent mb-3 tracking-wider">
         <Clock className="w-3.5 h-3.5 animate-spin-slow" />
-        <span>COUNTDOWN TO TECHXPO 2026</span>
+        <span>COUNTDOWN TO TECHXPO 2.O</span>
       </div>
 
       <div className="grid grid-cols-4 gap-2 sm:gap-4">

@@ -59,7 +59,7 @@ export default function Events() {
           </h1>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
-            Review the official competitions of TechXpo 2026. Inspect specifications, technical guidelines, and register your team before slots close.
+            Review the official competitions of TechXpo 2.O. Inspect specifications, technical guidelines, and register your team before slots close.
           </p>
         </div>
       </section>

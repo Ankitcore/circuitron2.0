@@ -1,6 +1,6 @@
-# Circuitron - TechXpo 2026 Website
+# Circuitron - TechXpo 2.O Website
 
-Full recreation and modern 3D redesign of the Circuitron RVSCET TechXpo 2026 website.
+Full recreation and modern 3D redesign of the Circuitron RVSCET TechXpo 2.O website.
 
 - **Event Date**: 30 November 2026
 - **Venue**: RVS College of Engineering & Technology, Jamshedpur
@@ -16,7 +16,7 @@ Full recreation and modern 3D redesign of the Circuitron RVSCET TechXpo 2026 web
 
 ## Features & Pages
 - **Home (`/`)**: Hero section with interactive 3D gyroscope model, live digital countdown to 30 November 2026, Bento grid stats, Brochure download, Featured events, Gallery preview, Core team preview, and Contact inquiry hub.
-- **About (`/about`)**: Story of Circuitron, Pillars (Innovation, Excellence, Community), Vision (Empower, Innovate, Connect), and Why TechXpo Matters for Students and Industry.
+- **About (`/about`)**: Story of Circuitron, Pillars (Innovation, Excellence, Community), Vision (Empower, Innovate, Connect), and Why TechXpo 2.O Matters for Students and Industry.
 - **Events (`/events`)**: Categorized technical events (Technical, Robotics, Workshops, Exhibitions), modal view for requirements and rules, and direct registration links.
 - **Team (`/team`)**: Faculty Coordinators, Executive Team, and Core Team Members with roles, roll numbers, and photos.
 - **Gallery (`/gallery`)**: Event photo gallery with category filter and full-screen lightbox modal with keyboard navigation.

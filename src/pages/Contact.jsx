@@ -4,8 +4,8 @@ import { Mail, Phone, MapPin, Send, CheckCircle2, Sparkles, ExternalLink, Messag
 
 const faqs = [
   {
-    q: "Who is eligible to participate in TechXpo 2026?",
-    a: "TechXpo 2026 is open to all bona-fide students currently enrolled in B.Tech, Diploma, BCA/MCA, or B.Sc programs across recognized universities and polytechnics.",
+    q: "Who is eligible to participate in TechXpo 2.O?",
+    a: "TechXpo 2.O is open to all bona-fide students currently enrolled in B.Tech, Diploma, BCA/MCA, or B.Sc programs across recognized universities and polytechnics.",
   },
   {
     q: "Can team members be from different colleges or branches?",

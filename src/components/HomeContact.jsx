@@ -153,7 +153,7 @@ export default function HomeContact() {
                     onChange={handleChange}
                     required
                     rows={4}
-                    placeholder="Tell us what you'd like to know about TechXpo 2026..."
+                    placeholder="Tell us what you'd like to know about TechXpo 2.O..."
                     className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm resize-none"
                   />
                 </div>

@@ -44,7 +44,7 @@ export default function Schedule() {
           </h1>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
-            Plan your TechXpo 2026 participation. Note down registration check-in windows, competition rounds, and the grand closing ceremony.
+            Plan your TechXpo 2.O participation. Note down registration check-in windows, competition rounds, and the grand closing ceremony.
           </p>
         </div>
       </section>

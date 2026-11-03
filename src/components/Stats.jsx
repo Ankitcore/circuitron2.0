@@ -24,11 +24,11 @@ export default function Stats() {
             <span>DISCOVER THE EXPERIENCE</span>
           </div>
           <h2 className="text-4xl sm:text-5xl font-black font-orbitron gradient-text">
-            About TechXpo 2026
+            About TechXpo 2.O
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           <p className="text-gray-300 max-w-3xl mx-auto text-base sm:text-lg leading-relaxed">
-            TechXpo 2026 is a high-octane celebration of innovation, embedded systems, and autonomous robotics.
+            TechXpo 2.O is a high-octane celebration of innovation, embedded systems, and autonomous robotics.
             Organized by Circuitron at RVSCET, it gathers tech visionaries, student creators, and developers across Eastern India.
           </p>
         </motion.div>
@@ -54,7 +54,7 @@ export default function Stats() {
               </h3>
               <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
                 From autonomous line-followers and heavy combat bots to cutting-edge smart hardware prototypes,
-                TechXpo offers real-world arena challenges judged by distinguished academia and industry mentors.
+                TechXpo 2.O offers real-world arena challenges judged by distinguished academia and industry mentors.
               </p>
             </div>
 
