@@ -92,8 +92,12 @@ export default function Schedule() {
                             <span>{event.time}</span>
                           </span>
 
-                          <span className="inline-flex items-center space-x-1 text-gray-400 text-[11px] sm:text-xs">
-                            <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                          <span className="inline-flex items-center space-x-1.5 text-gray-400 text-[11px] sm:text-xs">
+                            <img
+                              src="/assets/rvscet-logo.png"
+                              alt="RVSCET"
+                              className="w-3.5 h-3.5 object-contain flex-shrink-0"
+                            />
                             <span>{event.location}</span>
                           </span>
                         </div>

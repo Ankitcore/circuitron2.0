@@ -50,12 +50,21 @@ export default function Navbar() {
         >
           {/* Logo & Branding */}
           <Link to="/" className="flex items-center space-x-2 sm:space-x-3 group min-w-0 flex-shrink">
-            <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 flex items-center justify-center shadow-neon flex-shrink-0">
-              <img
-                src="/logo.png"
-                alt="Circuitron Logo"
-                className="w-full h-full object-contain"
-              />
+            <div className="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-primary/40 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 flex items-center justify-center shadow-neon">
+                <img
+                  src="/logo.png"
+                  alt="Circuitron Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="hidden xs:flex relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-primary/30 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 items-center justify-center shadow-neon">
+                <img
+                  src="/assets/rvscet-logo.png"
+                  alt="RVSCET Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
             <div className="min-w-0">
               <div className="flex items-center space-x-1">

@@ -60,7 +60,13 @@ export default function Contact() {
       actionText: "Call Secretariat",
     },
     {
-      icon: <MapPin className="w-6 h-6 text-cyberPurple" />,
+      icon: (
+        <img
+          src="/assets/rvscet-logo.png"
+          alt="RVSCET"
+          className="w-6 h-6 object-contain"
+        />
+      ),
       title: "Campus Address",
       details: ["RVS College of Engineering & Technology", "Jamshedpur, Jharkhand - 831001"],
       action: "https://maps.google.com/?q=RVSCET+Jamshedpur",

@@ -76,9 +76,16 @@ export default function Team() {
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-3 mb-12">
-            <span className="text-xs font-mono uppercase tracking-wider text-accent font-semibold">
-              ACADEMIC ADVISORY BOARD
-            </span>
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+              <img
+                src="/assets/rvscet-logo.png"
+                alt="RVSCET"
+                className="w-4 h-4 object-contain flex-shrink-0"
+              />
+              <span className="text-xs font-mono uppercase tracking-wider text-accent font-semibold">
+                ACADEMIC ADVISORY BOARD &bull; RVSCET
+              </span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white">
               Faculty Coordinators
             </h2>

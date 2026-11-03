@@ -125,7 +125,11 @@ export default function TechModel3D() {
             className="absolute -bottom-1 -left-2 sm:-bottom-2 sm:-left-4 glass-card px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-primary/30 text-xs flex items-center space-x-1.5 sm:space-x-2 shadow-lg"
             style={{ transform: "translateZ(45px)" }}
           >
-            <Cpu className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary" />
+            <img
+              src="/assets/rvscet-logo.png"
+              alt="RVSCET"
+              className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain flex-shrink-0"
+            />
             <span className="font-orbitron font-medium text-gray-200 text-[10px] sm:text-[11px]">
               RVSCET JAMSHEDPUR
             </span>

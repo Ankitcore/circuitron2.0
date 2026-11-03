@@ -27,9 +27,13 @@ export default function Hero() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center space-x-1.5 sm:space-x-2 px-3 sm:px-4 py-1.5 rounded-full glass-panel border border-primary/30 text-[11px] sm:text-xs font-semibold text-accent shadow-neon max-w-full truncate"
+              className="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-full glass-panel border border-primary/30 text-[11px] sm:text-xs font-semibold text-accent shadow-neon max-w-full truncate"
             >
-              <Sparkles className="w-3.5 h-3.5 text-accent animate-pulse flex-shrink-0" />
+              <img
+                src="/assets/rvscet-logo.png"
+                alt="RVSCET Logo"
+                className="w-4 h-4 object-contain flex-shrink-0"
+              />
               <span className="truncate">Flagship Tech Symposium &bull; RVSCET Jamshedpur</span>
             </motion.div>
 
@@ -74,7 +78,11 @@ export default function Hero() {
                 <span className="font-semibold text-white">30 November 2026</span>
               </div>
               <div className="flex items-center space-x-2 bg-darkNavy/80 px-3.5 py-2 rounded-xl border border-primary/20">
-                <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
+                <img
+                  src="/assets/rvscet-logo.png"
+                  alt="RVSCET"
+                  className="w-4 h-4 object-contain flex-shrink-0"
+                />
                 <span className="font-semibold text-white">RVSCET Campus, Jamshedpur</span>
               </div>
             </div>

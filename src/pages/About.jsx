@@ -50,9 +50,16 @@ export default function About() {
               className="lg:col-span-7 space-y-6"
             >
               <div className="space-y-2">
-                <span className="text-accent text-xs font-mono tracking-wider uppercase font-semibold">
-                  ESTABLISHED 2018 &bull; RVSCET
-                </span>
+                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                  <img
+                    src="/assets/rvscet-logo.png"
+                    alt="RVSCET"
+                    className="w-4 h-4 object-contain flex-shrink-0"
+                  />
+                  <span className="text-accent text-xs font-mono tracking-wider uppercase font-semibold">
+                    ESTABLISHED 2018 &bull; RVSCET JAMSHEDPUR
+                  </span>
+                </div>
                 <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white">
                   The Story of Circuitron
                 </h2>

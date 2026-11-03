@@ -45,12 +45,21 @@ export default function Footer() {
           {/* Brand Info (5 cols) */}
           <div className="lg:col-span-5 space-y-4">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-xl p-0.5 bg-darkNavy border border-primary/40 shadow-neon flex items-center justify-center overflow-hidden">
-                <img
-                  src="/logo.png"
-                  alt="Circuitron Logo"
-                  className="w-full h-full object-contain"
-                />
+              <div className="flex items-center space-x-2">
+                <div className="w-12 h-12 rounded-xl p-0.5 bg-darkNavy border border-primary/40 shadow-neon flex items-center justify-center overflow-hidden">
+                  <img
+                    src="/logo.png"
+                    alt="Circuitron Logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <div className="w-12 h-12 rounded-xl p-1 bg-darkNavy border border-primary/30 shadow-neon flex items-center justify-center overflow-hidden">
+                  <img
+                    src="/assets/rvscet-logo.png"
+                    alt="RVSCET Logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
               </div>
               <div>
                 <h3 className="font-orbitron font-extrabold text-xl gradient-text">
@@ -107,9 +116,18 @@ export default function Footer() {
 
           {/* Campus Coordinates (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <h4 className="text-sm font-bold font-orbitron text-white uppercase tracking-wider">
-              Host Institute
-            </h4>
+            <div className="flex items-center space-x-2.5">
+              <div className="w-8 h-8 rounded-lg p-0.5 bg-darkNavy border border-primary/30 flex items-center justify-center overflow-hidden">
+                <img
+                  src="/assets/rvscet-logo.png"
+                  alt="RVSCET"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h4 className="text-sm font-bold font-orbitron text-white uppercase tracking-wider">
+                Host Institute
+              </h4>
+            </div>
             <div className="space-y-3 text-sm text-gray-300">
               <div className="flex items-start space-x-3">
                 <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
