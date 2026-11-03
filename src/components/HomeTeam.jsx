@@ -43,6 +43,7 @@ function HomeAvatar({ src, name }) {
 export default function HomeTeam() {
   const showcase = [
     { ...facultyCoordinators[0], category: "Faculty Mentor" },
+    { ...facultyCoordinators[1], category: "Faculty Co-PI" },
     { ...executiveTeam[0], category: "Executive President" },
     { ...executiveTeam[1], category: "PR & Communications" },
     { ...executiveTeam[2], category: "Technical Leadership" },
@@ -74,15 +75,15 @@ export default function HomeTeam() {
         </motion.div>
 
         {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="flex flex-wrap justify-center gap-6">
           {showcase.map((member, index) => (
             <motion.div
               key={member.name}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.12 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="glass-card rounded-2xl p-6 border border-primary/20 flex flex-col items-center text-center group relative overflow-hidden justify-between"
+              className="glass-card rounded-2xl p-6 border border-primary/20 flex flex-col items-center text-center group relative overflow-hidden justify-between w-full sm:w-[calc(50%-16px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(20%-20px)] min-w-[220px]"
             >
               {/* Category Pill */}
               <div className="mb-5 px-3 py-1 rounded-full bg-darkNavy/80 border border-primary/20 text-[10px] font-semibold text-accent uppercase tracking-wider">
