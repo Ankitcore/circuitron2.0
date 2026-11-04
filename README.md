@@ -18,7 +18,7 @@ Full recreation and modern 3D redesign of the Circuitron RVSCET TechXpo 2.O webs
 - **Home (`/`)**: Hero section with interactive 3D gyroscope model, live digital countdown to 30 November 2026, Bento grid stats, Brochure download, Featured events, Gallery preview, Core team preview, and Contact inquiry hub.
 - **About (`/about`)**: Story of Circuitron, Pillars (Innovation, Excellence, Community), Vision (Empower, Innovate, Connect), and Why TechXpo 2.O Matters for Students and Industry.
 - **Events (`/events`)**: Categorized technical events (Technical, Robotics, Workshops, Exhibitions), modal view for requirements and rules, and direct registration links.
-- **Team (`/team`)**: Faculty Coordinators, Executive Team, and Core Team Members with roles, roll numbers, and photos.
+- **Team (`/team`)**: Faculty Coordinators, Executive Team, and Core Team Members with roles, privacy-safe department credentials, and photos.
 - **Gallery (`/gallery`)**: Event photo gallery with category filter and full-screen lightbox modal with keyboard navigation.
 - **Schedule (`/schedule`)**: Circuit timeline schedule for 30 November 2026 with times, locations, category color codes, and event guidelines.
 - **Contact (`/contact`)**: Interactive contact form, email links, campus location with Google Maps link, and FAQ accordion.
