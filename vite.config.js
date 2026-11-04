@@ -8,6 +8,9 @@ export default defineConfig({
   build: {
     sourcemap: false, // Security: Never leak source maps or raw source code in production
     emptyOutDir: true,
+    target: 'es2020',
+    cssCodeSplit: true,
+    assetsInlineLimit: 4096, // Inline assets < 4KB to save network roundtrips
     rollupOptions: {
       output: {
         manualChunks: {

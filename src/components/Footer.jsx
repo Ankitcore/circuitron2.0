@@ -55,7 +55,7 @@ export default function Footer() {
                 </div>
                 <div className="w-12 h-12 rounded-xl p-1 bg-darkNavy border border-primary/30 shadow-neon flex items-center justify-center overflow-hidden">
                   <img
-                    src="/assets/rvscet-logo.png"
+                    src="/assets/rvscet-logo.webp"
                     alt="RVSCET Logo"
                     className="w-full h-full object-contain"
                   />
@@ -119,7 +119,7 @@ export default function Footer() {
             <div className="flex items-center space-x-2.5">
               <div className="w-8 h-8 rounded-lg p-0.5 bg-darkNavy border border-primary/30 flex items-center justify-center overflow-hidden">
                 <img
-                  src="/assets/rvscet-logo.png"
+                  src="/assets/rvscet-logo.webp"
                   alt="RVSCET"
                   className="w-full h-full object-contain"
                 />

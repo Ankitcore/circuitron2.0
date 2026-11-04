@@ -78,7 +78,7 @@ export default function Team() {
           <div className="text-center space-y-3 mb-12">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
               <img
-                src="/assets/rvscet-logo.png"
+                src="/assets/rvscet-logo.webp"
                 alt="RVSCET"
                 className="w-4 h-4 object-contain flex-shrink-0"
               />

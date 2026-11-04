@@ -94,7 +94,7 @@ export default function Schedule() {
 
                           <span className="inline-flex items-center space-x-1.5 text-gray-400 text-[11px] sm:text-xs">
                             <img
-                              src="/assets/rvscet-logo.png"
+                              src="/assets/rvscet-logo.webp"
                               alt="RVSCET"
                               className="w-3.5 h-3.5 object-contain flex-shrink-0"
                             />

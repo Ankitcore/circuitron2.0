@@ -6,25 +6,25 @@ import { Image as ImageIcon, ArrowRight, Sparkles, ZoomIn } from "lucide-react";
 const previewImages = [
   {
     id: 1,
-    src: "/assets/gallery/IMG-20251024-WA0001.jpg",
+    src: "/assets/gallery/IMG-20251024-WA0001.webp",
     title: "Circuitron Flagship Arena",
     category: "Robo Exhibition",
   },
   {
     id: 2,
-    src: "/assets/gallery/IMG-20251024-WA0002.jpg",
+    src: "/assets/gallery/IMG-20251024-WA0002.webp",
     title: "Innovators & Mentors",
     category: "Symposium",
   },
   {
     id: 3,
-    src: "/assets/gallery/IMG-20251024-WA0003.jpg",
+    src: "/assets/gallery/IMG-20251024-WA0003.webp",
     title: "Embedded Hardware Stalls",
     category: "Showcase",
   },
   {
     id: 4,
-    src: "/assets/gallery/IMG-20251024-WA0004.jpg",
+    src: "/assets/gallery/IMG-20251024-WA0004.webp",
     title: "Student Project Demos",
     category: "Prototyping",
   },

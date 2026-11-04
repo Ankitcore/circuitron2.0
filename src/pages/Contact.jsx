@@ -85,7 +85,7 @@ export default function Contact() {
     {
       icon: (
         <img
-          src="/assets/rvscet-logo.png"
+          src="/assets/rvscet-logo.webp"
           alt="RVSCET"
           className="w-6 h-6 object-contain"
         />

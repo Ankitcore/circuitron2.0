@@ -60,7 +60,7 @@ export default function Navbar() {
               </div>
               <div className="hidden xs:flex relative w-8 h-8 sm:w-10 sm:h-10 rounded-xl overflow-hidden p-0.5 border border-primary/30 group-hover:border-accent transition-all duration-300 bg-darkNavy/80 items-center justify-center shadow-neon">
                 <img
-                  src="/assets/rvscet-logo.png"
+                  src="/assets/rvscet-logo.webp"
                   alt="RVSCET Logo"
                   className="w-full h-full object-contain"
                 />

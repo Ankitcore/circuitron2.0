@@ -30,7 +30,7 @@ export default function Hero() {
               className="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-full glass-panel border border-primary/30 text-[11px] sm:text-xs font-semibold text-accent shadow-neon max-w-full truncate"
             >
               <img
-                src="/assets/rvscet-logo.png"
+                src="/assets/rvscet-logo.webp"
                 alt="RVSCET Logo"
                 className="w-4 h-4 object-contain flex-shrink-0"
               />
@@ -79,7 +79,7 @@ export default function Hero() {
               </div>
               <div className="flex items-center space-x-2 bg-darkNavy/80 px-3.5 py-2 rounded-xl border border-primary/20">
                 <img
-                  src="/assets/rvscet-logo.png"
+                  src="/assets/rvscet-logo.webp"
                   alt="RVSCET"
                   className="w-4 h-4 object-contain flex-shrink-0"
                 />

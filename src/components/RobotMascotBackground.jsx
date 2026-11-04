@@ -117,12 +117,16 @@ export default function RobotMascotBackground() {
           onClick={handleSwingClick}
           className="relative w-full cursor-pointer pointer-events-auto group"
         >
-          <img
-            src="/assets/bot-swing.png"
-            alt="Circuitron Spider Bot Mascot"
-            className="w-full h-auto object-contain filter drop-shadow-[0_0_20px_rgba(0,191,255,0.45)] group-hover:drop-shadow-[0_0_30px_rgba(0,255,255,0.8)] opacity-35 sm:opacity-50 group-hover:opacity-100 transition-all duration-300"
-            loading="lazy"
-          />
+          <picture>
+            <source srcSet="/assets/bot-swing.webp" type="image/webp" />
+            <img
+              src="/assets/bot-swing.png"
+              alt="Circuitron Spider Bot Mascot"
+              className="w-full h-auto object-contain filter drop-shadow-[0_0_20px_rgba(0,191,255,0.45)] group-hover:drop-shadow-[0_0_30px_rgba(0,255,255,0.8)] opacity-35 sm:opacity-50 group-hover:opacity-100 transition-all duration-300"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
 
           {/* Interactive Hint Indicator */}
           <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-primary/20 border border-primary/40 text-[8px] font-mono text-cyan-300 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -186,12 +190,16 @@ export default function RobotMascotBackground() {
           onClick={handleWelcomeClick}
           className="relative w-full cursor-pointer pointer-events-auto group preserve-3d"
         >
-          <img
-            src="/assets/bot-welcome.png"
-            alt="Circuitron Welcome Mascot Robot"
-            className="w-full h-auto object-contain filter drop-shadow-[0_0_20px_rgba(0,191,255,0.4)] group-hover:drop-shadow-[0_0_30px_rgba(0,191,255,0.8)] opacity-35 sm:opacity-50 group-hover:opacity-100 transition-all duration-300"
-            loading="lazy"
-          />
+          <picture>
+            <source srcSet="/assets/bot-welcome.webp" type="image/webp" />
+            <img
+              src="/assets/bot-welcome.png"
+              alt="Circuitron Welcome Mascot Robot"
+              className="w-full h-auto object-contain filter drop-shadow-[0_0_20px_rgba(0,191,255,0.4)] group-hover:drop-shadow-[0_0_30px_rgba(0,191,255,0.8)] opacity-35 sm:opacity-50 group-hover:opacity-100 transition-all duration-300"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
 
           {/* Interactive Hint Indicator */}
           <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/40 text-[8px] font-mono text-accent opacity-0 group-hover:opacity-100 transition-opacity">

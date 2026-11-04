@@ -126,7 +126,7 @@ export default function TechModel3D() {
             style={{ transform: "translateZ(45px)" }}
           >
             <img
-              src="/assets/rvscet-logo.png"
+              src="/assets/rvscet-logo.webp"
               alt="RVSCET"
               className="w-3.5 h-3.5 sm:w-4 sm:h-4 object-contain flex-shrink-0"
             />

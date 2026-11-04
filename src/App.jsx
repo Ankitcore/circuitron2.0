@@ -4,14 +4,19 @@ import { AnimatePresence } from "framer-motion";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import ParticlesBackground from "./components/ParticlesBackground";
 import ScrollToTop from "./components/ScrollToTop";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import RobotMascotBackground from "./components/RobotMascotBackground";
-import InteractiveCyberGrid from "./components/InteractiveCyberGrid";
 import PageLoader from "./components/PageLoader";
 
-const Home = lazy(() => import("./pages/Home"));
+// Direct Home page import for instantaneous 0ms landing load
+import Home from "./pages/Home";
+
+// Lazy load non-critical heavy background animations to eliminate initial paint latency
+const ParticlesBackground = lazy(() => import("./components/ParticlesBackground"));
+const InteractiveCyberGrid = lazy(() => import("./components/InteractiveCyberGrid"));
+
+// Lazy load secondary routes for on-demand code splitting
 const About = lazy(() => import("./pages/About"));
 const Events = lazy(() => import("./pages/Events"));
 const Team = lazy(() => import("./pages/Team"));
@@ -34,8 +39,12 @@ export default function App() {
     <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy">
       <ScrollProgressBar />
       <ScrollToTopOnRoute />
-      <InteractiveCyberGrid />
-      <ParticlesBackground />
+      <Suspense fallback={null}>
+        <InteractiveCyberGrid />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ParticlesBackground />
+      </Suspense>
       <RobotMascotBackground />
       <div
         className="fixed inset-0 circuit-bg opacity-30 pointer-events-none"
