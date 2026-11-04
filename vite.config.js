@@ -3,8 +3,11 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './', // Self-contained relative paths: HTML and assets can reside in any single folder
   plugins: [react()],
   build: {
+    sourcemap: false, // Security: Never leak source maps or raw source code in production
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks: {

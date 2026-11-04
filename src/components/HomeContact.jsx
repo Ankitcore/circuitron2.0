@@ -5,16 +5,38 @@ import { Mail, MapPin, Send, MessageSquare, CheckCircle2, Sparkles } from "lucid
 export default function HomeContact() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Security: Clean and sanitize inputs against XSS and script injections
+  const sanitizeInput = (val, maxLen = 200) => {
+    if (typeof val !== "string") return "";
+    return val
+      .replace(/<[^>]*>?/gm, "")
+      .replace(/javascript:/gi, "")
+      .slice(0, maxLen);
+  };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const maxLen = name === "message" ? 1000 : name === "email" ? 100 : 60;
+    setFormData((prev) => ({ ...prev, [name]: sanitizeInput(value, maxLen) }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    setIsSubmitting(true);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
+      setIsSubmitting(false);
       setFormData({ name: "", email: "", message: "" });
     }, 4000);
   };
@@ -122,6 +144,7 @@ export default function HomeContact() {
                       value={formData.name}
                       onChange={handleChange}
                       required
+                      maxLength={60}
                       placeholder="e.g. Alex Sharma"
                       className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm"
                     />
@@ -137,6 +160,7 @@ export default function HomeContact() {
                       value={formData.email}
                       onChange={handleChange}
                       required
+                      maxLength={100}
                       placeholder="e.g. alex@college.edu"
                       className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm"
                     />
@@ -152,6 +176,7 @@ export default function HomeContact() {
                     value={formData.message}
                     onChange={handleChange}
                     required
+                    maxLength={1000}
                     rows={4}
                     placeholder="Tell us what you'd like to know about TechXpo 2.O..."
                     className="w-full px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm resize-none"

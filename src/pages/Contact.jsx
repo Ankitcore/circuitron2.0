@@ -29,17 +29,40 @@ export default function Contact() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
 
+  // Security: Clean and sanitize inputs against XSS and script injections
+  const sanitizeInput = (val, maxLen = 200) => {
+    if (typeof val !== "string") return "";
+    return val
+      .replace(/<[^>]*>?/gm, "") // strip HTML tags
+      .replace(/javascript:/gi, "") // strip pseudo-protocols
+      .slice(0, maxLen);
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    const maxLen = name === "message" ? 1000 : name === "subject" ? 120 : name === "email" ? 100 : 60;
+    setFormData((prev) => ({ ...prev, [name]: sanitizeInput(value, maxLen) }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    setIsSubmitting(true);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
+      setIsSubmitting(false);
       setFormData({ name: "", email: "", subject: "", message: "" });
     }, 4000);
   };
@@ -54,10 +77,10 @@ export default function Contact() {
     },
     {
       icon: <Phone className="w-6 h-6 text-accent" />,
-      title: "Helpline Numbers",
-      details: ["+91 9876543210", "+91 9876543211"],
-      action: "tel:+919876543210",
-      actionText: "Call Secretariat",
+      title: "Campus Secretariat",
+      details: ["+91 657 2364402", "+91 657 2364403"],
+      action: "tel:+916572364402",
+      actionText: "Call RVSCET Desk",
     },
     {
       icon: (
@@ -230,6 +253,7 @@ export default function Contact() {
                           value={formData.name}
                           onChange={handleChange}
                           required
+                          maxLength={60}
                           placeholder="Your full name"
                           className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                         />
@@ -245,6 +269,7 @@ export default function Contact() {
                           value={formData.email}
                           onChange={handleChange}
                           required
+                          maxLength={100}
                           placeholder="you@domain.com"
                           className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                         />
@@ -261,6 +286,7 @@ export default function Contact() {
                         value={formData.subject}
                         onChange={handleChange}
                         required
+                        maxLength={120}
                         placeholder="e.g. Robo War Rules Clarification"
                         className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                       />
@@ -275,6 +301,7 @@ export default function Contact() {
                         value={formData.message}
                         onChange={handleChange}
                         required
+                        maxLength={1000}
                         rows={4}
                         placeholder="Describe your inquiry with relevant details..."
                         className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm resize-none"

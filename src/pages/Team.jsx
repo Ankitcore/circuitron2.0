@@ -159,11 +159,6 @@ export default function Team() {
                     <p className="text-primary font-semibold text-sm mt-1">
                       {exec.position}
                     </p>
-                    {exec.rollNo && (
-                      <p className="text-xs font-mono text-gray-400 mt-1">
-                        Roll No: {exec.rollNo}
-                      </p>
-                    )}
                   </div>
                   {(exec.tagline || exec.description) && (
                     <p className="text-gray-300 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto pt-3 border-t border-white/10 mt-3">
@@ -211,11 +206,6 @@ export default function Team() {
                 <p className="text-accent font-semibold text-xs mt-1">
                   {member.role}
                 </p>
-                {member.rollNo && (
-                  <span className="text-[10px] font-mono text-gray-400 mt-1 bg-white/5 px-2 py-0.5 rounded">
-                    {member.rollNo}
-                  </span>
-                )}
               </div>
             ))}
           </div>
