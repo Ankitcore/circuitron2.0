@@ -120,7 +120,7 @@ export default function RobotMascotBackground() {
           <picture>
             <source srcSet="/assets/bot-swing.webp" type="image/webp" />
             <img
-              src="/assets/bot-swing.png"
+              src="/assets/bot-swing.webp"
               alt="Circuitron Spider Bot Mascot"
               className="w-full h-auto object-contain filter drop-shadow-[0_0_20px_rgba(0,191,255,0.45)] group-hover:drop-shadow-[0_0_30px_rgba(0,255,255,0.8)] opacity-35 sm:opacity-50 group-hover:opacity-100 transition-all duration-300"
               loading="lazy"
@@ -193,7 +193,7 @@ export default function RobotMascotBackground() {
           <picture>
             <source srcSet="/assets/bot-welcome.webp" type="image/webp" />
             <img
-              src="/assets/bot-welcome.png"
+              src="/assets/bot-welcome.webp"
               alt="Circuitron Welcome Mascot Robot"
               className="w-full h-auto object-contain filter drop-shadow-[0_0_20px_rgba(0,191,255,0.4)] group-hover:drop-shadow-[0_0_30px_rgba(0,191,255,0.8)] opacity-35 sm:opacity-50 group-hover:opacity-100 transition-all duration-300"
               loading="lazy"

@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: './', // Self-contained relative paths: HTML and assets can reside in any single folder
   plugins: [react()],
+  esbuild: {
+    legalComments: 'none',
+  },
   build: {
     sourcemap: false, // Security: Never leak source maps or raw source code in production
     emptyOutDir: true,
