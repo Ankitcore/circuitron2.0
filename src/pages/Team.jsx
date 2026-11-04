@@ -126,9 +126,12 @@ export default function Team() {
       <section className="py-16 bg-gradient-to-b from-transparent via-primary/5 to-transparent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-3 mb-12">
-            <span className="text-xs font-mono uppercase tracking-wider text-cyberPurple font-semibold">
-              OFFICE BEARERS
-            </span>
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+              <Shield className="w-3.5 h-3.5 text-accent" />
+              <span className="text-xs font-mono uppercase tracking-wider text-accent font-semibold">
+                OFFICE BEARERS
+              </span>
+            </div>
             <h2 className="text-3xl sm:text-5xl font-black font-orbitron text-white">
               Executive Team
             </h2>
@@ -176,9 +179,12 @@ export default function Team() {
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center space-y-3 mb-12">
-            <span className="text-xs font-mono uppercase tracking-wider text-accent font-semibold">
-              OPERATIONS &amp; LOGISTICS
-            </span>
+            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+              <UserCheck className="w-3.5 h-3.5 text-accent" />
+              <span className="text-xs font-mono uppercase tracking-wider text-accent font-semibold">
+                OPERATIONS &amp; LOGISTICS
+              </span>
+            </div>
             <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white">
               Core Team Members
             </h2>
