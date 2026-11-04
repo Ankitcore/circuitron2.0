@@ -48,7 +48,7 @@ export const coreTeam = [
   {
     name: "Prem Shaw",
     role: "Event Head",
-    department: "Dept. of ECE",
+    department: "Dept. of EEE",
     img: "/assets/gallery2/prem shaw.webp",
   },
   {
@@ -72,7 +72,7 @@ export const coreTeam = [
   {
     name: "Rohini Kumari",
     role: "Hardware and Inventory Head",
-    department: "Dept. of CSE",
+    department: "Dept. of ECE",
     img: "/assets/gallery2/rohini kumari.webp",
   },
   {
