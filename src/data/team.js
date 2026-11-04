@@ -35,50 +35,52 @@ export const executiveTeam = [
     tagline: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     img: "/assets/gallery2/subha pain.jpeg",
   },
+   {
+    name: "Anurag Gupta",
+    position: "Vice President",
+    description: "Dept. of ECE",
+    tagline: "Leading with purpose, inspiring collaboration, and driving progress.",
+    img: "/assets/gallery2/anurag gupta.webp",
+  },
 ];
 
 export const coreTeam = [
+ 
   {
-    name: "Som Mahapatra",
-    role: "Technical Head",
+    name: "Prem Shaw",
+    role: "Event Head",
     department: "Dept. of ECE",
-    img: "/assets/gallery2/som mahapatra.webp",
+    img: "/assets/gallery2/prem shaw.webp",
   },
   {
-    name: "Sonal Sharma",
-    role: "Media Head",
+    name: "Shivam Kumar",
+    role: "Event Head",
     department: "Dept. of ECE",
-    img: "/assets/gallery2/sonal.webp",
+    img: "/assets/gallery2/shivam kumar.webp",
   },
   {
-    name: "Achyut Sharma",
-    role: "Creative and Content Head",
+    name: "Ajay Nayak",
+    role: "Media And Content Head",
     department: "Dept. of ECE",
-    img: "/assets/gallery2/achut sharma.webp",
+    img: "/assets/gallery2/ajay nayak.webp",
   },
   {
-    name: "Manish Kumar",
-    role: "Workshop Management Head",
+    name: "Joydev Kumar Mahato", 
+    role: "Technical Secretary",
     department: "Dept. of ECE",
-    img: "/assets/gallery2/manish kumar.webp",
+    img: "/assets/gallery2/joydev kumar mahato.webp",
   },
   {
-    name: "Najia Anjum",
-    role: "Tech. Secretary",
-    department: "Dept. of ECE",
-    img: "/assets/gallery2/nazia anjam.webp",
-  },
-  {
-    name: "Satya Prakash kumar",
-    role: "Event Management",
-    department: "Dept. of CSE",
-    img: "/assets/gallery2/satyaprakash kumar.webp",
-  },
-  {
-    name: "Shashi Bage",
+    name: "Rohini Kumari",
     role: "Hardware and Inventory Head",
+    department: "Dept. of CSE",
+    img: "/assets/gallery2/rohini kumari.webp",
+  },
+  {
+    name: "Ankit Kumar",
+    role: "Software Head",
     department: "Dept. of EEE",
-    img: "/assets/gallery2/shashi bhage.webp",
+    img: "/assets/gallery2/ankit kumar.webp",
   },
   {
     name: "Mohit Kumar",
