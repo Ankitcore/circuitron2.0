@@ -154,7 +154,7 @@ export default function InteractiveCyberGrid() {
           transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-1/3 left-10 text-[10px] font-mono text-cyan-400 tracking-widest hidden md:block"
         >
-          [BUS::TX/RX_SYNC]
+          [FREQ::2.4GHz_IoT_NODE]
         </motion.div>
 
         <motion.div
@@ -170,7 +170,7 @@ export default function InteractiveCyberGrid() {
           transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           className="absolute bottom-24 left-1/4 text-[9px] font-mono text-accent tracking-wider hidden lg:block"
         >
-          [FREQ::2.4GHz_IoT_NODE]
+          [CREATED::ANKIT KUMAR_2026]
         </motion.div>
       </div>
     </div>
