@@ -22,11 +22,11 @@ export const executiveTeam = [
     img: "/assets/gallery2/umang kumar sharma.webp",
   },
   {
-    name: "Akshat Anand",
+    name: "Akshat Anand Singh",
     position: "PR & Communication Head",
     description: "Building connections, strengthening communication, and creating a lasting impact.",
     tagline: "Building connections, strengthening communication, and creating a lasting impact.",
-    img: "/assets/gallery2/akshat anand.webp",
+    img: "/assets/gallery2/akshat anand singh.webp",
   },
   {
     name: "Subha Pain",
