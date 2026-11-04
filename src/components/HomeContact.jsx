@@ -78,10 +78,10 @@ export default function HomeContact() {
                 <div>
                   <h4 className="text-white font-bold font-orbitron text-sm">Official Inquiries</h4>
                   <a
-                    href="mailto:circuitron@rvscet.ac.in"
+                    href="mailto:circuitronrvscet@gmail.com"
                     className="text-primary hover:text-accent transition-colors text-sm font-semibold"
                   >
-                    circuitron@rvscet.ac.in
+                    circuitronrvscet@gmail.com
                   </a>
                   <p className="text-gray-400 text-xs mt-0.5">Response within 24 hours</p>
                 </div>

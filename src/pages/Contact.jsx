@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     q: "Will accommodation and food be provided for outstation participants?",
-    a: "Basic accommodation support and dining facilities within the campus hostels can be arranged on prior request. Reach out to circuitron@rvscet.ac.in for assistance.",
+    a: "Basic accommodation support and dining facilities within the campus hostels can be arranged on prior request. Reach out to circuitronrvscet@gmail.com for assistance.",
   },
 ];
 
@@ -71,16 +71,24 @@ export default function Contact() {
     {
       icon: <Mail className="w-6 h-6 text-primary" />,
       title: "Direct Emails",
-      details: ["circuitron@rvscet.ac.in", "techxpo2026@rvscet.ac.in"],
-      action: "mailto:circuitron@rvscet.ac.in",
+      details: [
+        "circuitronrvscet@gmail.com",
+        "aashmitanand15.8@gmail.com",
+        "subhapain604@gmail.com",
+      ],
+      action: "mailto:circuitronrvscet@gmail.com",
       actionText: "Send Email",
     },
     {
       icon: <Phone className="w-6 h-6 text-accent" />,
       title: "Campus Secretariat",
-      details: ["+91 657 2364402", "+91 657 2364403"],
-      action: "tel:+916572364402",
-      actionText: "Call RVSCET Desk",
+      details: [
+        "+91 79798 07498",
+        "+91 96315 35834",
+        "+91 87096 58260",
+      ],
+      action: "tel:+917979807498",
+      actionText: "Call Help Desk",
     },
     {
       icon: (
