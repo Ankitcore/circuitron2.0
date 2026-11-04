@@ -107,9 +107,9 @@ export default function HomeTeam() {
                   <p className="text-primary font-semibold text-xs mt-1">
                     {member.position}
                   </p>
-                  {member.rollNo && (
-                    <span className="text-[10px] font-mono text-gray-400 mt-1 inline-block bg-white/5 px-2 py-0.5 rounded">
-                      Roll: {member.rollNo}
+                  {member.department && (
+                    <span className="text-[10px] font-mono text-gray-300 mt-1 inline-block bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
+                      {member.department}
                     </span>
                   )}
                 </div>

@@ -106,9 +106,16 @@ export default function Team() {
                 </div>
 
                 <div className="space-y-2">
-                  <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-[11px] font-bold text-accent uppercase tracking-wider">
-                    {mentor.position}
-                  </span>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-[11px] font-bold text-accent uppercase tracking-wider">
+                      {mentor.position}
+                    </span>
+                    {mentor.department && (
+                      <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] font-mono text-gray-300">
+                        {mentor.department}
+                      </span>
+                    )}
+                  </div>
                   <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
                     {mentor.name}
                   </h3>
@@ -159,6 +166,11 @@ export default function Team() {
                     <p className="text-primary font-semibold text-sm mt-1">
                       {exec.position}
                     </p>
+                    {exec.department && (
+                      <span className="inline-block text-[11px] font-mono text-accent bg-accent/10 border border-accent/20 px-2.5 py-0.5 rounded-full mt-1.5">
+                        {exec.department}
+                      </span>
+                    )}
                   </div>
                   {(exec.tagline || exec.description) && (
                     <p className="text-gray-300 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto pt-3 border-t border-white/10 mt-3">
@@ -206,6 +218,11 @@ export default function Team() {
                 <p className="text-accent font-semibold text-xs mt-1">
                   {member.role}
                 </p>
+                {member.department && (
+                  <span className="text-[10px] font-mono text-gray-300 mt-1.5 inline-block bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+                    {member.department}
+                  </span>
+                )}
               </div>
             ))}
           </div>
