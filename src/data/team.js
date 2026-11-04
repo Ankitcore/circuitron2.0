@@ -19,33 +19,32 @@ export const executiveTeam = [
     position: "President",
     description: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     tagline: "Inspiring leadership, driving innovation, and shaping the club’s future.",
-    img: "/assets/gallery2/umang kumar sharma.jpeg",
+    img: "/assets/gallery2/umang kumar sharma.webp",
   },
   {
     name: "Akshat Anand",
     position: "PR & Communication Head",
     description: "Building connections, strengthening communication, and creating a lasting impact.",
     tagline: "Building connections, strengthening communication, and creating a lasting impact.",
-    img: "/assets/gallery2/akshat anand.jpeg",
+    img: "/assets/gallery2/akshat anand.webp",
   },
   {
     name: "Subha Pain",
     position: "Technical Head",
     description: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     tagline: "Inspiring leadership, driving innovation, and shaping the club’s future.",
-    img: "/assets/gallery2/subha pain.jpeg",
+    img: "/assets/gallery2/subha pain.webp",
   },
-   {
+  {
     name: "Anurag Gupta",
     position: "Vice President",
-    description: "Dept. of ECE",
+    description: "Leading with purpose, inspiring collaboration, and driving progress.",
     tagline: "Leading with purpose, inspiring collaboration, and driving progress.",
     img: "/assets/gallery2/anurag gupta.webp",
   },
 ];
 
 export const coreTeam = [
- 
   {
     name: "Prem Shaw",
     role: "Event Head",
@@ -65,7 +64,7 @@ export const coreTeam = [
     img: "/assets/gallery2/ajay nayak.webp",
   },
   {
-    name: "Joydev Kumar Mahato", 
+    name: "Joydev Kumar Mahato",
     role: "Technical Secretary",
     department: "Dept. of ECE",
     img: "/assets/gallery2/joydev kumar mahato.webp",

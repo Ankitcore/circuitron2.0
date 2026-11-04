@@ -45,6 +45,7 @@ export default function HomeTeam() {
     { ...facultyCoordinators[0], category: "Faculty Mentor" },
     { ...facultyCoordinators[1], category: "Faculty Co-PI" },
     { ...executiveTeam[0], category: "Executive President" },
+    ...(executiveTeam[3] ? [{ ...executiveTeam[3], category: "Vice President" }] : []),
     { ...executiveTeam[1], category: "PR & Communications" },
     { ...executiveTeam[2], category: "Technical Leadership" },
   ];
