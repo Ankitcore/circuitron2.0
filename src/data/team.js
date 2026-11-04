@@ -2,14 +2,12 @@ export const facultyCoordinators = [
   {
     name: "Prof. Dr. Sushanta Mahanty",
     position: "Head PI",
-    department: "Dept. of ECE",
     description: "Leading the technical vision and development of the club",
     img: "/assets/gallery2/prof .shushant mahanty.jpg",
   },
   {
     name: "Prof. Dr. Vikash Kumar",
     position: "Co-PI",
-    department: "Dept. of ECE",
     description: "Guiding research and innovation initiatives",
     img: "/assets/gallery2/prof vikash kumar.jpg",
   },
@@ -19,7 +17,6 @@ export const executiveTeam = [
   {
     name: "Umang Kumar Sharma",
     position: "President",
-    department: "Dept. of ECE",
     description: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     tagline: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     img: null,
@@ -27,7 +24,6 @@ export const executiveTeam = [
   {
     name: "Akshat Anand",
     position: "PR & Communication Head",
-    department: "Dept. of ECE",
     description: "Building connections, strengthening communication, and creating a lasting impact.",
     tagline: "Building connections, strengthening communication, and creating a lasting impact.",
     img: null,
@@ -35,7 +31,6 @@ export const executiveTeam = [
   {
     name: "Subha Pain",
     position: "Technical Head",
-    department: "Dept. of ECE",
     description: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     tagline: "Inspiring leadership, driving innovation, and shaping the club’s future.",
     img: null,

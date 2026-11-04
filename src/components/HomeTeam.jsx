@@ -107,11 +107,6 @@ export default function HomeTeam() {
                   <p className="text-primary font-semibold text-xs mt-1">
                     {member.position}
                   </p>
-                  {member.department && (
-                    <span className="text-[10px] font-mono text-gray-300 mt-1 inline-block bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
-                      {member.department}
-                    </span>
-                  )}
                 </div>
                 {(member.tagline || member.description) && (
                   <p className="text-gray-300 text-xs mt-3 leading-relaxed pt-2 border-t border-white/5">
