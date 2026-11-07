@@ -106,16 +106,27 @@ export default function Team() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-[11px] font-bold text-accent uppercase tracking-wider">
-                    {mentor.position}
-                  </span>
-                  <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
-                    {mentor.name}
-                  </h3>
-                  <p className="text-gray-300 text-xs leading-relaxed max-w-xs mx-auto">
-                    {mentor.description}
-                  </p>
+                <div className="space-y-2 text-center flex-1 flex flex-col items-center justify-between w-full">
+                  <div>
+                    <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-[11px] font-bold text-accent uppercase tracking-wider inline-block mb-2">
+                      {mentor.position}
+                    </span>
+                    <h3 className="text-xl font-bold font-orbitron text-white group-hover:text-primary transition-colors">
+                      {mentor.name}
+                    </h3>
+                    <p className="text-gray-300 text-xs leading-relaxed max-w-xs mx-auto mt-2">
+                      {mentor.description}
+                    </p>
+                  </div>
+                  {mentor.id && (
+                    <Link
+                      to={`/verify/${mentor.id}`}
+                      className="inline-flex items-center space-x-1.5 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors pt-3 border-t border-white/5 w-full justify-center group/badge mt-4"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 group-hover/badge:scale-110 transition-transform" />
+                      <span>Verify Credential &bull; {mentor.id}</span>
+                    </Link>
+                  )}
                 </div>
               </div>
             ))}

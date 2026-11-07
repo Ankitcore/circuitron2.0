@@ -9,6 +9,9 @@ export const facultyCoordinators = [
     tier: "Academic Advisory Board",
     category: "Faculty Advisory",
     department: "Dept. of ECE",
+    idCard: "/assets/id-cards/TX2-FC-001.jpg",
+    idCardHd: "/assets/id-cards/TX2-FC-001-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-FC-001_qr.png",
   },
   {
     id: "TX2-FC-002",
@@ -20,6 +23,9 @@ export const facultyCoordinators = [
     tier: "Academic Advisory Board",
     category: "Faculty Advisory",
     department: "Dept. of ECE",
+    idCard: "/assets/id-cards/TX2-FC-002.jpg",
+    idCardHd: "/assets/id-cards/TX2-FC-002-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-FC-002_qr.png",
   },
 ];
 
