@@ -32,6 +32,7 @@ export default function Footer() {
     { name: "Core Committee", path: "/team" },
     { name: "Photo Archive", path: "/gallery" },
     { name: "Support & Contact", path: "/contact" },
+    { name: "Verify Credentials", path: "/verify" },
   ];
 
   return (

@@ -23,6 +23,7 @@ const Team = lazy(() => import("./pages/Team"));
 const Gallery = lazy(() => import("./pages/Gallery"));
 const Schedule = lazy(() => import("./pages/Schedule"));
 const Contact = lazy(() => import("./pages/Contact"));
+const Verify = lazy(() => import("./pages/Verify"));
 
 function ScrollToTopOnRoute() {
   const { pathname } = useLocation();
@@ -66,6 +67,8 @@ export default function App() {
               <Route path="/gallery" element={<Gallery />} />
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/verify" element={<Verify />} />
+              <Route path="/verify/:id" element={<Verify />} />
               {/* Fallback route */}
               <Route path="*" element={<Home />} />
             </Routes>

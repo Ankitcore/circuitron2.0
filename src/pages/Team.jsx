@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { facultyCoordinators, executiveTeam, coreTeam } from "../data/team";
-import { Sparkles, Award, Shield, UserCheck } from "lucide-react";
+import { Sparkles, Award, Shield, UserCheck, ShieldCheck } from "lucide-react";
 
 function MemberAvatar({ src, name }) {
   const [hasError, setHasError] = useState(false);
@@ -167,6 +168,15 @@ export default function Team() {
                     <p className="text-gray-300 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto pt-3 border-t border-white/10 mt-3">
                       {exec.tagline || exec.description}
                     </p>
+                  )}
+                  {exec.id && (
+                    <Link
+                      to={`/verify/${exec.id}`}
+                      className="inline-flex items-center space-x-1.5 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors pt-3 border-t border-white/5 w-full justify-center group/badge mt-2"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 group-hover/badge:scale-110 transition-transform" />
+                      <span>Verify Credential &bull; {exec.id}</span>
+                    </Link>
                   )}
                 </div>
               </div>
