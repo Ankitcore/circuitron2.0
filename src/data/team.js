@@ -1,8 +1,6 @@
 export const facultyCoordinators = [
   {
     id: "TX2-FC-8492",
-    legacyId: "TX2-FC-001",
-    securityBit: "8492-7103",
     name: "Prof. Dr. Sushanta Mahanty",
     position: "Head PI",
     role: "Head PI",
@@ -17,8 +15,6 @@ export const facultyCoordinators = [
   },
   {
     id: "TX2-FC-3925",
-    legacyId: "TX2-FC-002",
-    securityBit: "3925-4618",
     name: "Prof. Dr. Vikash Kumar",
     position: "Co-PI",
     role: "Co-PI",
@@ -36,8 +32,6 @@ export const facultyCoordinators = [
 export const executiveTeam = [
   {
     id: "TX2-EX-4918",
-    legacyId: "TX2-EX-001",
-    securityBit: "4918-9325",
     name: "Umang Kumar Sharma",
     position: "President",
     role: "President",
@@ -54,8 +48,6 @@ export const executiveTeam = [
   },
   {
     id: "TX2-EX-7264",
-    legacyId: "TX2-EX-002",
-    securityBit: "7264-5812",
     name: "Akshat Anand Singh",
     position: "PR & Communication Head",
     role: "PR & Communication Head",
@@ -72,8 +64,6 @@ export const executiveTeam = [
   },
   {
     id: "TX2-EX-9531",
-    legacyId: "TX2-EX-003",
-    securityBit: "9531-8247",
     name: "Subha Pain",
     position: "Technical Head",
     role: "Technical Head",
@@ -90,8 +80,6 @@ export const executiveTeam = [
   },
   {
     id: "TX2-EX-3825",
-    legacyId: "TX2-EX-004",
-    securityBit: "3825-1490",
     name: "Anurag Gupta",
     position: "Vice President",
     role: "Vice President",
@@ -111,8 +99,6 @@ export const executiveTeam = [
 export const coreTeam = [
   {
     id: "TX2-CT-5819",
-    legacyId: "TX2-CT-001",
-    securityBit: "5819-3746",
     name: "Prem Shaw",
     role: "Event Head",
     position: "Event Head",
@@ -127,8 +113,6 @@ export const coreTeam = [
   },
   {
     id: "TX2-CT-4291",
-    legacyId: "TX2-CT-002",
-    securityBit: "4291-6523",
     name: "Shivam Kumar",
     role: "Event Head",
     position: "Event Head",
@@ -143,8 +127,6 @@ export const coreTeam = [
   },
   {
     id: "TX2-CT-8137",
-    legacyId: "TX2-CT-003",
-    securityBit: "8137-9051",
     name: "Ajay Nayak",
     role: "Media And Content Head",
     position: "Media And Content Head",
@@ -159,8 +141,6 @@ export const coreTeam = [
   },
   {
     id: "TX2-CT-2964",
-    legacyId: "TX2-CT-004",
-    securityBit: "2964-1873",
     name: "Joydev Kumar Mahato",
     role: "Technical Secretary",
     position: "Technical Secretary",
@@ -175,8 +155,6 @@ export const coreTeam = [
   },
   {
     id: "TX2-CT-7405",
-    legacyId: "TX2-CT-005",
-    securityBit: "7405-5284",
     name: "Rohini Kumari",
     role: "Hardware and Inventory Head",
     position: "Hardware and Inventory Head",
@@ -191,8 +169,6 @@ export const coreTeam = [
   },
   {
     id: "TX2-CT-6382",
-    legacyId: "TX2-CT-006",
-    securityBit: "6382-7915",
     name: "Ankit Kumar",
     role: "Software Head",
     position: "Software Head",
@@ -207,8 +183,6 @@ export const coreTeam = [
   },
   {
     id: "TX2-CT-9140",
-    legacyId: "TX2-CT-007",
-    securityBit: "9140-4168",
     name: "Mohit Kumar",
     role: "Designer Head",
     position: "Designer Head",
@@ -226,24 +200,6 @@ export const coreTeam = [
 export function getMemberById(id) {
   if (!id) return null;
   const normalized = id.trim().toUpperCase();
-
-  // Alias resolution between TX2-CR-xxx (old) and TX2-CT-xxx (official)
-  const alias = normalized.startsWith("TX2-CR-")
-    ? normalized.replace("TX2-CR-", "TX2-CT-")
-    : normalized.startsWith("TX2-CT-")
-    ? normalized.replace("TX2-CT-", "TX2-CR-")
-    : normalized;
-
   const all = [...facultyCoordinators, ...executiveTeam, ...coreTeam];
-  return (
-    all.find(
-      (m) =>
-        m.id === normalized ||
-        m.legacyId === normalized ||
-        m.id === alias ||
-        m.legacyId === alias ||
-        m.securityBit === normalized ||
-        m.securityBit.replace("-", "") === normalized.replace("-", "")
-    ) || null
-  );
+  return all.find((m) => m.id === normalized) || null;
 }
