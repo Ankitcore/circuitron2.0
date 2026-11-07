@@ -60,7 +60,7 @@ export default function Contact() {
     setFormData((prev) => ({ ...prev, [name]: sanitizeInput(value, maxLen) }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
 
@@ -83,12 +83,42 @@ export default function Contact() {
 
     setErrorMsg("");
     setIsSubmitting(true);
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject?.trim() || "Inquiry from Contact Page",
+          message: formData.message.trim(),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setSubmitted(true);
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setTimeout(() => setSubmitted(false), 5000);
+      } else {
+        setErrorMsg(
+          data.error ||
+            "Unable to transmit your message right now. Please reach out via WhatsApp or email directly."
+        );
+      }
+    } catch (err) {
+      console.error("Transmission error:", err);
+      setErrorMsg(
+        "Network connection failed. Please reach out to circuitronrvscet@gmail.com or WhatsApp directly."
+      );
+    } finally {
       setIsSubmitting(false);
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 4500);
+    }
   };
 
   const contactCards = [
