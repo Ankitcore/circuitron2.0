@@ -90,7 +90,8 @@ export default async function handler(req, res) {
 
     // Check for Resend API Key in environment variables
     const apiKey = process.env.RESEND_API_KEY;
-    const receiverEmail = process.env.CONTACT_RECEIVER_EMAIL || "circuitronrvscet@gmail.com";
+    const receiverConfig = process.env.CONTACT_RECEIVER_EMAIL || "www.aku121@gmail.com";
+    const receiverEmails = receiverConfig.split(",").map((e) => e.trim()).filter(Boolean);
     const senderEmail = process.env.RESEND_FROM_EMAIL || "TechXpo Portal <onboarding@resend.dev>";
 
     if (!apiKey) {
@@ -178,7 +179,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         from: senderEmail,
-        to: [receiverEmail],
+        to: receiverEmails,
         reply_to: cleanEmail,
         subject: `[TechXpo 2.O Inquiry] ${cleanSubject}`,
         html: emailHtml,
