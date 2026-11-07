@@ -348,8 +348,8 @@ export default function Verify() {
             </div>
 
             <div className="space-y-2 text-center text-xs text-gray-300">
-              <p className="font-mono text-[11px] text-emerald-400">
-                &check; Embedded QR code links directly to:
+              <p className="font-mono text-[11px] text-emerald-400 flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Embedded QR code links directly to:
               </p>
               <code className="block bg-black/50 p-2 rounded text-[11px] font-mono text-accent select-all break-all">
                 {`https://circuitron2-0.vercel.app/verify/${member?.id || targetId}`}

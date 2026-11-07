@@ -264,8 +264,8 @@ export default function Events() {
             </div>
 
             <div className="flex-shrink-0">
-              <span className="inline-block px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
-                &check; Free Registration
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Free Registration
               </span>
             </div>
           </div>
@@ -689,8 +689,9 @@ export default function Events() {
                   </li>
                 ))}
               </ul>
-              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] font-mono text-amber-300">
-                &check; Judges' and coordinators' decisions are final and binding.
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] font-mono text-amber-300 flex items-center gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 text-amber-400" />
+                <span>Judges' and coordinators' decisions are final and binding.</span>
               </div>
             </div>
 
