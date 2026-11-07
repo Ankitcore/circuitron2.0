@@ -6,26 +6,26 @@ import { Image as ImageIcon, ArrowRight, Sparkles, ZoomIn } from "lucide-react";
 const previewImages = [
   {
     id: 1,
-    src: "/assets/gallery/IMG-20251024-WA0001.webp",
-    title: "Circuitron Flagship Arena",
-    category: "Robo Exhibition",
+    src: "/assets/gallery/techxpo-championship-trophy.webp",
+    title: "Championship Felicitation",
+    category: "Grand Finale",
   },
   {
     id: 2,
-    src: "/assets/gallery/IMG-20251024-WA0002.webp",
-    title: "Innovators & Mentors",
-    category: "Symposium",
+    src: "/assets/gallery/all-terrain-robo-race-championship.webp",
+    title: "All-Terrain Robo Race Arena",
+    category: "Robotics",
   },
   {
     id: 3,
-    src: "/assets/gallery/IMG-20251024-WA0003.webp",
-    title: "Embedded Hardware Stalls",
-    category: "Showcase",
+    src: "/assets/gallery/smart-agriculture-iot-exhibition.webp",
+    title: "Smart Agriculture IoT Stalls",
+    category: "Exhibition",
   },
   {
     id: 4,
-    src: "/assets/gallery/IMG-20251024-WA0004.webp",
-    title: "Student Project Demos",
+    src: "/assets/gallery/smart-agro-rover-demonstration.webp",
+    title: "Autonomous Agro-Rover Demo",
     category: "Prototyping",
   },
 ];
