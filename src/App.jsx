@@ -24,12 +24,53 @@ const Gallery = lazy(() => import("./pages/Gallery"));
 const Schedule = lazy(() => import("./pages/Schedule"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Verify = lazy(() => import("./pages/Verify"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
-function ScrollToTopOnRoute() {
+// Dynamic SEO page title and meta description router hook
+function RouteMetadataUpdater() {
   const { pathname } = useLocation();
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
+
+    const titles = {
+      "/": "TechXpo 2.O | Circuitron RVSCET Jamshedpur",
+      "/about": "About Us & Vision | Circuitron RVSCET",
+      "/events": "Competitions & Arenas | TechXpo 2.O",
+      "/team": "Official Roster & Committee | TechXpo 2.O",
+      "/gallery": "Photo Archive & Moments | TechXpo 2.O",
+      "/schedule": "Timeline Schedule & Rounds | TechXpo 2.O",
+      "/contact": "Support & Help Desk | TechXpo 2.O",
+      "/verify": "Credential Verification | TechXpo 2.O",
+    };
+
+    const descriptions = {
+      "/": "TechXpo 2.O - The Flagship Technical Symposium by Circuitron, IoT & Embedded System Club at RVSCET Jamshedpur. ₹1,00,000 Grand Prize Pool with 100% Free Registration.",
+      "/about": "Discover Circuitron, the official IoT & Embedded Systems Club of RVSCET Jamshedpur. Fostering innovation, robotics, and hardware engineering.",
+      "/events": "Explore the three competition arenas: Eklavya, Lakshya, and Arjuna. Win up to ₹1,00,000 in cash prizes and trophies.",
+      "/team": "Meet the visionary faculty coordinators, executive leaders, and student operational heads powering TechXpo 2.O.",
+      "/gallery": "Browse highlights, robot arena battles, project showcases, and championship moments from previous editions.",
+      "/schedule": "Check the official event timeline, check-in schedules, arena testing windows, and closing ceremonies.",
+      "/contact": "Contact the TechXpo 2.O secretariat for queries, partnerships, accommodation assistance, and technical guidance.",
+      "/verify": "Official digital credential verification portal for TechXpo 2.O delegates, committee members, and executives.",
+    };
+
+    if (pathname.startsWith("/verify/")) {
+      document.title = "Verify Credential | TechXpo 2.O";
+    } else {
+      document.title = titles[pathname] || "TechXpo 2.O | Circuitron RVSCET";
+    }
+
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) {
+      descMeta.setAttribute(
+        "content",
+        descriptions[pathname] ||
+          "TechXpo 2.O - The Flagship Technical Symposium by Circuitron at RVSCET Jamshedpur."
+      );
+    }
   }, [pathname]);
+
   return null;
 }
 
@@ -39,7 +80,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy">
       <ScrollProgressBar />
-      <ScrollToTopOnRoute />
+      <RouteMetadataUpdater />
       <Suspense fallback={null}>
         <InteractiveCyberGrid />
       </Suspense>
@@ -69,8 +110,8 @@ export default function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/verify" element={<Verify />} />
               <Route path="/verify/:id" element={<Verify />} />
-              {/* Fallback route */}
-              <Route path="*" element={<Home />} />
+              {/* Custom 404 Route */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </AnimatePresence>
         </Suspense>

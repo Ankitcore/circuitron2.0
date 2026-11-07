@@ -5,3 +5,5 @@ Disallow: /private
 Disallow: /api/
 Disallow: /*.json$
 Disallow: /*.log$
+
+Sitemap: https://circuitron2-0.vercel.app/sitemap.xml

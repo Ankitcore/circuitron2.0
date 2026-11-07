@@ -1,6 +1,17 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Phone, MapPin, Send, CheckCircle2, Sparkles, ExternalLink, MessageSquare, ChevronDown } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  CheckCircle2,
+  Sparkles,
+  ExternalLink,
+  MessageSquare,
+  ChevronDown,
+  AlertCircle,
+} from "lucide-react";
 
 const faqs = [
   {
@@ -30,6 +41,7 @@ export default function Contact() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [openFaq, setOpenFaq] = useState(null);
 
   // Security: Clean and sanitize inputs against XSS and script injections
@@ -42,6 +54,7 @@ export default function Contact() {
   };
 
   const handleChange = (e) => {
+    setErrorMsg("");
     const { name, value } = e.target;
     const maxLen = name === "message" ? 1000 : name === "subject" ? 120 : name === "email" ? 100 : 60;
     setFormData((prev) => ({ ...prev, [name]: sanitizeInput(value, maxLen) }));
@@ -51,20 +64,31 @@ export default function Contact() {
     e.preventDefault();
     if (isSubmitting) return;
 
-    // Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
-      alert("Please enter a valid email address.");
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      setErrorMsg("Please enter your full name.");
       return;
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setErrorMsg("Please provide a valid email address (e.g. name@college.edu).");
+      return;
+    }
+
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      setErrorMsg("Please write a detailed message (minimum 10 characters).");
+      return;
+    }
+
+    setErrorMsg("");
     setIsSubmitting(true);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
       setIsSubmitting(false);
       setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 4000);
+    }, 4500);
   };
 
   const contactCards = [
@@ -77,7 +101,7 @@ export default function Contact() {
         "subhapain604@gmail.com",
       ],
       action: "mailto:circuitronrvscet@gmail.com",
-      actionText: "Send Email",
+      actionText: "Send Primary Email",
     },
     {
       icon: <Phone className="w-6 h-6 text-accent" />,
@@ -88,7 +112,21 @@ export default function Contact() {
         "+91 87096 58260",
       ],
       action: "tel:+917979807498",
-      actionText: "Call Help Desk",
+      actionText: "Call Primary Desk",
+    },
+    {
+      icon: (
+        <svg className="w-6 h-6 fill-current text-emerald-400" viewBox="0 0 24 24">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+        </svg>
+      ),
+      title: "WhatsApp Helpline",
+      details: [
+        "+91 79798 07498",
+        "Instant support for registration & rules",
+      ],
+      action: "https://wa.me/917979807498?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O",
+      actionText: "Chat on WhatsApp",
     },
     {
       icon: (
@@ -99,9 +137,9 @@ export default function Contact() {
         />
       ),
       title: "Campus Address",
-      details: ["RVS College of Engineering & Technology", "Jamshedpur, Jharkhand - 831001"],
+      details: ["RVS College of Engineering & Technology", "Edalbera, Bhilai Pahari, Jamshedpur - 831001"],
       action: "https://maps.google.com/?q=RVSCET+Jamshedpur",
-      actionText: "Open in Maps",
+      actionText: "Open in Google Maps",
     },
   ];
 
@@ -139,14 +177,14 @@ export default function Contact() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>24/7 SUPPORT DESK</span>
+            <span>24/7 SUPPORT &amp; HELP DESK</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-black font-orbitron gradient-text">
             Contact &amp; Assistance
           </h1>
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
-            Reach out to the organizing committee for technical clarifications, sponsorship partnerships, or campus venue logistics.
+            Reach out to the organizing secretariat for technical clarifications, sponsorship partnerships, or campus venue logistics.
           </p>
         </div>
       </section>
@@ -163,7 +201,7 @@ export default function Contact() {
                   Get In Touch Directly
                 </h2>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  Our coordinator desk is available throughout the week to resolve participant and faculty queries.
+                  Our coordinator desk is available throughout the week to resolve participant and faculty queries. Click any phone number or email to connect immediately.
                 </p>
               </div>
 
@@ -177,15 +215,44 @@ export default function Contact() {
                       <div className="w-12 h-12 rounded-xl bg-darkNavy/80 border border-primary/30 flex items-center justify-center flex-shrink-0">
                         {card.icon}
                       </div>
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <h3 className="font-bold font-orbitron text-white text-base">
                           {card.title}
                         </h3>
-                        {card.details.map((d, i) => (
-                          <p key={i} className="text-gray-300 text-xs mt-0.5">
-                            {d}
-                          </p>
-                        ))}
+                        <div className="mt-1 space-y-1">
+                          {card.details.map((d, i) => {
+                            const isEmail = d.includes("@");
+                            const isPhone = d.startsWith("+91");
+                            if (isEmail) {
+                              return (
+                                <a
+                                  key={i}
+                                  href={`mailto:${d}`}
+                                  className="block text-primary hover:text-accent hover:underline text-xs font-mono transition-colors break-all"
+                                >
+                                  {d}
+                                </a>
+                              );
+                            }
+                            if (isPhone) {
+                              const cleanPhone = d.replace(/\s+/g, "");
+                              return (
+                                <a
+                                  key={i}
+                                  href={`tel:${cleanPhone}`}
+                                  className="block text-accent hover:text-white hover:underline text-xs font-mono font-bold transition-colors"
+                                >
+                                  {d}
+                                </a>
+                              );
+                            }
+                            return (
+                              <p key={i} className="text-gray-300 text-xs">
+                                {d}
+                              </p>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
 
@@ -193,7 +260,7 @@ export default function Contact() {
                       href={card.action}
                       target={card.action.startsWith("http") ? "_blank" : undefined}
                       rel={card.action.startsWith("http") ? "noopener noreferrer" : undefined}
-                      className="inline-flex items-center space-x-1 text-xs font-semibold text-accent hover:underline self-end"
+                      className="inline-flex items-center space-x-1.5 text-xs font-semibold text-accent hover:text-white hover:underline self-end pt-2"
                     >
                       <span>{card.actionText}</span>
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -238,16 +305,32 @@ export default function Contact() {
                   </p>
                 </div>
 
+                {/* Inline Error Alert */}
+                {errorMsg && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center space-x-2 text-red-400 text-xs font-mono"
+                  >
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{errorMsg}</span>
+                  </motion.div>
+                )}
+
                 {submitted ? (
-                  <div className="p-6 sm:p-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-6 sm:p-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3"
+                  >
                     <CheckCircle2 className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-400 mx-auto" />
                     <h4 className="text-lg sm:text-xl font-bold font-orbitron text-white">
                       Message Received!
                     </h4>
-                    <p className="text-gray-300 text-xs sm:text-sm">
+                    <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                       Thank you for contacting Circuitron. A coordinator will reply via email shortly.
                     </p>
-                  </div>
+                  </motion.div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
@@ -278,7 +361,7 @@ export default function Contact() {
                           onChange={handleChange}
                           required
                           maxLength={100}
-                          placeholder="you@domain.com"
+                          placeholder="your.email@college.edu"
                           className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                         />
                       </div>
@@ -286,23 +369,22 @@ export default function Contact() {
 
                     <div className="space-y-1.5">
                       <label className="text-[11px] sm:text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                        Subject / Query Domain *
+                        Subject
                       </label>
                       <input
                         type="text"
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
-                        required
                         maxLength={120}
-                        placeholder="e.g. Robo War Rules Clarification"
+                        placeholder="Inquiry Topic (e.g. Project Exhibition, Robo War, Accommodation)"
                         className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                       />
                     </div>
 
                     <div className="space-y-1.5">
                       <label className="text-[11px] sm:text-xs font-semibold text-gray-300 uppercase tracking-wider">
-                        Message *
+                        Message / Query *
                       </label>
                       <textarea
                         name="message"
@@ -310,18 +392,19 @@ export default function Contact() {
                         onChange={handleChange}
                         required
                         maxLength={1000}
-                        rows={4}
-                        placeholder="Describe your inquiry with relevant details..."
+                        rows={5}
+                        placeholder="Please write your questions or instructions here..."
                         className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm resize-none"
                       />
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full btn-primary py-3 sm:py-4 text-xs sm:text-sm font-bold min-h-[44px]"
+                      disabled={isSubmitting}
+                      className="w-full btn-primary py-3.5 text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 shadow-neon disabled:opacity-50"
                     >
-                      <Send className="w-4 h-4 mr-1.5 inline" />
-                      <span>Transmit Inquiries</span>
+                      <Send className="w-4 h-4" />
+                      <span>{isSubmitting ? "Transmitting..." : "Send Message"}</span>
                     </button>
                   </form>
                 )}
@@ -333,57 +416,48 @@ export default function Contact() {
       </section>
 
       {/* FAQ Accordion Section */}
-      <section className="py-16 bg-gradient-to-b from-transparent via-primary/5 to-transparent">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center space-y-3 mb-12">
-            <span className="text-xs font-mono uppercase tracking-wider text-accent font-semibold">
-              QUICK ANSWERS
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white">
-              Frequently Asked Questions
+      <section className="py-12 bg-darkNavy/30">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl sm:text-4xl font-black font-orbitron text-white">
+              Frequently Answered Questions
             </h2>
-            <div className="w-16 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+            <p className="text-gray-400 text-xs sm:text-sm">
+              Quick answers to common participant inquiries.
+            </p>
           </div>
 
-          <div className="space-y-4">
-            {faqs.map((faq, index) => {
-              const isOpen = openFaq === index;
-              return (
-                <div
-                  key={index}
-                  className="glass-card rounded-2xl border border-primary/20 overflow-hidden"
+          <div className="space-y-3">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className="glass-card rounded-2xl border border-primary/20 overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full p-4 sm:p-5 text-left flex items-center justify-between text-white font-semibold text-sm sm:text-base focus:outline-none"
                 >
-                  <button
-                    onClick={() => setOpenFaq(isOpen ? null : index)}
-                    className="w-full p-4 sm:p-6 text-left flex items-center justify-between space-x-3 sm:space-x-4 focus:outline-none min-h-[48px]"
-                  >
-                    <span className="font-orbitron font-bold text-white text-xs sm:text-base">
-                      {faq.q}
-                    </span>
-                    <ChevronDown
-                      className={`w-4 h-4 sm:w-5 sm:h-5 text-accent flex-shrink-0 transition-transform duration-300 ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <div className="px-4 pb-4 sm:px-6 sm:pb-6 text-xs sm:text-sm text-gray-300 leading-relaxed border-t border-white/5 pt-3 sm:pt-4">
-                          {faq.a}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })}
+                  <span>{faq.q}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-accent transition-transform duration-200 ${
+                      openFaq === idx ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {openFaq === idx && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="px-4 sm:px-5 pb-5 text-gray-300 text-xs sm:text-sm leading-relaxed border-t border-white/5 pt-3"
+                    >
+                      {faq.a}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
           </div>
         </div>
       </section>
