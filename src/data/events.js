@@ -192,3 +192,12 @@ export const rulesAndGuidelines = {
     "Judges' and coordinators' decisions are final and binding.",
   ],
 };
+
+export const BROCHURE_CONFIG = {
+  driveUrl: "https://drive.google.com/file/d/1BnXjrzGn_Y86PqJAFMarpxXRjEKq6CjT/view?usp=sharing",
+  pdfPath: "/assets/techxpo-2.0-brochure.pdf",
+  downloadName: "TechXpo_2.0_Official_Brochure.pdf",
+  title: "TechXpo 2.O Official Brochure",
+  size: "4.9 MB",
+  pages: 8,
+};

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Calendar, MapPin, Download, ArrowRight, Sparkles, Trophy, Users, Bot } from "lucide-react";
+import { Calendar, MapPin, Download, ArrowRight, Sparkles, Trophy, Users, Bot, ExternalLink } from "lucide-react";
 import TechModel3D from "./TechModel3D";
 import CountdownTimer from "./CountdownTimer";
 
@@ -107,7 +107,7 @@ export default function Hero() {
               </motion.a>
 
               <motion.a
-                href="/assets/techxpo-2.0-brochure.pdf" download="TechXpo_2.0_Official_Brochure.pdf"
+                href="https://drive.google.com/file/d/1BnXjrzGn_Y86PqJAFMarpxXRjEKq6CjT/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
@@ -115,7 +115,8 @@ export default function Hero() {
                 className="btn-secondary w-full sm:w-auto text-sm py-3 px-6"
               >
                 <Download className="w-4 h-4" />
-                <span>Download Brochure (PDF)</span>
+                <span>Official Brochure</span>
+                <ExternalLink className="w-3.5 h-3.5 ml-1 opacity-80" />
               </motion.a>
             </div>
           </motion.div>

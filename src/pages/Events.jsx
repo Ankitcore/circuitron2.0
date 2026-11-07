@@ -116,12 +116,14 @@ export default function Events() {
           {/* Action CTAs: Brochure & Forms */}
           <div className="pt-4 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
             <a
-              href="/assets/techxpo-2.0-brochure.pdf"
-              download="TechXpo_2.0_Official_Brochure.pdf"
+              href="https://drive.google.com/file/d/1BnXjrzGn_Y86PqJAFMarpxXRjEKq6CjT/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn-primary py-3 px-6 text-xs sm:text-sm font-bold flex items-center space-x-2 shadow-neon"
             >
-              <Download className="w-4 h-4" />
-              <span>Download Official Brochure (PDF)</span>
+              <FileText className="w-4 h-4" />
+              <span>Official Brochure (Drive / PDF)</span>
+              <ExternalLink className="w-3.5 h-3.5" />
             </a>
 
             <a
@@ -711,14 +713,26 @@ export default function Events() {
               </p>
             </div>
 
-            <a
-              href="/assets/techxpo-2.0-brochure.pdf"
-              download="TechXpo_2.0_Official_Brochure.pdf"
-              className="btn-primary py-3.5 px-8 text-xs sm:text-sm font-bold whitespace-nowrap flex items-center space-x-2 shadow-neon"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download PDF (4.9 MB)</span>
-            </a>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <a
+                href="https://drive.google.com/file/d/1BnXjrzGn_Y86PqJAFMarpxXRjEKq6CjT/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary py-3.5 px-6 text-xs sm:text-sm font-bold whitespace-nowrap flex items-center justify-center space-x-2 shadow-neon"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Open in Google Drive</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <a
+                href="/assets/techxpo-2.0-brochure.pdf"
+                download="TechXpo_2.0_Official_Brochure.pdf"
+                className="btn-secondary py-3.5 px-6 text-xs sm:text-sm font-bold whitespace-nowrap flex items-center justify-center space-x-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download PDF (4.9 MB)</span>
+              </a>
+            </div>
           </div>
 
         </div>

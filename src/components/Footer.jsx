@@ -33,7 +33,7 @@ export default function Footer() {
     { name: "Photo Archive", path: "/gallery" },
     { name: "Support & Contact", path: "/contact" },
     { name: "Verify Credentials", path: "/verify" },
-    { name: "Event Brochure (PDF)", path: "/assets/techxpo-2.0-brochure.pdf", download: true },
+    { name: "Official Brochure (Drive / PDF)", path: "https://drive.google.com/file/d/1BnXjrzGn_Y86PqJAFMarpxXRjEKq6CjT/view?usp=sharing", external: true },
   ];
 
   return (
@@ -104,7 +104,17 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  {link.download ? (
+                  {link.external ? (
+                    <a
+                      href={link.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-accent hover:text-white transition-colors duration-200 flex items-center space-x-1.5 font-semibold"
+                    >
+                      <span className="text-primary text-xs">&rsaquo;</span>
+                      <span>{link.name}</span>
+                    </a>
+                  ) : link.download ? (
                     <a
                       href={link.path}
                       download="TechXpo_2.0_Official_Brochure.pdf"
