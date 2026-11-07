@@ -82,7 +82,7 @@ export const executiveTeam = [
 
 export const coreTeam = [
   {
-    id: "TX2-CR-001",
+    id: "TX2-CT-001",
     name: "Prem Shaw",
     role: "Event Head",
     position: "Event Head",
@@ -91,9 +91,12 @@ export const coreTeam = [
     tier: "Core Operations & Logistics",
     category: "Core Team",
     isExecutive: false,
+    idCard: "/assets/id-cards/TX2-CT-001.jpg",
+    idCardHd: "/assets/id-cards/TX2-CT-001-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-CT-001_qr.png",
   },
   {
-    id: "TX2-CR-002",
+    id: "TX2-CT-002",
     name: "Shivam Kumar",
     role: "Event Head",
     position: "Event Head",
@@ -102,9 +105,12 @@ export const coreTeam = [
     tier: "Core Operations & Logistics",
     category: "Core Team",
     isExecutive: false,
+    idCard: "/assets/id-cards/TX2-CT-002.jpg",
+    idCardHd: "/assets/id-cards/TX2-CT-002-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-CT-002_qr.png",
   },
   {
-    id: "TX2-CR-003",
+    id: "TX2-CT-003",
     name: "Ajay Nayak",
     role: "Media And Content Head",
     position: "Media And Content Head",
@@ -113,9 +119,12 @@ export const coreTeam = [
     tier: "Core Operations & Logistics",
     category: "Core Team",
     isExecutive: false,
+    idCard: "/assets/id-cards/TX2-CT-003.jpg",
+    idCardHd: "/assets/id-cards/TX2-CT-003-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-CT-003_qr.png",
   },
   {
-    id: "TX2-CR-004",
+    id: "TX2-CT-004",
     name: "Joydev Kumar Mahato",
     role: "Technical Secretary",
     position: "Technical Secretary",
@@ -124,9 +133,12 @@ export const coreTeam = [
     tier: "Core Operations & Logistics",
     category: "Core Team",
     isExecutive: false,
+    idCard: "/assets/id-cards/TX2-CT-004.jpg",
+    idCardHd: "/assets/id-cards/TX2-CT-004-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-CT-004_qr.png",
   },
   {
-    id: "TX2-CR-005",
+    id: "TX2-CT-005",
     name: "Rohini Kumari",
     role: "Hardware and Inventory Head",
     position: "Hardware and Inventory Head",
@@ -135,9 +147,12 @@ export const coreTeam = [
     tier: "Core Operations & Logistics",
     category: "Core Team",
     isExecutive: false,
+    idCard: "/assets/id-cards/TX2-CT-005.jpg",
+    idCardHd: "/assets/id-cards/TX2-CT-005-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-CT-005_qr.png",
   },
   {
-    id: "TX2-CR-006",
+    id: "TX2-CT-006",
     name: "Ankit Kumar",
     role: "Software Head",
     position: "Software Head",
@@ -146,9 +161,12 @@ export const coreTeam = [
     tier: "Core Operations & Logistics",
     category: "Core Team",
     isExecutive: false,
+    idCard: "/assets/id-cards/TX2-CT-006.jpg",
+    idCardHd: "/assets/id-cards/TX2-CT-006-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-CT-006_qr.png",
   },
   {
-    id: "TX2-CR-007",
+    id: "TX2-CT-007",
     name: "Mohit Kumar",
     role: "Designer Head",
     position: "Designer Head",
@@ -157,12 +175,23 @@ export const coreTeam = [
     tier: "Core Operations & Logistics",
     category: "Core Team",
     isExecutive: false,
+    idCard: "/assets/id-cards/TX2-CT-007.jpg",
+    idCardHd: "/assets/id-cards/TX2-CT-007-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-CT-007_qr.png",
   },
 ];
 
 export function getMemberById(id) {
   if (!id) return null;
   const normalized = id.trim().toUpperCase();
+
+  // Alias resolution between TX2-CR-xxx (old) and TX2-CT-xxx (official)
+  const alias = normalized.startsWith("TX2-CR-")
+    ? normalized.replace("TX2-CR-", "TX2-CT-")
+    : normalized.startsWith("TX2-CT-")
+    ? normalized.replace("TX2-CT-", "TX2-CR-")
+    : normalized;
+
   const all = [...facultyCoordinators, ...executiveTeam, ...coreTeam];
-  return all.find((m) => m.id === normalized) || null;
+  return all.find((m) => m.id === normalized || m.id === alias) || null;
 }

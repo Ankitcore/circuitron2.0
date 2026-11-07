@@ -106,7 +106,7 @@ export default function Verify() {
                     </span>
                   </div>
                   <h3 className="text-sm font-semibold text-gray-200">
-                    Official TechXpo 2.O Delegate
+                    {member.category || "Official Delegate"} &bull; {member.tier || "TechXpo 2.O Leader"}
                   </h3>
                 </div>
               </div>
@@ -174,7 +174,7 @@ export default function Verify() {
                   </p>
                 )}
 
-                <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-xs">
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
                     <span className="text-gray-400 font-mono text-[10px] block uppercase">Organization</span>
                     <span className="text-white font-semibold">RVSCET Jamshedpur</span>
@@ -193,6 +193,18 @@ export default function Verify() {
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
                     <span className="text-gray-400 font-mono text-[10px] block uppercase">Event Date</span>
                     <span className="text-emerald-400 font-semibold">30 November 2026</span>
+                  </div>
+
+                  {member.department && (
+                    <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                      <span className="text-gray-400 font-mono text-[10px] block uppercase">Department</span>
+                      <span className="text-white font-semibold">{member.department}</span>
+                    </div>
+                  )}
+
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                    <span className="text-gray-400 font-mono text-[10px] block uppercase">Designation</span>
+                    <span className="text-primary font-semibold">{member.position || member.role}</span>
                   </div>
                 </div>
 
@@ -301,21 +313,40 @@ export default function Verify() {
           </form>
 
           {/* Quick Roster Links */}
-          <div className="flex flex-wrap items-center gap-2 pt-2">
-            <span className="text-[11px] font-mono text-gray-500">Executive Shortcuts:</span>
-            {executiveTeam.map((exec) => (
-              <button
-                key={exec.id}
-                onClick={() => navigate(`/verify/${exec.id}`)}
-                className={`text-[11px] font-mono px-2.5 py-1 rounded-lg border transition-all ${
-                  exec.id === targetId
-                    ? "bg-accent/20 border-accent text-accent font-bold"
-                    : "bg-white/5 border-white/10 text-gray-300 hover:border-primary/40"
-                }`}
-              >
-                {exec.id} &bull; {exec.name.split(" ")[0]}
-              </button>
-            ))}
+          <div className="space-y-2 pt-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-mono text-gray-500">Executive Team:</span>
+              {executiveTeam.map((exec) => (
+                <button
+                  key={exec.id}
+                  onClick={() => navigate(`/verify/${exec.id}`)}
+                  className={`text-[11px] font-mono px-2.5 py-1 rounded-lg border transition-all ${
+                    exec.id === targetId
+                      ? "bg-accent/20 border-accent text-accent font-bold"
+                      : "bg-white/5 border-white/10 text-gray-300 hover:border-primary/40"
+                  }`}
+                >
+                  {exec.id} &bull; {exec.name.split(" ")[0]}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-mono text-gray-500">Core Team:</span>
+              {coreTeam.map((core) => (
+                <button
+                  key={core.id}
+                  onClick={() => navigate(`/verify/${core.id}`)}
+                  className={`text-[11px] font-mono px-2.5 py-1 rounded-lg border transition-all ${
+                    core.id === targetId
+                      ? "bg-primary/20 border-primary text-primary font-bold"
+                      : "bg-white/5 border-white/10 text-gray-300 hover:border-primary/40"
+                  }`}
+                >
+                  {core.id} &bull; {core.name.split(" ")[0]}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -334,7 +365,7 @@ export default function Verify() {
               <div className="flex items-center space-x-2">
                 <QrCode className="w-5 h-5 text-accent" />
                 <h3 className="font-orbitron font-bold text-white text-sm">
-                  Physical ID Badge &bull; {targetId}
+                  Physical ID Badge &bull; {member?.id || targetId}
                 </h3>
               </div>
               <button
@@ -347,8 +378,8 @@ export default function Verify() {
 
             <div className="relative rounded-2xl overflow-hidden border border-primary/20 shadow-xl bg-darkNavy flex justify-center">
               <img
-                src="/assets/id-cards/TX2-EX-003.jpg"
-                alt="Subha Pain Official TechXpo 2.O ID Badge"
+                src={member?.idCard || "/assets/id-cards/TX2-CT-TEMPLATE.jpg"}
+                alt={`${member?.name || "Official"} TechXpo 2.O ID Badge`}
                 className="w-full h-auto max-h-[480px] object-contain"
               />
             </div>
@@ -358,14 +389,14 @@ export default function Verify() {
                 &check; Embedded QR code links directly to:
               </p>
               <code className="block bg-black/50 p-2 rounded text-[11px] font-mono text-accent select-all break-all">
-                https://circuitron2-0.vercel.app/verify/TX2-EX-003
+                {`https://circuitron2-0.vercel.app/verify/${member?.id || targetId}`}
               </code>
             </div>
 
             <div className="flex gap-3 pt-2">
               <a
-                href="/assets/id-cards/TX2-EX-003-hd.jpg"
-                download="Subha_Pain_TechXpo_2.0_ID_Badge_HD.jpg"
+                href={member?.idCardHd || member?.idCard || "/assets/id-cards/TX2-CT-TEMPLATE-hd.jpg"}
+                download={`${(member?.name || "TechXpo").replace(/\s+/g, '_')}_TechXpo_2.0_ID_Badge_HD.jpg`}
                 className="btn-primary flex-1 py-3 text-xs font-bold text-center flex items-center justify-center space-x-2"
               >
                 <Download className="w-4 h-4" />

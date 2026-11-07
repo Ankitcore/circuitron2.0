@@ -227,6 +227,15 @@ export default function Team() {
                     {member.department}
                   </span>
                 )}
+                {member.id && (
+                  <Link
+                    to={`/verify/${member.id}`}
+                    className="inline-flex items-center space-x-1.5 text-[10px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors pt-2.5 border-t border-white/5 w-full justify-center group/badge mt-2"
+                  >
+                    <ShieldCheck className="w-3 h-3 text-emerald-400 group-hover/badge:scale-110 transition-transform" />
+                    <span>Verify &bull; {member.id}</span>
+                  </Link>
+                )}
               </div>
             ))}
           </div>
