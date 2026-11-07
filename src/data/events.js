@@ -182,7 +182,13 @@ export const rulesAndGuidelines = {
   ],
   bringOnDay: [
     { title: "ID Proof", desc: "Your college/school ID card and a valid Aadhaar card." },
-    { title: "Consent Form", desc: "Signed by your institution. Downloadable from the official portal." },
+    {
+      title: "Consent Form",
+      desc: "Signed by your institution. Downloadable from the official portal.",
+      link: "https://drive.google.com/file/d/1JFCu9FgjKEwbq1IvaDAJ1vKGnCU7nd3I/view?usp=drive_link",
+      linkText: "Download Consent Form (PDF)",
+      localPdf: "/assets/techxpo-2.0-consent-form.pdf",
+    },
     { title: "Your Own Kit", desc: "Laptop, software, extensions, and tools for the exhibition." },
   ],
   fairPlay: [
@@ -200,4 +206,11 @@ export const BROCHURE_CONFIG = {
   title: "TechXpo 2.O Official Brochure",
   size: "4.9 MB",
   pages: 8,
+};
+
+export const CONSENT_FORM_CONFIG = {
+  driveUrl: "https://drive.google.com/file/d/1JFCu9FgjKEwbq1IvaDAJ1vKGnCU7nd3I/view?usp=drive_link",
+  pdfPath: "/assets/techxpo-2.0-consent-form.pdf",
+  downloadName: "TechXpo_2.0_Institutional_Consent_Form.pdf",
+  title: "TechXpo 2.O Institutional Consent Form",
 };
