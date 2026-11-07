@@ -23,11 +23,8 @@ import {
 import { getMemberById } from "../data/team";
 
 const ADMIN_PASSCODES = [
-  "circuitron2026",
-  "techxpo@admin",
-  "admin2026",
-  "rvscet2026",
-  "techxpo2026",
+  "2026techxpo@admin",
+  "ankit327",
 ];
 
 export default function Verify() {
@@ -46,7 +43,7 @@ export default function Verify() {
   const [isAdmin, setIsAdmin] = useState(() => {
     if (typeof window !== "undefined") {
       const urlKey = searchParams.get("admin") || searchParams.get("key") || "";
-      if (urlKey && (ADMIN_PASSCODES.includes(urlKey.toLowerCase().trim()) || urlKey === "true")) {
+      if (urlKey && ADMIN_PASSCODES.includes(urlKey.toLowerCase().trim())) {
         localStorage.setItem("tx2_admin_authenticated", "true");
         return true;
       }
