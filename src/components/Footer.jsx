@@ -33,6 +33,7 @@ export default function Footer() {
     { name: "Photo Archive", path: "/gallery" },
     { name: "Support & Contact", path: "/contact" },
     { name: "Verify Credentials", path: "/verify" },
+    { name: "Event Brochure (PDF)", path: "/assets/techxpo-2.0-brochure.pdf", download: true },
   ];
 
   return (
@@ -103,13 +104,24 @@ export default function Footer() {
             <ul className="space-y-2 text-sm">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="text-gray-400 hover:text-accent transition-colors duration-200 flex items-center space-x-1.5"
-                  >
-                    <span className="text-primary text-xs">&rsaquo;</span>
-                    <span>{link.name}</span>
-                  </Link>
+                  {link.download ? (
+                    <a
+                      href={link.path}
+                      download="TechXpo_2.0_Official_Brochure.pdf"
+                      className="text-accent hover:text-white transition-colors duration-200 flex items-center space-x-1.5 font-semibold"
+                    >
+                      <span className="text-primary text-xs">&rsaquo;</span>
+                      <span>{link.name}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      to={link.path}
+                      className="text-gray-400 hover:text-accent transition-colors duration-200 flex items-center space-x-1.5"
+                    >
+                      <span className="text-primary text-xs">&rsaquo;</span>
+                      <span>{link.name}</span>
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

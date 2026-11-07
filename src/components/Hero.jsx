@@ -107,7 +107,7 @@ export default function Hero() {
               </motion.a>
 
               <motion.a
-                href="https://drive.google.com/file/d/1AInB0u15DomA8HFDeoEd3eXsWX3ppwJe/view?usp=drivesdk"
+                href="/assets/techxpo-2.0-brochure.pdf" download="TechXpo_2.0_Official_Brochure.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
@@ -115,7 +115,7 @@ export default function Hero() {
                 className="btn-secondary w-full sm:w-auto text-sm py-3 px-6"
               >
                 <Download className="w-4 h-4" />
-                <span>Event Brochure</span>
+                <span>Download Brochure (PDF)</span>
               </motion.a>
             </div>
           </motion.div>
