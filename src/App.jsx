@@ -69,6 +69,15 @@ function RouteMetadataUpdater() {
           "TechXpo 2.O - The Flagship Technical Symposium by Circuitron at RVSCET Jamshedpur."
       );
     }
+
+    // Google Analytics 4 SPA Route Tracking
+    if (typeof window !== "undefined" && typeof window.gtag === "function") {
+      window.gtag("event", "page_view", {
+        page_path: pathname,
+        page_title: document.title,
+        page_location: window.location.href,
+      });
+    }
   }, [pathname]);
 
   return null;
