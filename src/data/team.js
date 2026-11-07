@@ -36,6 +36,9 @@ export const executiveTeam = [
     category: "Executive Team",
     isExecutive: true,
     department: "Dept. of ECE",
+    idCard: "/assets/id-cards/TX2-EX-001.jpg",
+    idCardHd: "/assets/id-cards/TX2-EX-001-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-EX-001_qr.png",
   },
   {
     id: "TX2-EX-002",
@@ -49,6 +52,9 @@ export const executiveTeam = [
     category: "Executive Team",
     isExecutive: true,
     department: "Dept. of ECE",
+    idCard: "/assets/id-cards/TX2-EX-002.jpg",
+    idCardHd: "/assets/id-cards/TX2-EX-002-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-EX-002_qr.png",
   },
   {
     id: "TX2-EX-003",
@@ -64,6 +70,7 @@ export const executiveTeam = [
     department: "Dept. of ECE",
     idCard: "/assets/id-cards/TX2-EX-003.jpg",
     idCardHd: "/assets/id-cards/TX2-EX-003-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-EX-003_qr.png",
   },
   {
     id: "TX2-EX-004",
@@ -77,6 +84,9 @@ export const executiveTeam = [
     category: "Executive Team",
     isExecutive: true,
     department: "Dept. of ECE",
+    idCard: "/assets/id-cards/TX2-EX-004.jpg",
+    idCardHd: "/assets/id-cards/TX2-EX-004-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-EX-004_qr.png",
   },
 ];
 
