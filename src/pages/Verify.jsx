@@ -17,7 +17,7 @@ import {
   Sparkles,
   Lock,
 } from "lucide-react";
-import { getMemberById, executiveTeam, coreTeam, facultyCoordinators } from "../data/team";
+import { getMemberById } from "../data/team";
 
 export default function Verify() {
   const { id: paramId } = useParams();
@@ -304,50 +304,13 @@ export default function Verify() {
               type="text"
               value={inputSearchId}
               onChange={(e) => setInputSearchId(e.target.value)}
-              placeholder="e.g. TX2-EX-003, TX2-EX-001, TX2-CR-001"
+              placeholder="e.g. TX2-EX-003, TX2-CT-001"
               className="flex-1 px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase"
             />
             <button type="submit" className="btn-primary py-3 px-6 text-xs font-bold whitespace-nowrap">
               Verify Credential
             </button>
           </form>
-
-          {/* Quick Roster Links */}
-          <div className="space-y-2 pt-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-mono text-gray-500">Executive Team:</span>
-              {executiveTeam.map((exec) => (
-                <button
-                  key={exec.id}
-                  onClick={() => navigate(`/verify/${exec.id}`)}
-                  className={`text-[11px] font-mono px-2.5 py-1 rounded-lg border transition-all ${
-                    exec.id === targetId
-                      ? "bg-accent/20 border-accent text-accent font-bold"
-                      : "bg-white/5 border-white/10 text-gray-300 hover:border-primary/40"
-                  }`}
-                >
-                  {exec.id} &bull; {exec.name.split(" ")[0]}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-mono text-gray-500">Core Team:</span>
-              {coreTeam.map((core) => (
-                <button
-                  key={core.id}
-                  onClick={() => navigate(`/verify/${core.id}`)}
-                  className={`text-[11px] font-mono px-2.5 py-1 rounded-lg border transition-all ${
-                    core.id === targetId
-                      ? "bg-primary/20 border-primary text-primary font-bold"
-                      : "bg-white/5 border-white/10 text-gray-300 hover:border-primary/40"
-                  }`}
-                >
-                  {core.id} &bull; {core.name.split(" ")[0]}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
       </div>
