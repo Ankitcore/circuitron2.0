@@ -170,12 +170,22 @@ export default function Verify() {
                 </div>
               </div>
 
-              {/* Security ID Badge */}
-              <div className="flex items-center space-x-2 bg-darkNavy/90 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl">
-                <span className="text-[10px] font-mono text-gray-400">SECURITY ID:</span>
-                <span className="text-xs font-mono font-bold text-accent tracking-widest">
-                  {member.id}
-                </span>
+              {/* Security ID Badge & Security Bit */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center space-x-2 bg-darkNavy/90 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl">
+                  <span className="text-[10px] font-mono text-gray-400">SECURITY ID:</span>
+                  <span className="text-xs font-mono font-bold text-accent tracking-widest">
+                    {member.id}
+                  </span>
+                </div>
+                {member.securityBit && (
+                  <div className="flex items-center space-x-2 bg-darkNavy/90 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl">
+                    <span className="text-[10px] font-mono text-gray-400">SECURITY BIT:</span>
+                    <span className="text-xs font-mono font-bold text-emerald-400 tracking-wider">
+                      #{member.securityBit}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -265,6 +275,13 @@ export default function Verify() {
                     <span className="text-gray-400 font-mono text-[10px] block uppercase">Designation</span>
                     <span className="text-primary font-semibold">{member.position || member.role}</span>
                   </div>
+
+                  {member.securityBit && (
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 space-y-1">
+                      <span className="text-gray-400 font-mono text-[10px] block uppercase">Security Bit</span>
+                      <span className="text-emerald-400 font-bold font-mono">#{member.securityBit}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Security Clearance level */}
@@ -439,7 +456,7 @@ export default function Verify() {
               type="text"
               value={inputSearchId}
               onChange={(e) => setInputSearchId(e.target.value)}
-              placeholder="e.g. TX2-EX-003, TX2-CT-001"
+              placeholder="e.g. TX2-EX-4918, TX2-FC-8492, or Security Bit"
               className="flex-1 px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase"
             />
             <button type="submit" className="btn-primary py-3 px-6 text-xs font-bold whitespace-nowrap">
@@ -484,7 +501,7 @@ export default function Verify() {
 
             <div className="space-y-2 text-center text-xs text-gray-300">
               <p className="font-mono text-[11px] text-emerald-400 flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Embedded QR code links directly to:
+                <CheckCircle2 className="w-3.5 h-3.5" /> Official Circuitron QR &bull; Security Bit: #{member?.securityBit}
               </p>
               <code className="block bg-black/50 p-2 rounded text-[11px] font-mono text-accent select-all break-all">
                 {`https://circuitron2-0.vercel.app/verify/${member?.id || targetId}`}
