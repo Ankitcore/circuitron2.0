@@ -277,8 +277,8 @@ export default function Events() {
             </div>
 
             <div className="flex-shrink-0">
-              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Free Registration
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-mono font-bold uppercase tracking-wider">
+                Free Registration
               </span>
             </div>
           </div>
