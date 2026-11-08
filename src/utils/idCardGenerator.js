@@ -170,7 +170,7 @@ export async function generateMemberIdCard(member) {
     ctx.drawImage(badgeImg, 795, 659, 136, 137);
   }
 
-  // 4. BOLD Name (Centered at X: 612, Baseline Y: 900)
+  // 4. BOLD Name (Centered at X: 676, Baseline Y: 900 - aligned directly with avatar center)
   ctx.save();
   ctx.fillStyle = "#FFFFFF";
   ctx.textAlign = "center";
@@ -185,10 +185,10 @@ export async function generateMemberIdCard(member) {
     ctx.font = `900 ${nameSize}px "Exo 2", "Poppins", sans-serif`;
     nameWidth = ctx.measureText(nameUpper).width;
   }
-  ctx.fillText(nameUpper, 612, 900);
+  ctx.fillText(nameUpper, 676, 900);
   ctx.restore();
 
-  // 5. BOLD Position / Role with Tracking (Centered at X: 612, Baseline Y: 974)
+  // 5. BOLD Position / Role with Tracking (Centered at X: 676, Baseline Y: 974)
   ctx.save();
   ctx.fillStyle = cfg.color;
   ctx.textAlign = "center";
@@ -207,7 +207,7 @@ export async function generateMemberIdCard(member) {
     ctx.font = `900 ${roleSize}px "Exo 2", "Poppins", sans-serif`;
     roleWidth = ctx.measureText(spacedRole).width;
   }
-  ctx.fillText(spacedRole, 612, 974);
+  ctx.fillText(spacedRole, 676, 974);
   ctx.restore();
 
   // 6. Member ID in Orbitron (X: 625, Baseline Y: 1387)
