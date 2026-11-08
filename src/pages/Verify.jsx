@@ -21,6 +21,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { getMemberById } from "../data/team";
+import { generateMemberIdCard, downloadDataUrl } from "../utils/idCardGenerator";
 
 const ADMIN_PASSCODES = [
   "2026techxpo@admin",
@@ -38,6 +39,8 @@ export default function Verify() {
   const [inputSearchId, setInputSearchId] = useState(targetId);
   const [copied, setCopied] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
+  const [customCardImage, setCustomCardImage] = useState(null);
+  const [isRenderingCard, setIsRenderingCard] = useState(false);
 
   // Admin authorization state
   const [isAdmin, setIsAdmin] = useState(() => {
@@ -64,7 +67,21 @@ export default function Verify() {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setInputSearchId(targetId);
     setValidatedTimestamp(null);
+    setCustomCardImage(null);
   }, [targetId]);
+
+  // Handle generating card for custom members when modal is requested
+  useEffect(() => {
+    if (showIdCardModal && member?.isCustom && !customCardImage && !isRenderingCard) {
+      setIsRenderingCard(true);
+      generateMemberIdCard(member)
+        .then((card) => {
+          setCustomCardImage(card);
+        })
+        .catch((err) => console.error("Error generating custom member card:", err))
+        .finally(() => setIsRenderingCard(false));
+    }
+  }, [showIdCardModal, member, customCardImage, isRenderingCard]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -304,19 +321,28 @@ export default function Verify() {
 
             {/* Admin Clearance Banner */}
             {isAdmin && (
-              <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-primary/10 to-accent/15 border border-amber-500/30 text-xs font-mono text-amber-300 flex items-center justify-between gap-3">
+              <div className="p-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-primary/10 to-accent/15 border border-amber-500/30 text-xs font-mono text-amber-300 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center space-x-2">
                   <Unlock className="w-4 h-4 text-amber-400 flex-shrink-0" />
                   <span>
                     <strong>Secretariat Admin Mode:</strong> High-definition physical ID badge downloads unlocked.
                   </span>
                 </div>
-                <button
-                  onClick={handleAdminLogout}
-                  className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-[10px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap"
-                >
-                  Lock Admin
-                </button>
+                <div className="flex items-center space-x-2">
+                  <Link
+                    to="/admin"
+                    className="px-3 py-1 rounded bg-accent/20 hover:bg-accent/30 text-accent text-[11px] font-bold uppercase tracking-wider transition-colors flex items-center space-x-1"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Secretariat Admin Portal</span>
+                  </Link>
+                  <button
+                    onClick={handleAdminLogout}
+                    className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-[10px] font-bold uppercase tracking-wider transition-colors whitespace-nowrap"
+                  >
+                    Lock Admin
+                  </button>
+                </div>
               </div>
             )}
 
@@ -476,7 +502,7 @@ export default function Verify() {
 
             <div className="relative rounded-2xl overflow-hidden border border-primary/20 shadow-xl bg-darkNavy flex justify-center">
               <img
-                src={member?.idCard || "/assets/id-cards/TX2-CT-TEMPLATE.jpg"}
+                src={customCardImage?.stdDataUrl || customCardImage?.hdDataUrl || member?.idCard || "/assets/id-cards/TX2-CT-TEMPLATE.jpg"}
                 alt={`${member?.name || "Official"} TechXpo 2.O ID Badge`}
                 className="w-full h-auto max-h-[480px] object-contain"
               />
@@ -494,7 +520,7 @@ export default function Verify() {
             <div className="flex gap-3 pt-2">
               {isAdmin ? (
                 <a
-                  href={member?.idCardHd || member?.idCard || "/assets/id-cards/TX2-CT-TEMPLATE-hd.jpg"}
+                  href={customCardImage?.hdDataUrl || member?.idCardHd || member?.idCard || "/assets/id-cards/TX2-CT-TEMPLATE-hd.jpg"}
                   download={`${(member?.name || "TechXpo").replace(/\s+/g, '_')}_TechXpo_2.0_ID_Badge_HD.jpg`}
                   className="btn-primary flex-1 py-3 text-xs font-bold text-center flex items-center justify-center space-x-2 shadow-neon"
                 >

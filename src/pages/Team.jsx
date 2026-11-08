@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { facultyCoordinators, executiveTeam, coreTeam } from "../data/team";
+import { facultyCoordinators, getAllExecutives, getAllCoreTeam } from "../data/team";
 import { Sparkles, Award, Shield, UserCheck } from "lucide-react";
 
 function MemberAvatar({ src, name }) {
@@ -40,8 +40,17 @@ function MemberAvatar({ src, name }) {
 }
 
 export default function Team() {
+  const [executives, setExecutives] = useState(() => getAllExecutives());
+  const [core, setCore] = useState(() => getAllCoreTeam());
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
+    const handleUpdate = () => {
+      setExecutives(getAllExecutives());
+      setCore(getAllCoreTeam());
+    };
+    window.addEventListener("tx2_members_updated", handleUpdate);
+    return () => window.removeEventListener("tx2_members_updated", handleUpdate);
   }, []);
 
   return (
@@ -144,7 +153,7 @@ export default function Team() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-            {executiveTeam.map((exec) => (
+            {executives.map((exec) => (
               <div
                 key={exec.name}
                 className="glass-card p-8 rounded-3xl border border-primary/25 flex flex-col items-center text-center group hover:border-accent/40 transition-all duration-300"
@@ -197,7 +206,7 @@ export default function Team() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {coreTeam.map((member) => (
+            {core.map((member) => (
               <div
                 key={member.name}
                 className="glass-card p-6 rounded-2xl border border-primary/20 flex flex-col items-center text-center group hover:border-primary/50"

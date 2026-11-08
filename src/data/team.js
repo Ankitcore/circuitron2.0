@@ -1,3 +1,9 @@
+// ============================================================================
+// Official TechXpo 2.0 Team & Delegate Registry
+// Supports Faculty Advisory, Executive Leadership, Core Operations,
+// Registered Participants, and Event Volunteers with Dynamic Admin Storage.
+// ============================================================================
+
 export const facultyCoordinators = [
   {
     id: "TX2-FC-8492",
@@ -197,9 +203,305 @@ export const coreTeam = [
   },
 ];
 
+// ============================================================================
+// Dynamic Registry Engine (localStorage-backed with event broadcasting)
+// ============================================================================
+export const CUSTOM_MEMBERS_KEY = "tx2_custom_members";
+
+export const TIER_CONFIG = {
+  executive: {
+    id: "executive",
+    label: "Executive Team",
+    badgeLabel: "Executive Leadership Team",
+    prefix: "TX2-EX-",
+    blankTemplate: "/assets/id-cards/TX2-EX-BLANK-hd.jpg",
+    stdTemplate: "/assets/id-cards/TX2-EX-BLANK.jpg",
+    color: "#0DBAE3",
+    colorRgb: [13, 186, 227],
+  },
+  core: {
+    id: "core",
+    label: "Core Team",
+    badgeLabel: "Core Operations & Logistics",
+    prefix: "TX2-CT-",
+    blankTemplate: "/assets/id-cards/TX2-CT-BLANK-hd.jpg",
+    stdTemplate: "/assets/id-cards/TX2-CT-BLANK.jpg",
+    color: "#7FE6FF",
+    colorRgb: [127, 230, 255],
+  },
+  participant: {
+    id: "participant",
+    label: "Participant",
+    badgeLabel: "Registered Participant",
+    prefix: "TX2-PT-",
+    blankTemplate: "/assets/id-cards/TX2-PT-BLANK-hd.jpg",
+    stdTemplate: "/assets/id-cards/TX2-PT-BLANK.jpg",
+    color: "#FFD700",
+    colorRgb: [255, 215, 0],
+  },
+  volunteer: {
+    id: "volunteer",
+    label: "Volunteer",
+    badgeLabel: "Event Volunteer",
+    prefix: "TX2-VL-",
+    blankTemplate: "/assets/id-cards/TX2-VL-BLANK-hd.jpg",
+    stdTemplate: "/assets/id-cards/TX2-VL-BLANK.jpg",
+    color: "#34D399",
+    colorRgb: [52, 211, 153],
+  },
+  faculty: {
+    id: "faculty",
+    label: "Faculty Advisory",
+    badgeLabel: "Academic Advisory Board",
+    prefix: "TX2-FC-",
+    blankTemplate: "/assets/id-cards/TX2-FC-BLANK-hd.jpg",
+    stdTemplate: "/assets/id-cards/TX2-FC-BLANK.jpg",
+    color: "#E6EDF8",
+    colorRgb: [230, 237, 248],
+  },
+};
+
+/**
+ * Safely retrieve custom members from browser localStorage
+ */
+export function getCustomMembers() {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(CUSTOM_MEMBERS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    console.error("Failed to parse custom members from localStorage:", err);
+    return [];
+  }
+}
+
+/**
+ * Save custom members array to localStorage and notify all listeners
+ */
+export function saveCustomMembers(members) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify(members));
+    window.dispatchEvent(new CustomEvent("tx2_members_updated", { detail: members }));
+  } catch (err) {
+    console.error("Failed to save custom members to localStorage:", err);
+  }
+}
+
+/**
+ * Normalize tier string to standard key ('executive' | 'core' | 'participant' | 'volunteer' | 'faculty')
+ */
+export function normalizeTierKey(tierInput = "") {
+  const t = String(tierInput).trim().toLowerCase();
+  if (t.includes("exec")) return "executive";
+  if (t.includes("core")) return "core";
+  if (t.includes("part")) return "participant";
+  if (t.includes("vol")) return "volunteer";
+  if (t.includes("fac")) return "faculty";
+  return "participant";
+}
+
+/**
+ * Generate a collision-free unique Member ID (e.g., TX2-PT-8294)
+ */
+export function generateUniqueMemberId(tierInput = "participant") {
+  const tierKey = normalizeTierKey(tierInput);
+  const cfg = TIER_CONFIG[tierKey] || TIER_CONFIG.participant;
+  const existing = getAllMembers();
+  const existingIds = new Set(existing.map((m) => m.id?.toUpperCase()));
+
+  for (let attempt = 0; attempt < 500; attempt++) {
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const candidate = `${cfg.prefix}${randomSuffix}`;
+    if (!existingIds.has(candidate)) {
+      return candidate;
+    }
+  }
+  // Fallback timestamp-based code
+  return `${cfg.prefix}${Date.now().toString().slice(-4)}`;
+}
+
+/**
+ * Add a single new member to the registry
+ */
+export function addMember(data) {
+  const tierKey = normalizeTierKey(data.tier || data.category);
+  const cfg = TIER_CONFIG[tierKey] || TIER_CONFIG.participant;
+
+  const id = (data.id && data.id.trim()) ? data.id.trim().toUpperCase() : generateUniqueMemberId(tierKey);
+  const name = (data.name || "Delegate").trim();
+  const role = (data.role || data.position || (tierKey === "participant" ? "Competitor" : cfg.label)).trim();
+
+  const newMember = {
+    id,
+    name,
+    role,
+    position: role,
+    category: cfg.label,
+    tier: cfg.badgeLabel,
+    tierKey,
+    department: (data.department || "RVSCET Jamshedpur").trim(),
+    teamName: (data.teamName || "").trim(),
+    img: data.img || "",
+    tagline: data.tagline || (tierKey === "participant" ? "Official Symposium Competitor" : "TechXpo 2.O Contributor"),
+    description: data.description || `Verified ${cfg.label} for TechXpo 2.O`,
+    isCustom: true,
+    createdAt: new Date().toISOString(),
+    idCard: data.idCard || cfg.stdTemplate,
+    idCardHd: data.idCardHd || cfg.blankTemplate,
+    qrCode: data.qrCode || `/assets/id-cards/${id}_qr.png`,
+  };
+
+  const current = getCustomMembers();
+  const filtered = current.filter((m) => m.id !== id);
+  const updated = [newMember, ...filtered];
+  saveCustomMembers(updated);
+  return newMember;
+}
+
+/**
+ * Bulk add multiple members (from CSV, pasted list, or batch import)
+ */
+export function addMembersBulk(membersList, defaultTier = "participant") {
+  if (!Array.isArray(membersList) || membersList.length === 0) return [];
+  
+  const current = getCustomMembers();
+  const existingIds = new Set([...getAllMembers().map((m) => m.id?.toUpperCase())]);
+  const newMembers = [];
+
+  for (const item of membersList) {
+    if (!item.name || !item.name.trim()) continue;
+    const tierKey = normalizeTierKey(item.tier || item.category || defaultTier);
+    const cfg = TIER_CONFIG[tierKey] || TIER_CONFIG.participant;
+
+    let id = item.id ? item.id.trim().toUpperCase() : "";
+    if (!id || existingIds.has(id)) {
+      id = generateUniqueMemberId(tierKey);
+    }
+    existingIds.add(id);
+
+    const name = item.name.trim();
+    const role = (item.role || item.position || (tierKey === "participant" ? "Participant" : cfg.label)).trim();
+
+    newMembers.push({
+      id,
+      name,
+      role,
+      position: role,
+      category: cfg.label,
+      tier: cfg.badgeLabel,
+      tierKey,
+      department: (item.department || "RVSCET Jamshedpur").trim(),
+      teamName: (item.teamName || "").trim(),
+      img: item.img || "",
+      tagline: item.tagline || `${cfg.label} Delegate`,
+      description: item.description || `Registered ${cfg.label}`,
+      isCustom: true,
+      createdAt: new Date().toISOString(),
+      idCard: item.idCard || cfg.stdTemplate,
+      idCardHd: item.idCardHd || cfg.blankTemplate,
+      qrCode: item.qrCode || `/assets/id-cards/${id}_qr.png`,
+    });
+  }
+
+  const updated = [...newMembers, ...current];
+  saveCustomMembers(updated);
+  return newMembers;
+}
+
+/**
+ * Update an existing custom member
+ */
+export function updateMember(id, updatedFields) {
+  const normId = id.trim().toUpperCase();
+  const current = getCustomMembers();
+  const index = current.findIndex((m) => m.id === normId);
+  if (index === -1) return null;
+
+  const existing = current[index];
+  const merged = { ...existing, ...updatedFields, updatedAt: new Date().toISOString() };
+  current[index] = merged;
+  saveCustomMembers([...current]);
+  return merged;
+}
+
+/**
+ * Delete a custom member
+ */
+export function deleteMember(id) {
+  const normId = id.trim().toUpperCase();
+  const current = getCustomMembers();
+  const filtered = current.filter((m) => m.id !== normId);
+  saveCustomMembers(filtered);
+  return filtered.length !== current.length;
+}
+
+/**
+ * Clear all custom added members
+ */
+export function resetCustomMembers() {
+  saveCustomMembers([]);
+}
+
+/**
+ * Get all members across all 5 tiers (built-in + custom)
+ */
+export function getAllMembers() {
+  const custom = getCustomMembers();
+  return [...facultyCoordinators, ...executiveTeam, ...coreTeam, ...custom];
+}
+
+/**
+ * Get all Executive Team members (built-in + custom)
+ */
+export function getAllExecutives() {
+  const customExecs = getCustomMembers().filter(
+    (m) => m.tierKey === "executive" || m.category === "Executive Team"
+  );
+  return [...executiveTeam, ...customExecs];
+}
+
+/**
+ * Get all Core Team members (built-in + custom)
+ */
+export function getAllCoreTeam() {
+  const customCore = getCustomMembers().filter(
+    (m) => m.tierKey === "core" || m.category === "Core Team"
+  );
+  return [...coreTeam, ...customCore];
+}
+
+/**
+ * Get all Participants
+ */
+export function getAllParticipants() {
+  return getCustomMembers().filter(
+    (m) => m.tierKey === "participant" || m.category === "Participant"
+  );
+}
+
+/**
+ * Get all Volunteers
+ */
+export function getAllVolunteers() {
+  return getCustomMembers().filter(
+    (m) => m.tierKey === "volunteer" || m.category === "Volunteer"
+  );
+}
+
+/**
+ * Find member by ID across all tiers (case-insensitive)
+ */
 export function getMemberById(id) {
   if (!id) return null;
   const normalized = id.trim().toUpperCase();
-  const all = [...facultyCoordinators, ...executiveTeam, ...coreTeam];
-  return all.find((m) => m.id === normalized) || null;
+  const all = getAllMembers();
+  const found = all.find((m) => m.id === normalized);
+  if (found) return found;
+
+  // Fallback direct check against localStorage in case of cold render
+  const directCustom = getCustomMembers();
+  return directCustom.find((m) => m.id === normalized) || null;
 }

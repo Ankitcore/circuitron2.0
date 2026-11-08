@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight, Sparkles } from "lucide-react";
+import { Menu, X, ArrowUpRight, Sparkles, ShieldCheck } from "lucide-react";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -104,8 +104,15 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Right Action: Register Now */}
-          <div className="hidden sm:flex items-center space-x-3">
+          {/* Right Action: Register Now & Admin Access */}
+          <div className="hidden sm:flex items-center space-x-2.5">
+            <Link
+              to="/admin"
+              title="Secretariat Admin Portal"
+              className="p-2 rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-400 hover:text-accent hover:border-accent/40 transition-all flex items-center justify-center"
+            >
+              <ShieldCheck className="w-4 h-4" />
+            </Link>
             <motion.a
               href="https://forms.gle/mNU3damnJBMfnmSU7"
               target="_blank"
@@ -170,7 +177,7 @@ export default function Navbar() {
                 );
               })}
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <a
                   href="https://forms.gle/mNU3damnJBMfnmSU7"
                   target="_blank"
@@ -180,6 +187,14 @@ export default function Navbar() {
                   <span>Register for TechXpo 2.O</span>
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
+                <Link
+                  to="/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full py-2.5 px-3 rounded-xl bg-darkNavy/80 border border-primary/20 text-xs font-mono text-gray-300 hover:text-accent flex items-center justify-center space-x-1.5"
+                >
+                  <ShieldCheck className="w-4 h-4 text-accent" />
+                  <span>Secretariat Admin Portal</span>
+                </Link>
               </div>
             </div>
           </motion.div>

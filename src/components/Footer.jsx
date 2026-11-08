@@ -33,6 +33,7 @@ export default function Footer() {
     { name: "Photo Archive", path: "/gallery" },
     { name: "Support & Contact", path: "/contact" },
     { name: "Verify Credentials", path: "/verify" },
+    { name: "Admin Portal", path: "/admin" },
     { name: "Official Brochure (Drive / PDF)", path: "https://drive.google.com/file/d/1BnXjrzGn_Y86PqJAFMarpxXRjEKq6CjT/view?usp=sharing", external: true },
     { name: "Institutional Consent Form (Drive)", path: "https://drive.google.com/file/d/1JFCu9FgjKEwbq1IvaDAJ1vKGnCU7nd3I/view?usp=drive_link", external: true },
   ];

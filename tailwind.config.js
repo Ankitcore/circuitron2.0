@@ -17,6 +17,7 @@ export default {
       fontFamily: {
         orbitron: ["Orbitron", "sans-serif"],
         poppins: ["Poppins", "sans-serif"],
+        exo2: ['"Exo 2"', "sans-serif"],
       },
       boxShadow: {
         neon: "0 0 20px rgba(0, 191, 255, 0.35)",

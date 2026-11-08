@@ -24,6 +24,7 @@ const Gallery = lazy(() => import("./pages/Gallery"));
 const Schedule = lazy(() => import("./pages/Schedule"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Verify = lazy(() => import("./pages/Verify"));
+const AdminPortal = lazy(() => import("./pages/AdminPortal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Dynamic SEO page title and meta description router hook
@@ -42,6 +43,7 @@ function RouteMetadataUpdater() {
       "/schedule": "Timeline Schedule & Rounds | TechXpo 2.O",
       "/contact": "Support & Help Desk | TechXpo 2.O",
       "/verify": "Credential Verification | TechXpo 2.O",
+      "/admin": "Secretariat Admin Portal | TechXpo 2.O",
     };
 
     const descriptions = {
@@ -53,6 +55,7 @@ function RouteMetadataUpdater() {
       "/schedule": "Check the official event timeline, check-in schedules, arena testing windows, and closing ceremonies.",
       "/contact": "Contact the TechXpo 2.O secretariat for queries, partnerships, accommodation assistance, and technical guidance.",
       "/verify": "Official digital credential verification portal for TechXpo 2.O delegates, committee members, and executives.",
+      "/admin": "Official Secretariat Admin Portal for managing rosters, adding delegates, and issuing high-definition ID badges.",
     };
 
     if (pathname.startsWith("/verify/")) {
@@ -119,6 +122,7 @@ export default function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/verify" element={<Verify />} />
               <Route path="/verify/:id" element={<Verify />} />
+              <Route path="/admin" element={<AdminPortal />} />
               {/* Custom 404 Route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
