@@ -24,6 +24,7 @@ import {
 import { getMemberById } from "../data/team";
 import { generateMemberIdCard, downloadDataUrl } from "../utils/idCardGenerator";
 import QrScannerModal from "../components/QrScannerModal";
+import EmbeddedQrScanner from "../components/EmbeddedQrScanner";
 
 const ADMIN_PASSCODES = [
   "2026techxpo@admin",
@@ -35,8 +36,10 @@ export default function Verify() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Determine target member ID from URL param or query string (defaults to TX2-EX-9531 for Subha Pain)
-  const targetId = (paramId || searchParams.get("id") || "TX2-EX-9531").trim().toUpperCase();
+  // Determine target member ID from URL param or query string (empty on bare /verify portal)
+  const rawId = paramId || searchParams.get("id");
+  const hasTargetId = Boolean(rawId && rawId.trim());
+  const targetId = hasTargetId ? rawId.trim().toUpperCase() : "";
 
   const [inputSearchId, setInputSearchId] = useState(targetId);
   const [copied, setCopied] = useState(false);
@@ -64,14 +67,14 @@ export default function Verify() {
   const [validatedTimestamp, setValidatedTimestamp] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
 
-  const member = getMemberById(targetId);
+  const member = hasTargetId ? getMemberById(targetId) : null;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setInputSearchId(targetId);
     setValidatedTimestamp(null);
     setCustomCardImage(null);
-  }, [targetId]);
+  }, [targetId, hasTargetId]);
 
   // Handle generating card for custom members when modal is requested
   useEffect(() => {
@@ -169,25 +172,107 @@ export default function Verify() {
             <span className="font-mono tracking-wider">OFFICIAL TECHXPO 2.O AUTHENTICATION PORTAL</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black font-orbitron gradient-text">
-            Credential Verification
+            {hasTargetId ? "Credential Verification" : "Authentication & Scanner Desk"}
           </h1>
           <p className="text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
-            Scan verification and cryptographic validation for official TechXpo 2.O leaders, coordinators, and delegates at RVSCET Jamshedpur.
+            {hasTargetId
+              ? "Official cryptographic validation and credential dossier for TechXpo 2.O leaders, coordinators, and delegates at RVSCET Jamshedpur."
+              : "Scan the verification QR code on any official TechXpo 2.O ID badge using your camera, or manually type a Delegate ID to verify authenticity."}
           </p>
 
-          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-            <button
-              type="button"
-              onClick={() => setShowScannerModal(true)}
-              className="py-3 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 via-primary to-accent text-darkNavy font-orbitron font-extrabold text-xs sm:text-sm flex items-center space-x-2.5 shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:shadow-[0_0_40px_rgba(0,229,255,0.6)] hover:scale-105 transition-all duration-300 group"
-            >
-              <Camera className="w-4 h-4 text-darkNavy group-hover:rotate-12 transition-transform" />
-              <span>Scan ID Card QR Code</span>
-            </button>
-          </div>
+          {hasTargetId && (
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowScannerModal(true)}
+                className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-cyan-500 via-primary to-accent text-darkNavy font-orbitron font-extrabold text-xs sm:text-sm flex items-center space-x-2.5 shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:shadow-[0_0_40px_rgba(0,229,255,0.6)] hover:scale-105 transition-all duration-300 group"
+              >
+                <Camera className="w-4 h-4 text-darkNavy group-hover:rotate-12 transition-transform" />
+                <span>Scan Another Card QR</span>
+              </button>
+              <Link
+                to="/verify"
+                className="py-2.5 px-4 rounded-2xl bg-darkNavy/90 border border-primary/30 text-gray-300 hover:text-white text-xs font-orbitron font-bold flex items-center space-x-2 transition-all hover:bg-white/5"
+              >
+                <QrCode className="w-4 h-4 text-accent" />
+                <span>Scanner Desk</span>
+              </Link>
+            </div>
+          )}
         </div>
 
-        {member ? (
+        {/* ================= CONDITION 1: BARE /verify DESK (NO ID) ================= */}
+        {!hasTargetId ? (
+          <div className="space-y-8">
+            {/* Live Camera & Image QR Scanner */}
+            <EmbeddedQrScanner onScanSuccess={handleScanSuccess} />
+
+            {/* Manual Typing Authentication Card */}
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border-2 border-primary/30 space-y-5 bg-darkNavy/90 shadow-[0_0_50px_rgba(0,229,255,0.15)]">
+              <div className="flex items-center space-x-3 pb-3 border-b border-primary/20">
+                <div className="w-10 h-10 rounded-xl bg-accent/10 border border-accent/30 flex items-center justify-center text-accent shadow-sm flex-shrink-0">
+                  <Search className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-bold block">
+                    MANUAL CREDENTIAL LOOKUP
+                  </span>
+                  <h3 className="text-lg sm:text-xl font-black font-orbitron text-white">
+                    Authenticate Credential ID by Manual Typing
+                  </h3>
+                </div>
+              </div>
+
+              <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3 pt-1">
+                <input
+                  type="text"
+                  value={inputSearchId}
+                  onChange={(e) => setInputSearchId(e.target.value)}
+                  placeholder="ENTER DELEGATE ID (e.g. TX2-EX-7264, TX2-FC-8492, TX2-CT-5819)"
+                  className="flex-1 px-5 py-3.5 bg-darkNavy/90 border-2 border-primary/30 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase tracking-wider"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="btn-primary py-3.5 px-8 text-xs font-orbitron font-bold whitespace-nowrap shadow-neon flex items-center justify-center space-x-2"
+                >
+                  <ShieldCheck className="w-4 h-4 text-darkNavy" />
+                  <span>Verify Credential</span>
+                </button>
+              </form>
+
+              {/* Sample Test Delegates */}
+              <div className="pt-3 border-t border-white/5 space-y-2">
+                <span className="text-[11px] font-mono text-gray-400 block">
+                  Quick Sample Delegates (Click to verify):
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "TX2-FC-8492", name: "Prof. Dr. Sushanta Mahanty", role: "Head PI" },
+                    { id: "TX2-FC-3925", name: "Prof. Dr. Vikash Kumar", role: "Co-PI" },
+                    { id: "TX2-EX-7264", name: "Akshat Anand Singh", role: "PR Head" },
+                    { id: "TX2-EX-4918", name: "Umang Kumar Sharma", role: "President" },
+                    { id: "TX2-EX-9531", name: "Subha Pain", role: "Technical Head" },
+                    { id: "TX2-CT-5819", name: "Prem Shaw", role: "Event Head" },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => {
+                        setInputSearchId(s.id);
+                        navigate(`/verify/${s.id}`);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-accent/15 border border-white/10 hover:border-accent/40 text-gray-300 hover:text-accent text-[11px] font-mono transition-all flex items-center space-x-1.5"
+                    >
+                      <span className="font-bold text-white">{s.id}</span>
+                      <span className="text-gray-400">({s.name} &bull; {s.role})</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : member ? (
           /* ================= VALID CREDENTIAL CARD ================= */
           <motion.div
             initial={{ scale: 0.95, opacity: 0 }}
@@ -500,35 +585,47 @@ export default function Verify() {
           </motion.div>
         )}
 
-        {/* Search Another Member ID Form */}
-        <div className="glass-card p-6 rounded-2xl border border-primary/20 space-y-4">
-          <div className="flex items-center space-x-2 text-xs font-mono text-gray-400">
-            <Search className="w-4 h-4 text-accent" />
-            <span>AUTHENTICATE ANOTHER CREDENTIAL ID:</span>
-          </div>
+        {/* Search Another Member ID Form (When viewing specific credential) */}
+        {hasTargetId && (
+          <div className="glass-card p-6 sm:p-7 rounded-3xl border border-primary/20 space-y-4 bg-darkNavy/80">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 text-xs font-mono text-gray-300">
+                <Search className="w-4 h-4 text-accent" />
+                <span className="font-bold text-accent uppercase tracking-wider">
+                  AUTHENTICATE ANOTHER CREDENTIAL ID: BY MANUAL TYPING
+                </span>
+              </div>
+              <Link
+                to="/verify"
+                className="text-[11px] font-mono text-gray-400 hover:text-accent flex items-center space-x-1"
+              >
+                <span>&larr; Return to Scanner Desk</span>
+              </Link>
+            </div>
 
-          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              value={inputSearchId}
-              onChange={(e) => setInputSearchId(e.target.value)}
-              placeholder="e.g. TX2-EX-7264, TX2-EX-4918, TX2-FC-8492"
-              className="flex-1 px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase"
-            />
-            <button
-              type="button"
-              onClick={() => setShowScannerModal(true)}
-              className="py-3 px-5 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-orbitron font-bold flex items-center justify-center space-x-2 hover:bg-cyan-500/25 transition-all shadow-sm"
-              title="Open camera or image QR scanner"
-            >
-              <Camera className="w-4 h-4 text-cyan-400" />
-              <span>Scan QR</span>
-            </button>
-            <button type="submit" className="btn-primary py-3 px-6 text-xs font-bold whitespace-nowrap">
-              Verify Credential
-            </button>
-          </form>
-        </div>
+            <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-3">
+              <input
+                type="text"
+                value={inputSearchId}
+                onChange={(e) => setInputSearchId(e.target.value)}
+                placeholder="e.g. TX2-EX-7264, TX2-EX-4918, TX2-FC-8492"
+                className="flex-1 px-4 py-3 bg-darkNavy/90 border border-primary/30 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase"
+              />
+              <button
+                type="button"
+                onClick={() => setShowScannerModal(true)}
+                className="py-3 px-5 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-orbitron font-bold flex items-center justify-center space-x-2 hover:bg-cyan-500/25 transition-all shadow-sm"
+                title="Open camera or image QR scanner"
+              >
+                <Camera className="w-4 h-4 text-cyan-400" />
+                <span>Scan QR</span>
+              </button>
+              <button type="submit" className="btn-primary py-3 px-6 text-xs font-bold whitespace-nowrap">
+                Verify Credential
+              </button>
+            </form>
+          </div>
+        )}
 
       </div>
 
