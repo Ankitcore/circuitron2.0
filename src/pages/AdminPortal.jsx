@@ -539,10 +539,10 @@ export default function AdminPortal() {
 
             <button
               type="submit"
-              className="w-full btn-primary py-3 text-xs font-bold tracking-wider uppercase shadow-neon flex items-center justify-center space-x-2"
+              className="w-full btn-primary py-3.5 text-xs font-bold tracking-wider uppercase shadow-neon flex items-center justify-center space-x-2"
             >
               <Unlock className="w-4 h-4" />
-              <span>Unlock Secretariat Access</span>
+              <span>Authenticate Clearance</span>
             </button>
 
             <div className="pt-3 border-t border-white/10 flex flex-col items-center space-y-2">

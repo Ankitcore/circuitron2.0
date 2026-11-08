@@ -12,6 +12,7 @@ import {
   Zap,
   Maximize2,
   FileText,
+  Play,
 } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 
@@ -74,11 +75,36 @@ function playScanBeep() {
   }
 }
 
+/**
+ * Safely request native browser camera permission with multi-layer fallback
+ */
+async function requestNativeCameraStream() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    throw new Error("getUserMedia is not supported by your browser");
+  }
+
+  // 1. Try preferred rear camera first (ideal, not exact, so laptop webcams don't fail)
+  try {
+    return await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: "environment" } },
+    });
+  } catch (err1) {
+    // 2. Fallback to any default video device (front webcam, USB cam, virtual cam)
+    try {
+      return await navigator.mediaDevices.getUserMedia({ video: true });
+    } catch (err2) {
+      throw err2;
+    }
+  }
+}
+
 export default function QrScannerModal({ isOpen, onClose, onScanSuccess }) {
   const [activeMode, setActiveMode] = useState("camera"); // "camera" | "upload"
   const [cameras, setCameras] = useState([]);
   const [selectedCameraId, setSelectedCameraId] = useState("");
   const [isScanning, setIsScanning] = useState(false);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const [hasStartedOnce, setHasStartedOnce] = useState(false);
   const [scannerError, setScannerError] = useState("");
   const [lastScannedResult, setLastScannedResult] = useState(null);
   const [isProcessingFile, setIsProcessingFile] = useState(false);
@@ -100,51 +126,79 @@ export default function QrScannerModal({ isOpen, onClose, onScanSuccess }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Discover available cameras when modal opens
+  // Clean stop on modal close or unmount
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      stopCamera();
+      setHasStartedOnce(false);
+      setScannerError("");
+      setLastScannedResult(null);
+    }
+  }, [isOpen]);
 
-    Html5Qrcode.getCameras()
-      .then((devices) => {
+  // Handle switching camera from dropdown if already active
+  useEffect(() => {
+    if (isOpen && hasStartedOnce && activeMode === "camera" && selectedCameraId) {
+      startCamera(selectedCameraId);
+    }
+  }, [selectedCameraId]);
+
+  /**
+   * Main camera activation function triggered by user click
+   */
+  const handleStartCameraClick = async () => {
+    setIsRequestingPermission(true);
+    setScannerError("");
+
+    try {
+      // 1. Force native browser permission dialog using getUserMedia
+      const testStream = await requestNativeCameraStream();
+      // Stop test tracks immediately so Html5Qrcode can bind
+      testStream.getTracks().forEach((t) => t.stop());
+
+      // 2. Discover available cameras with granted labels
+      try {
+        const devices = await Html5Qrcode.getCameras();
         if (devices && devices.length > 0) {
           setCameras(devices);
-          // Prefer back camera if available
-          const backCamera = devices.find(
+          const backCam = devices.find(
             (c) =>
               c.label.toLowerCase().includes("back") ||
               c.label.toLowerCase().includes("rear") ||
               c.label.toLowerCase().includes("environment")
           );
-          setSelectedCameraId(backCamera ? backCamera.id : devices[0].id);
+          const targetId = backCam ? backCam.id : devices[0].id;
+          setSelectedCameraId(targetId);
+          setHasStartedOnce(true);
+          await startCamera(targetId);
         } else {
-          setCameras([]);
+          setHasStartedOnce(true);
+          await startCamera("");
         }
-      })
-      .catch((err) => {
-        console.warn("Could not list cameras:", err);
-      });
-  }, [isOpen]);
-
-  // Handle Starting / Stopping camera stream
-  useEffect(() => {
-    if (!isOpen || activeMode !== "camera") {
-      stopCamera();
-      return;
-    }
-
-    let isMounted = true;
-    const startTimeout = setTimeout(() => {
-      if (isMounted) {
-        startCamera(selectedCameraId);
+      } catch (enumErr) {
+        setHasStartedOnce(true);
+        await startCamera("");
       }
-    }, 250);
-
-    return () => {
-      isMounted = false;
-      clearTimeout(startTimeout);
-      stopCamera();
-    };
-  }, [isOpen, activeMode, selectedCameraId]);
+    } catch (err) {
+      console.warn("Camera permission request error:", err);
+      const msg = String(err).toLowerCase();
+      if (msg.includes("notallowed") || msg.includes("permission") || msg.includes("denied")) {
+        setScannerError(
+          "Camera access is blocked. Please click the camera/lock icon in your browser address bar to allow permissions, or switch to 'Upload QR Image'."
+        );
+      } else if (msg.includes("notfound") || msg.includes("devicesnotfound")) {
+        setScannerError(
+          "No camera hardware detected on this device. You can upload an image of the ID card QR code instead."
+        );
+      } else {
+        setScannerError(
+          "Camera could not be accessed. Please ensure permissions are granted and no other application is using your webcam."
+        );
+      }
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  };
 
   const startCamera = async (cameraId) => {
     setScannerError("");
@@ -160,31 +214,44 @@ export default function QrScannerModal({ isOpen, onClose, onScanSuccess }) {
 
       const cameraConfig = cameraId
         ? { deviceId: { exact: cameraId } }
-        : { facingMode: "environment" };
+        : { facingMode: { ideal: "environment" } };
 
-      await qrCodeScanner.start(
-        cameraConfig,
-        {
-          fps: 12,
-          qrbox: { width: 260, height: 260 },
-          aspectRatio: 1.0,
+      const qrConfig = {
+        fps: 15,
+        qrbox: (viewfinderWidth, viewfinderHeight) => {
+          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          const edgeSize = Math.max(180, Math.floor(minEdge * 0.72));
+          return { width: edgeSize, height: edgeSize };
         },
-        (decodedText) => {
-          handleSuccessfulDecode(decodedText);
-        },
-        () => {
-          // Frame failure (expected during search), no-op
-        }
-      );
+        aspectRatio: 1.0,
+      };
+
+      try {
+        await qrCodeScanner.start(
+          cameraConfig,
+          qrConfig,
+          (decodedText) => handleSuccessfulDecode(decodedText),
+          () => {}
+        );
+      } catch (firstStartErr) {
+        console.warn("First camera start failed, attempting user-facing fallback:", firstStartErr);
+        await qrCodeScanner.start(
+          { facingMode: "user" },
+          qrConfig,
+          (decodedText) => handleSuccessfulDecode(decodedText),
+          () => {}
+        );
+      }
 
       setIsScanning(true);
+      setHasStartedOnce(true);
     } catch (err) {
       console.error("Camera start error:", err);
       setIsScanning(false);
       const msg = String(err).toLowerCase();
       if (msg.includes("permission") || msg.includes("denied") || msg.includes("notallowed")) {
         setScannerError(
-          "Camera access was denied. Please allow camera permissions in your browser or switch to 'Upload QR Image'."
+          "Camera access is blocked. Please click the camera/lock icon in your browser address bar to allow permissions, or switch to 'Upload QR Image'."
         );
       } else if (msg.includes("notfound") || msg.includes("no camera")) {
         setScannerError(
@@ -364,6 +431,41 @@ export default function QrScannerModal({ isOpen, onClose, onScanSuccess }) {
                 {/* HTML5 QR Code Mount Node */}
                 <div id={readerElementId} className="w-full h-full overflow-hidden" />
 
+                {/* Initial State / Permission Prompt View */}
+                {!isScanning && !lastScannedResult && (
+                  <div className="absolute inset-0 bg-darkNavy/90 flex flex-col items-center justify-center p-6 text-center space-y-4 z-10">
+                    <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/30 flex items-center justify-center text-accent shadow-neon animate-pulse">
+                      <Camera className="w-8 h-8" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-bold font-orbitron text-sm">
+                        Camera Scanner Ready
+                      </h4>
+                      <p className="text-gray-400 text-xs font-mono max-w-[220px] mt-1">
+                        Click below to allow camera access and start scanning ID badges
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleStartCameraClick}
+                      disabled={isRequestingPermission}
+                      className="btn-primary py-3 px-6 text-xs font-orbitron font-bold flex items-center space-x-2 shadow-neon hover:scale-105 transition-all"
+                    >
+                      {isRequestingPermission ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin text-darkNavy" />
+                          <span>Requesting Permission...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Play className="w-4 h-4 text-darkNavy" />
+                          <span>Start Camera Scanner</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
                 {/* Cybernetic Reticle HUD Overlay */}
                 {isScanning && !lastScannedResult && (
                   <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-6">
@@ -452,19 +554,30 @@ export default function QrScannerModal({ isOpen, onClose, onScanSuccess }) {
 
           {/* Error Notice */}
           {scannerError && (
-            <div className="flex items-start space-x-2.5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs leading-relaxed">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400 mt-0.5" />
-              <div className="flex-1">
-                <span>{scannerError}</span>
-                {activeMode === "camera" && (
+            <div className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs leading-relaxed">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400 mt-0.5" />
+              <div className="flex-1 space-y-2">
+                <p className="font-semibold text-white">{scannerError}</p>
+                <div className="flex flex-wrap gap-2 pt-1">
                   <button
                     type="button"
-                    onClick={() => setActiveMode("upload")}
-                    className="block text-accent underline mt-1 font-semibold hover:text-white"
+                    onClick={handleStartCameraClick}
+                    className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-white font-mono text-[11px] font-bold transition-all flex items-center space-x-1"
                   >
-                    Switch to upload image instead &rarr;
+                    <RefreshCw className="w-3 h-3" />
+                    <span>Retry Camera Permission</span>
                   </button>
-                )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveMode("upload");
+                      setScannerError("");
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent font-mono text-[11px] transition-all"
+                  >
+                    Use Photo Upload Instead &rarr;
+                  </button>
+                </div>
               </div>
             </div>
           )}

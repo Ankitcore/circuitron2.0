@@ -9,7 +9,7 @@ export const facultyCoordinators = [
     id: "TX2-FC-8492",
     name: "Prof. Dr. Sushanta Mahanty",
     position: "Head PI",
-    role: "Head, Circuitron (Head PI)",
+    role: "Head PI",
     description: "Leading the technical vision and development of the club",
     img: "/assets/gallery2/prof .shushant mahanty.webp",
     tier: "Faculty Coordinator",
