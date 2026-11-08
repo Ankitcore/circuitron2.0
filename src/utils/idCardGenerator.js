@@ -87,7 +87,7 @@ function loadImage(src) {
  * Returns { hdDataUrl, stdDataUrl, qrDataUrl }
  */
 export async function generateMemberIdCard(member) {
-  const tierKey = normalizeTierKey(member.tierKey || member.tier || member.category);
+  const tierKey = normalizeTierKey(member.tierKey || member.tier || member.category, member.id);
   const cfg = TIER_CONFIG[tierKey] || TIER_CONFIG.participant;
 
   const width = 1224;

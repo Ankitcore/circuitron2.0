@@ -9,12 +9,13 @@ export const facultyCoordinators = [
     id: "TX2-FC-8492",
     name: "Prof. Dr. Sushanta Mahanty",
     position: "Head PI",
-    role: "Head PI",
+    role: "Head, Circuitron (Head PI)",
     description: "Leading the technical vision and development of the club",
     img: "/assets/gallery2/prof .shushant mahanty.webp",
-    tier: "Academic Advisory Board",
-    category: "Faculty Advisory",
-    department: "Dept. of ECE",
+    tier: "Faculty Coordinator",
+    category: "Faculty Coordinator",
+    tierKey: "faculty",
+    department: "Dept. of ECE, RVSCET",
     showOnWebsite: true,
     idCard: "/assets/id-cards/TX2-FC-8492.jpg",
     idCardHd: "/assets/id-cards/TX2-FC-8492-hd.jpg",
@@ -27,9 +28,10 @@ export const facultyCoordinators = [
     role: "Co-PI",
     description: "Guiding research and innovation initiatives",
     img: "/assets/gallery2/prof vikash kumar.webp",
-    tier: "Academic Advisory Board",
-    category: "Faculty Advisory",
-    department: "Dept. of ECE",
+    tier: "Faculty Coordinator",
+    category: "Faculty Coordinator",
+    tierKey: "faculty",
+    department: "Dept. of ECE, RVSCET",
     showOnWebsite: true,
     idCard: "/assets/id-cards/TX2-FC-3925.jpg",
     idCardHd: "/assets/id-cards/TX2-FC-3925-hd.jpg",
@@ -253,15 +255,15 @@ export const TIER_CONFIG = {
   },
   faculty: {
     id: "faculty",
-    label: "Faculty Advisory",
-    badgeLabel: "Academic Advisory Board",
+    label: "Faculty Coordinator",
+    badgeLabel: "Faculty Coordinator",
     roleDefault: "Head PI",
-    deptDefault: "Dept. of ECE",
+    deptDefault: "Dept. of ECE, RVSCET",
     prefix: "TX2-FC-",
     blankTemplate: "/assets/id-cards/TX2-FC-BLANK-hd.jpg",
     stdTemplate: "/assets/id-cards/TX2-FC-BLANK.jpg",
-    color: "#E6EDF8",
-    colorRgb: [230, 237, 248],
+    color: "#38BDF8",
+    colorRgb: [56, 189, 248],
   },
 };
 
@@ -296,14 +298,30 @@ export function saveCustomMembers(members) {
 
 /**
  * Normalize tier string to standard key ('executive' | 'core' | 'participant' | 'volunteer' | 'faculty')
+ * Safely checks both tier string and optional ID prefix (e.g. TX2-FC-)
  */
-export function normalizeTierKey(tierInput = "") {
-  const t = String(tierInput).trim().toLowerCase();
+export function normalizeTierKey(tierInput = "", id = "") {
+  const idStr = String(id || "").trim().toUpperCase();
+  if (idStr.startsWith("TX2-FC") || idStr.includes("-FC-")) return "faculty";
+  if (idStr.startsWith("TX2-EX") || idStr.includes("-EX-")) return "executive";
+  if (idStr.startsWith("TX2-CT") || idStr.includes("-CT-")) return "core";
+  if (idStr.startsWith("TX2-PT") || idStr.includes("-PT-")) return "participant";
+  if (idStr.startsWith("TX2-VL") || idStr.includes("-VL-")) return "volunteer";
+
+  const t = String(tierInput || "").trim().toLowerCase();
   if (t.includes("exec")) return "executive";
   if (t.includes("core")) return "core";
   if (t.includes("part")) return "participant";
   if (t.includes("vol")) return "volunteer";
-  if (t.includes("fac")) return "faculty";
+  if (
+    t.includes("fac") ||
+    t.includes("acad") ||
+    t.includes("advis") ||
+    t.includes("mentor") ||
+    t.includes("coord")
+  ) {
+    return "faculty";
+  }
   return "participant";
 }
 
@@ -500,7 +518,7 @@ export function isMemberVisibleOnWebsite(member) {
   // 3. Default tier behavior:
   // Faculty, Executive, and Core are visible by default
   // Participants and Volunteers are hidden by default unless explicitly toggled on
-  const tier = normalizeTierKey(member.tierKey || member.tier || member.category);
+  const tier = normalizeTierKey(member.tierKey || member.tier || member.category, member.id);
   return tier === "faculty" || tier === "executive" || tier === "core";
 }
 
@@ -593,8 +611,17 @@ export function setTeamWebsiteVisibility(teamNameOrTier, isVisible) {
 /**
  * Query methods for public Website Team page
  */
+export function getAllFaculty() {
+  const customFaculty = getCustomMembers().filter(
+    (m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "faculty"
+  );
+  const builtInIds = new Set(facultyCoordinators.map((m) => m.id?.toUpperCase()));
+  const filteredCustom = customFaculty.filter((m) => !builtInIds.has(m.id?.toUpperCase()));
+  return [...facultyCoordinators, ...filteredCustom];
+}
+
 export function getVisibleFaculty() {
-  return facultyCoordinators.filter(isMemberVisibleOnWebsite);
+  return getAllFaculty().filter(isMemberVisibleOnWebsite);
 }
 
 export function getVisibleExecutives() {
@@ -608,7 +635,7 @@ export function getVisibleCoreTeam() {
 export function getVisibleCustomTeams() {
   const custom = getCustomMembers();
   return custom.filter((m) => {
-    const tier = normalizeTierKey(m.tierKey || m.category);
+    const tier = normalizeTierKey(m.tierKey || m.category, m.id);
     // Participants and Volunteers who are marked visible on website
     if (tier === "participant" || tier === "volunteer") {
       return isMemberVisibleOnWebsite(m);
@@ -618,11 +645,13 @@ export function getVisibleCustomTeams() {
 }
 
 /**
- * Get all members across all 5 tiers (built-in + custom)
+ * Get all members across all 5 tiers (built-in + custom deduplicated)
  */
 export function getAllMembers() {
-  const custom = getCustomMembers();
-  return [...facultyCoordinators, ...executiveTeam, ...coreTeam, ...custom];
+  const builtIn = [...facultyCoordinators, ...executiveTeam, ...coreTeam];
+  const builtInIds = new Set(builtIn.map((m) => m.id?.toUpperCase()));
+  const custom = getCustomMembers().filter((m) => !builtInIds.has(m.id?.toUpperCase()));
+  return [...builtIn, ...custom];
 }
 
 /**
@@ -630,9 +659,11 @@ export function getAllMembers() {
  */
 export function getAllExecutives() {
   const customExecs = getCustomMembers().filter(
-    (m) => m.tierKey === "executive" || m.category === "Executive Team"
+    (m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "executive"
   );
-  return [...executiveTeam, ...customExecs];
+  const builtInIds = new Set(executiveTeam.map((m) => m.id?.toUpperCase()));
+  const filteredCustom = customExecs.filter((m) => !builtInIds.has(m.id?.toUpperCase()));
+  return [...executiveTeam, ...filteredCustom];
 }
 
 /**
@@ -640,9 +671,11 @@ export function getAllExecutives() {
  */
 export function getAllCoreTeam() {
   const customCore = getCustomMembers().filter(
-    (m) => m.tierKey === "core" || m.category === "Core Team"
+    (m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "core"
   );
-  return [...coreTeam, ...customCore];
+  const builtInIds = new Set(coreTeam.map((m) => m.id?.toUpperCase()));
+  const filteredCustom = customCore.filter((m) => !builtInIds.has(m.id?.toUpperCase()));
+  return [...coreTeam, ...filteredCustom];
 }
 
 /**
@@ -650,7 +683,7 @@ export function getAllCoreTeam() {
  */
 export function getAllParticipants() {
   return getCustomMembers().filter(
-    (m) => m.tierKey === "participant" || m.category === "Participant"
+    (m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "participant"
   );
 }
 
@@ -659,7 +692,7 @@ export function getAllParticipants() {
  */
 export function getAllVolunteers() {
   return getCustomMembers().filter(
-    (m) => m.tierKey === "volunteer" || m.category === "Volunteer"
+    (m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "volunteer"
   );
 }
 

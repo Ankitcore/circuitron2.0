@@ -134,11 +134,11 @@ export default function AdminPortal() {
 
   // Compute live statistics
   const stats = useMemo(() => {
-    const execs = allMembers.filter((m) => m.tierKey === "executive" || m.category === "Executive Team");
-    const core = allMembers.filter((m) => m.tierKey === "core" || m.category === "Core Team");
-    const participants = allMembers.filter((m) => m.tierKey === "participant" || m.category === "Participant");
-    const volunteers = allMembers.filter((m) => m.tierKey === "volunteer" || m.category === "Volunteer");
-    const faculty = facultyCoordinators;
+    const execs = allMembers.filter((m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "executive");
+    const core = allMembers.filter((m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "core");
+    const participants = allMembers.filter((m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "participant");
+    const volunteers = allMembers.filter((m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "volunteer");
+    const faculty = allMembers.filter((m) => normalizeTierKey(m.tierKey || m.tier || m.category, m.id) === "faculty");
     const onWebsite = allMembers.filter(isMemberVisibleOnWebsite);
     return {
       total: allMembers.length,
@@ -156,7 +156,7 @@ export default function AdminPortal() {
   const filteredRoster = useMemo(() => {
     return allMembers.filter((m) => {
       // Tier filter
-      const tKey = normalizeTierKey(m.tierKey || m.tier || m.category);
+      const tKey = normalizeTierKey(m.tierKey || m.tier || m.category, m.id);
       if (tierFilter !== "all" && tKey !== tierFilter) {
         return false;
       }
@@ -629,7 +629,7 @@ export default function AdminPortal() {
         </div>
 
         {/* Live Metric Statistics Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
           <div className="glass-card p-4 rounded-2xl border border-white/10 text-center space-y-1">
             <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block">Total Roster</span>
             <span className="text-2xl sm:text-3xl font-black font-orbitron text-white">{stats.total}</span>
@@ -638,6 +638,11 @@ export default function AdminPortal() {
           <div className="glass-card p-4 rounded-2xl border border-emerald-500/30 text-center space-y-1 bg-emerald-500/[0.03]">
             <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">On Website /team</span>
             <span className="text-2xl sm:text-3xl font-black font-orbitron text-emerald-300">{stats.onWebsite}</span>
+          </div>
+
+          <div className="glass-card p-4 rounded-2xl border border-sky-400/20 text-center space-y-1">
+            <span className="text-[10px] font-mono text-sky-400 uppercase tracking-wider block">Faculty</span>
+            <span className="text-2xl sm:text-3xl font-black font-orbitron text-sky-300">{stats.faculty}</span>
           </div>
 
           <div className="glass-card p-4 rounded-2xl border border-primary/20 text-center space-y-1">
@@ -836,7 +841,7 @@ export default function AdminPortal() {
                       </tr>
                     ) : (
                       filteredRoster.map((m) => {
-                        const tKey = normalizeTierKey(m.tierKey || m.tier || m.category);
+                        const tKey = normalizeTierKey(m.tierKey || m.tier || m.category, m.id);
                         const cfg = TIER_CONFIG[tKey] || TIER_CONFIG.participant;
                         const isVisible = isMemberVisibleOnWebsite(m);
 
@@ -1010,12 +1015,13 @@ export default function AdminPortal() {
                   <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider font-semibold">
                     1. Select Delegate Tier *
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {[
                       { id: "executive", label: "Executive Team", color: "#A855F7" },
                       { id: "core", label: "Core Team", color: "#00E5FF" },
                       { id: "participant", label: "Participant", color: "#10B981" },
                       { id: "volunteer", label: "Volunteer", color: "#F59E0B" },
+                      { id: "faculty", label: "Faculty", color: "#38BDF8" },
                     ].map((t) => (
                       <button
                         type="button"
@@ -1333,6 +1339,7 @@ export default function AdminPortal() {
                   <option value="volunteer">Volunteer (TX2-VL-)</option>
                   <option value="executive">Executive Team (TX2-EX-)</option>
                   <option value="core">Core Team (TX2-CT-)</option>
+                  <option value="faculty">Faculty Coordinator (TX2-FC-)</option>
                 </select>
               </div>
 

@@ -278,7 +278,7 @@ export default function Team() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {customTeams.map((member) => {
-                const tKey = normalizeTierKey(member.tierKey || member.tier || member.category);
+                const tKey = normalizeTierKey(member.tierKey || member.tier || member.category, member.id);
                 const cfg = TIER_CONFIG[tKey] || TIER_CONFIG.participant;
 
                 return (
