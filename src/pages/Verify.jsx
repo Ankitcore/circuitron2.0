@@ -19,9 +19,11 @@ import {
   Unlock,
   KeyRound,
   LogOut,
+  Camera,
 } from "lucide-react";
 import { getMemberById } from "../data/team";
 import { generateMemberIdCard, downloadDataUrl } from "../utils/idCardGenerator";
+import QrScannerModal from "../components/QrScannerModal";
 
 const ADMIN_PASSCODES = [
   "2026techxpo@admin",
@@ -39,6 +41,7 @@ export default function Verify() {
   const [inputSearchId, setInputSearchId] = useState(targetId);
   const [copied, setCopied] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
+  const [showScannerModal, setShowScannerModal] = useState(false);
   const [customCardImage, setCustomCardImage] = useState(null);
   const [isRenderingCard, setIsRenderingCard] = useState(false);
 
@@ -87,6 +90,21 @@ export default function Verify() {
     e.preventDefault();
     if (inputSearchId.trim()) {
       navigate(`/verify/${inputSearchId.trim().toUpperCase()}`);
+    }
+  };
+
+  const handleScanSuccess = (scannedId) => {
+    if (scannedId) {
+      const cleanId = scannedId.trim().toUpperCase();
+      setInputSearchId(cleanId);
+      navigate(`/verify/${cleanId}`);
+      setIsValidating(true);
+      setTimeout(() => {
+        setIsValidating(false);
+        setValidatedTimestamp(
+          new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+        );
+      }, 400);
     }
   };
 
@@ -156,6 +174,17 @@ export default function Verify() {
           <p className="text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
             Scan verification and cryptographic validation for official TechXpo 2.O leaders, coordinators, and delegates at RVSCET Jamshedpur.
           </p>
+
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowScannerModal(true)}
+              className="py-3 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 via-primary to-accent text-darkNavy font-orbitron font-extrabold text-xs sm:text-sm flex items-center space-x-2.5 shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:shadow-[0_0_40px_rgba(0,229,255,0.6)] hover:scale-105 transition-all duration-300 group"
+            >
+              <Camera className="w-4 h-4 text-darkNavy group-hover:rotate-12 transition-transform" />
+              <span>Scan ID Card QR Code</span>
+            </button>
+          </div>
         </div>
 
         {member ? (
@@ -379,6 +408,16 @@ export default function Verify() {
                   <span>{copied ? "Link Copied!" : "Share Credential"}</span>
                 </button>
 
+                {/* Scan Another Card Option */}
+                <button
+                  type="button"
+                  onClick={() => setShowScannerModal(true)}
+                  className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-2 border-primary/40 text-accent hover:border-accent"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>Scan Another QR</span>
+                </button>
+
                 {/* Admin Status Pill / Login Trigger */}
                 {isAdmin ? (
                   <button
@@ -442,8 +481,16 @@ export default function Verify() {
               </p>
             </div>
 
-            <div className="pt-4 flex justify-center gap-3">
-              <Link to="/contact" className="btn-primary text-xs py-2.5 px-5 font-bold">
+            <div className="pt-4 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowScannerModal(true)}
+                className="btn-primary text-xs py-2.5 px-5 font-bold flex items-center space-x-2"
+              >
+                <Camera className="w-4 h-4" />
+                <span>Scan ID Card QR</span>
+              </button>
+              <Link to="/contact" className="btn-secondary text-xs py-2.5 px-5 font-bold">
                 Contact Help Desk
               </Link>
               <Link to="/team" className="btn-secondary text-xs py-2.5 px-5 font-bold">
@@ -468,6 +515,15 @@ export default function Verify() {
               placeholder="e.g. TX2-EX-7264, TX2-EX-4918, TX2-FC-8492"
               className="flex-1 px-4 py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase"
             />
+            <button
+              type="button"
+              onClick={() => setShowScannerModal(true)}
+              className="py-3 px-5 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-orbitron font-bold flex items-center justify-center space-x-2 hover:bg-cyan-500/25 transition-all shadow-sm"
+              title="Open camera or image QR scanner"
+            >
+              <Camera className="w-4 h-4 text-cyan-400" />
+              <span>Scan QR</span>
+            </button>
             <button type="submit" className="btn-primary py-3 px-6 text-xs font-bold whitespace-nowrap">
               Verify Credential
             </button>
@@ -638,6 +694,13 @@ export default function Verify() {
           </motion.div>
         </div>
       )}
+
+      {/* ================= MODAL: LIVE QR AUTHENTICATOR SCANNER ================= */}
+      <QrScannerModal
+        isOpen={showScannerModal}
+        onClose={() => setShowScannerModal(false)}
+        onScanSuccess={handleScanSuccess}
+      />
     </motion.div>
   );
 }

@@ -12,6 +12,7 @@
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.8.1",
     "framer-motion": "^11.18.2",
+    "html5-qrcode": "^2.3.8",
     "lucide-react": "^1.67.0",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
