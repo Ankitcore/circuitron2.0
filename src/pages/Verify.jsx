@@ -240,36 +240,6 @@ export default function Verify() {
                   <span>Verify Credential</span>
                 </button>
               </form>
-
-              {/* Sample Test Delegates */}
-              <div className="pt-3 border-t border-white/5 space-y-2">
-                <span className="text-[11px] font-mono text-gray-400 block">
-                  Quick Sample Delegates (Click to verify):
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: "TX2-FC-8492", name: "Prof. Dr. Sushanta Mahanty", role: "Head PI" },
-                    { id: "TX2-FC-3925", name: "Prof. Dr. Vikash Kumar", role: "Co-PI" },
-                    { id: "TX2-EX-7264", name: "Akshat Anand Singh", role: "PR Head" },
-                    { id: "TX2-EX-4918", name: "Umang Kumar Sharma", role: "President" },
-                    { id: "TX2-EX-9531", name: "Subha Pain", role: "Technical Head" },
-                    { id: "TX2-CT-5819", name: "Prem Shaw", role: "Event Head" },
-                  ].map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={() => {
-                        setInputSearchId(s.id);
-                        navigate(`/verify/${s.id}`);
-                      }}
-                      className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-accent/15 border border-white/10 hover:border-accent/40 text-gray-300 hover:text-accent text-[11px] font-mono transition-all flex items-center space-x-1.5"
-                    >
-                      <span className="font-bold text-white">{s.id}</span>
-                      <span className="text-gray-400">({s.name} &bull; {s.role})</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         ) : member ? (
