@@ -40,29 +40,6 @@ function playScanBeep() {
   }
 }
 
-/**
- * Safely request native browser camera permission with multi-layer fallback
- */
-async function requestNativeCameraStream() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    throw new Error("getUserMedia is not supported by your browser");
-  }
-
-  // 1. Try preferred rear camera first (ideal, not exact, so laptop webcams don't fail)
-  try {
-    return await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: "environment" } },
-    });
-  } catch (err1) {
-    // 2. Fallback to any default video device (front webcam, USB cam, virtual cam)
-    try {
-      return await navigator.mediaDevices.getUserMedia({ video: true });
-    } catch (err2) {
-      throw err2;
-    }
-  }
-}
-
 export default function EmbeddedQrScanner({ onScanSuccess }) {
   const [activeMode, setActiveMode] = useState("camera"); // "camera" | "upload"
   const [cameras, setCameras] = useState([]);
@@ -78,22 +55,32 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
   const readerElementId = "embedded-techxpo-qr-reader";
   const fileInputRef = useRef(null);
 
-  // Stop camera on unmount or mode switch
+  // Auto-attempt start on mount if permission was already granted previously
   useEffect(() => {
-    if (activeMode !== "camera") {
-      stopCamera();
+    let isMounted = true;
+
+    const checkAndAutoStart = async () => {
+      if (typeof navigator !== "undefined" && navigator.permissions?.query) {
+        try {
+          const status = await navigator.permissions.query({ name: "camera" });
+          if (isMounted && status.state === "granted" && activeMode === "camera") {
+            startCamera();
+          }
+        } catch (e) {
+          // Safari / unsupported browsers will wait for user click
+        }
+      }
+    };
+
+    if (activeMode === "camera") {
+      checkAndAutoStart();
     }
+
     return () => {
+      isMounted = false;
       stopCamera();
     };
   }, [activeMode]);
-
-  // Handle switching camera from dropdown
-  useEffect(() => {
-    if (hasStartedOnce && activeMode === "camera" && selectedCameraId) {
-      startCamera(selectedCameraId);
-    }
-  }, [selectedCameraId]);
 
   // Cleanly stop existing camera instance
   const stopCamera = async () => {
@@ -104,7 +91,7 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
         }
         html5QrCodeRef.current.clear();
       } catch (err) {
-        // Safe ignore
+        console.warn("Stop camera safe ignore:", err);
       } finally {
         html5QrCodeRef.current = null;
         setIsScanning(false);
@@ -113,44 +100,87 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
   };
 
   /**
-   * Main camera activation function triggered by user click or permission retry
+   * Main camera activation function
+   * Supports mobile rear cameras, desktop/laptop webcams, and specific selected devices.
    */
-  const handleStartCameraClick = async () => {
+  const startCamera = async (cameraIdToUse = "") => {
     setIsRequestingPermission(true);
     setScannerError("");
 
-    try {
-      // 1. Force the native browser permission dialog using getUserMedia
-      const testStream = await requestNativeCameraStream();
-      // Stop the test stream tracks immediately so Html5Qrcode can bind the camera
-      testStream.getTracks().forEach((t) => t.stop());
+    const element = document.getElementById(readerElementId);
+    if (!element) {
+      setIsRequestingPermission(false);
+      return;
+    }
 
-      // 2. Discover available cameras with granted labels
+    try {
+      // 1. Ensure any running instance is stopped and container is empty
+      await stopCamera();
+      element.innerHTML = "";
+
+      // 2. Initialize Html5Qrcode instance
+      const qrScanner = new Html5Qrcode(readerElementId);
+      html5QrCodeRef.current = qrScanner;
+
+      const scanConfig = {
+        fps: 15,
+        qrbox: { width: 240, height: 240 },
+        aspectRatio: 1.0,
+      };
+
+      // 3. Start scanning with robust multi-stage device resolution
+      if (cameraIdToUse) {
+        // User explicitly chose a camera from dropdown
+        await qrScanner.start(
+          cameraIdToUse,
+          scanConfig,
+          (decodedText) => handleDecode(decodedText),
+          () => {}
+        );
+      } else {
+        // Try rear/environment camera first (ideal for mobile phones scanning badges)
+        try {
+          await qrScanner.start(
+            { facingMode: "environment" },
+            scanConfig,
+            (decodedText) => handleDecode(decodedText),
+            () => {}
+          );
+        } catch (envErr) {
+          console.warn("Environment camera not available, falling back to user webcam:", envErr);
+          // If on desktop/laptop without environment camera, fallback to user (front webcam)
+          await qrScanner.start(
+            { facingMode: "user" },
+            scanConfig,
+            (decodedText) => handleDecode(decodedText),
+            () => {}
+          );
+        }
+      }
+
+      setIsScanning(true);
+      setHasStartedOnce(true);
+
+      // 4. Discover cameras in background to populate switcher dropdown without blocking stream
       try {
         const devices = await Html5Qrcode.getCameras();
         if (devices && devices.length > 0) {
           setCameras(devices);
-          const backCam = devices.find(
-            (c) =>
-              c.label.toLowerCase().includes("back") ||
-              c.label.toLowerCase().includes("rear") ||
-              c.label.toLowerCase().includes("environment")
-          );
-          const targetId = backCam ? backCam.id : devices[0].id;
-          setSelectedCameraId(targetId);
-          setHasStartedOnce(true);
-          await startCamera(targetId);
-        } else {
-          // If device list is empty, start with facingMode ideal
-          setHasStartedOnce(true);
-          await startCamera("");
+          if (!cameraIdToUse) {
+            const backCam = devices.find(
+              (c) =>
+                c.label.toLowerCase().includes("back") ||
+                c.label.toLowerCase().includes("rear") ||
+                c.label.toLowerCase().includes("environment")
+            );
+            setSelectedCameraId(backCam ? backCam.id : devices[0].id);
+          }
         }
-      } catch (camErr) {
-        setHasStartedOnce(true);
-        await startCamera("");
+      } catch (enumErr) {
+        console.warn("Could not list video devices:", enumErr);
       }
     } catch (err) {
-      console.warn("Camera permission error:", err);
+      console.error("Camera activation error:", err);
       setIsScanning(false);
       const str = String(err).toLowerCase();
       if (str.includes("notallowed") || str.includes("permission") || str.includes("denied")) {
@@ -159,8 +189,10 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
         );
       } else if (str.includes("notfound") || str.includes("devicesnotfound")) {
         setScannerError("No camera found on this device. You can upload an image of the QR code instead.");
+      } else if (str.includes("notreadable") || str.includes("trackstart") || str.includes("busy") || str.includes("source")) {
+        setScannerError("Camera is currently in use by another app or browser tab. Please close other camera apps and click 'Retry Camera'.");
       } else {
-        setScannerError("Unable to access camera. Please ensure no other application is using your webcam.");
+        setScannerError("Unable to access camera. Please allow camera permissions in your browser or switch to 'Upload QR Image'.");
       }
     } finally {
       setIsRequestingPermission(false);
@@ -168,61 +200,20 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
   };
 
   /**
-   * Start html5-qrcode scanner instance
+   * Main camera activation triggered by user click
    */
-  const startCamera = async (cameraId) => {
-    setScannerError("");
-    const element = document.getElementById(readerElementId);
-    if (!element) return;
+  const handleStartCameraClick = () => {
+    startCamera(selectedCameraId);
+  };
 
-    try {
-      await stopCamera();
-
-      const qrScanner = new Html5Qrcode(readerElementId);
-      html5QrCodeRef.current = qrScanner;
-
-      // Use specific device ID if available, otherwise use flexible ideal environment constraint
-      const cameraConfig = cameraId
-        ? { deviceId: { exact: cameraId } }
-        : { facingMode: { ideal: "environment" } };
-
-      await qrScanner.start(
-        cameraConfig,
-        {
-          fps: 12,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-        },
-        (decodedText) => {
-          handleDecode(decodedText);
-        },
-        () => {
-          // Frame failure during scanning loop, normal
-        }
-      );
-
-      setIsScanning(true);
-      setHasStartedOnce(true);
-    } catch (err) {
-      console.warn("Html5Qrcode start warning, trying fallback:", err);
-      // Fallback: try default camera without strict constraints
-      try {
-        const qrScanner = new Html5Qrcode(readerElementId);
-        html5QrCodeRef.current = qrScanner;
-        await qrScanner.start(
-          { facingMode: "user" },
-          { fps: 12, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
-          (decodedText) => handleDecode(decodedText),
-          () => {}
-        );
-        setIsScanning(true);
-        setHasStartedOnce(true);
-      } catch (fallbackErr) {
-        setIsScanning(false);
-        setScannerError(
-          "Camera stream could not be started. Please click 'Retry Camera' or switch to 'Upload Image'."
-        );
-      }
+  /**
+   * Handle dropdown camera switch
+   */
+  const handleCameraChange = (e) => {
+    const newId = e.target.value;
+    setSelectedCameraId(newId);
+    if (isScanning || hasStartedOnce) {
+      startCamera(newId);
     }
   };
 
@@ -331,7 +322,7 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
           </span>
           <select
             value={selectedCameraId}
-            onChange={(e) => setSelectedCameraId(e.target.value)}
+            onChange={handleCameraChange}
             className="bg-darkNavy border border-primary/30 rounded-xl px-3 py-1.5 text-accent text-xs font-mono focus:outline-none focus:border-accent max-w-[240px]"
           >
             {cameras.map((c) => (
