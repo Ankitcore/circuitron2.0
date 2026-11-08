@@ -8,13 +8,14 @@ export const facultyCoordinators = [
   {
     id: "TX2-FC-8492",
     name: "Prof. Dr. Sushanta Mahanty",
-    position: "Head PI",
-    role: "Head PI",
+    position: "Faculty Coordinator",
+    role: "Faculty Coordinator",
     description: "Leading the technical vision and development of the club",
     img: "/assets/gallery2/prof .shushant mahanty.webp",
     tier: "Academic Advisory Board",
-    category: "Faculty Advisory",
-    department: "Dept. of ECE",
+    category: "Faculty Coordinator",
+    department: "Dept. of ECE, RVSCET",
+    showOnWebsite: true,
     idCard: "/assets/id-cards/TX2-FC-8492.jpg",
     idCardHd: "/assets/id-cards/TX2-FC-8492-hd.jpg",
     qrCode: "/assets/id-cards/TX2-FC-8492_qr.png",
@@ -22,13 +23,14 @@ export const facultyCoordinators = [
   {
     id: "TX2-FC-3925",
     name: "Prof. Dr. Vikash Kumar",
-    position: "Co-PI",
-    role: "Co-PI",
+    position: "Faculty Coordinator",
+    role: "Faculty Coordinator",
     description: "Guiding research and innovation initiatives",
     img: "/assets/gallery2/prof vikash kumar.webp",
     tier: "Academic Advisory Board",
-    category: "Faculty Advisory",
-    department: "Dept. of ECE",
+    category: "Faculty Coordinator",
+    department: "Dept. of ECE, RVSCET",
+    showOnWebsite: true,
     idCard: "/assets/id-cards/TX2-FC-3925.jpg",
     idCardHd: "/assets/id-cards/TX2-FC-3925-hd.jpg",
     qrCode: "/assets/id-cards/TX2-FC-3925_qr.png",
@@ -251,8 +253,10 @@ export const TIER_CONFIG = {
   },
   faculty: {
     id: "faculty",
-    label: "Faculty Advisory",
-    badgeLabel: "Academic Advisory Board",
+    label: "Faculty Coordinators",
+    badgeLabel: "Faculty Coordinator",
+    roleDefault: "Faculty Coordinator",
+    deptDefault: "Dept. of ECE, RVSCET",
     prefix: "TX2-FC-",
     blankTemplate: "/assets/id-cards/TX2-FC-BLANK-hd.jpg",
     stdTemplate: "/assets/id-cards/TX2-FC-BLANK.jpg",
@@ -333,6 +337,8 @@ export function addMember(data) {
   const id = (data.id && data.id.trim()) ? data.id.trim().toUpperCase() : generateUniqueMemberId(tierKey);
   const name = (data.name || "Delegate").trim();
   const role = (data.role || data.position || (tierKey === "participant" ? "Competitor" : cfg.label)).trim();
+  const defaultShow = tierKey === "executive" || tierKey === "core";
+  const showOnWebsite = data.showOnWebsite !== undefined ? Boolean(data.showOnWebsite) : defaultShow;
 
   const newMember = {
     id,
@@ -348,6 +354,7 @@ export function addMember(data) {
     tagline: data.tagline || (tierKey === "participant" ? "Official Symposium Competitor" : "TechXpo 2.O Contributor"),
     description: data.description || `Verified ${cfg.label} for TechXpo 2.O`,
     isCustom: true,
+    showOnWebsite,
     createdAt: new Date().toISOString(),
     idCard: data.idCard || cfg.stdTemplate,
     idCardHd: data.idCardHd || cfg.blankTemplate,
@@ -364,7 +371,7 @@ export function addMember(data) {
 /**
  * Bulk add multiple members (from CSV, pasted list, or batch import)
  */
-export function addMembersBulk(membersList, defaultTier = "participant") {
+export function addMembersBulk(membersList, defaultTier = "participant", options = {}) {
   if (!Array.isArray(membersList) || membersList.length === 0) return [];
   
   const current = getCustomMembers();
@@ -384,6 +391,10 @@ export function addMembersBulk(membersList, defaultTier = "participant") {
 
     const name = item.name.trim();
     const role = (item.role || item.position || (tierKey === "participant" ? "Participant" : cfg.label)).trim();
+    const defaultShow = (tierKey === "executive" || tierKey === "core");
+    const showOnWebsite = options.showOnWebsite !== undefined
+      ? Boolean(options.showOnWebsite)
+      : (item.showOnWebsite !== undefined ? Boolean(item.showOnWebsite) : defaultShow);
 
     newMembers.push({
       id,
@@ -399,6 +410,7 @@ export function addMembersBulk(membersList, defaultTier = "participant") {
       tagline: item.tagline || `${cfg.label} Delegate`,
       description: item.description || `Registered ${cfg.label}`,
       isCustom: true,
+      showOnWebsite,
       createdAt: new Date().toISOString(),
       idCard: item.idCard || cfg.stdTemplate,
       idCardHd: item.idCardHd || cfg.blankTemplate,
@@ -443,6 +455,166 @@ export function deleteMember(id) {
  */
 export function resetCustomMembers() {
   saveCustomMembers([]);
+}
+
+// ============================================================================
+// Website Team Section Visibility System
+// Allows Secretariat Admins to decide whether any member or entire team
+// appears on the public /team directory or remains strictly for ID/verification.
+// ============================================================================
+
+export const VISIBILITY_OVERRIDES_KEY = "tx2_visibility_overrides";
+
+/**
+ * Get visibility overrides object from localStorage ({ [MEMBER_ID]: boolean })
+ */
+export function getVisibilityOverrides() {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(VISIBILITY_OVERRIDES_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (err) {
+    console.error("Failed to parse visibility overrides:", err);
+    return {};
+  }
+}
+
+/**
+ * Check whether a member should be shown on the public Website Team Section (/team)
+ */
+export function isMemberVisibleOnWebsite(member) {
+  if (!member) return false;
+  const overrides = getVisibilityOverrides();
+  const normId = member.id ? member.id.trim().toUpperCase() : "";
+
+  // 1. Explicit admin override in localStorage takes precedence
+  if (normId && overrides[normId] !== undefined) {
+    return Boolean(overrides[normId]);
+  }
+
+  // 2. Member's own showOnWebsite flag (set during addition/import)
+  if (member.showOnWebsite !== undefined) {
+    return Boolean(member.showOnWebsite);
+  }
+
+  // 3. Default tier behavior:
+  // Faculty, Executive, and Core are visible by default
+  // Participants and Volunteers are hidden by default unless explicitly toggled on
+  const tier = normalizeTierKey(member.tierKey || member.tier || member.category);
+  return tier === "faculty" || tier === "executive" || tier === "core";
+}
+
+/**
+ * Update website visibility for a single member
+ */
+export function setMemberWebsiteVisibility(id, isVisible) {
+  if (!id) return;
+  const normId = id.trim().toUpperCase();
+  const overrides = getVisibilityOverrides();
+  overrides[normId] = Boolean(isVisible);
+
+  try {
+    localStorage.setItem(VISIBILITY_OVERRIDES_KEY, JSON.stringify(overrides));
+  } catch (err) {
+    console.error("Failed to save visibility override:", err);
+  }
+
+  // Also sync in custom members storage if present
+  const custom = getCustomMembers();
+  let modified = false;
+  const updated = custom.map((m) => {
+    if (m.id && m.id.trim().toUpperCase() === normId) {
+      modified = true;
+      return { ...m, showOnWebsite: Boolean(isVisible) };
+    }
+    return m;
+  });
+
+  if (modified) {
+    saveCustomMembers(updated);
+  } else {
+    // Dispatch event so all listening pages (/team, admin) immediately re-render
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("tx2_members_updated", { detail: getAllMembers() }));
+    }
+  }
+}
+
+/**
+ * Toggle website visibility for a single member
+ */
+export function toggleMemberWebsiteVisibility(id) {
+  const member = getMemberById(id);
+  if (!member) return false;
+  const next = !isMemberVisibleOnWebsite(member);
+  setMemberWebsiteVisibility(id, next);
+  return next;
+}
+
+/**
+ * Batch update website visibility for an entire team name or tier
+ */
+export function setTeamWebsiteVisibility(teamNameOrTier, isVisible) {
+  if (!teamNameOrTier) return;
+  const all = getAllMembers();
+  const overrides = getVisibilityOverrides();
+  const target = teamNameOrTier.trim().toLowerCase();
+
+  all.forEach((m) => {
+    const matchTeam = m.teamName && m.teamName.trim().toLowerCase() === target;
+    const tKey = normalizeTierKey(m.tierKey || m.tier || m.category);
+    const matchTier = tKey === target || (m.category && m.category.toLowerCase() === target);
+
+    if (matchTeam || matchTier) {
+      overrides[m.id.toUpperCase()] = Boolean(isVisible);
+    }
+  });
+
+  try {
+    localStorage.setItem(VISIBILITY_OVERRIDES_KEY, JSON.stringify(overrides));
+  } catch (err) {
+    console.error("Failed to save team visibility overrides:", err);
+  }
+
+  // Sync custom members
+  const custom = getCustomMembers();
+  const updated = custom.map((m) => {
+    const matchTeam = m.teamName && m.teamName.trim().toLowerCase() === target;
+    const tKey = normalizeTierKey(m.tierKey || m.tier || m.category);
+    const matchTier = tKey === target || (m.category && m.category.toLowerCase() === target);
+    if (matchTeam || matchTier) {
+      return { ...m, showOnWebsite: Boolean(isVisible) };
+    }
+    return m;
+  });
+  saveCustomMembers(updated);
+}
+
+/**
+ * Query methods for public Website Team page
+ */
+export function getVisibleFaculty() {
+  return facultyCoordinators.filter(isMemberVisibleOnWebsite);
+}
+
+export function getVisibleExecutives() {
+  return getAllExecutives().filter(isMemberVisibleOnWebsite);
+}
+
+export function getVisibleCoreTeam() {
+  return getAllCoreTeam().filter(isMemberVisibleOnWebsite);
+}
+
+export function getVisibleCustomTeams() {
+  const custom = getCustomMembers();
+  return custom.filter((m) => {
+    const tier = normalizeTierKey(m.tierKey || m.category);
+    // Participants and Volunteers who are marked visible on website
+    if (tier === "participant" || tier === "volunteer") {
+      return isMemberVisibleOnWebsite(m);
+    }
+    return false;
+  });
 }
 
 /**

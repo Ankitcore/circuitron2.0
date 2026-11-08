@@ -26,6 +26,7 @@ import {
   Layers,
   Image as ImageIcon,
   Eye,
+  EyeOff,
   Check,
   Copy,
 } from "lucide-react";
@@ -45,6 +46,10 @@ import {
   generateUniqueMemberId,
   TIER_CONFIG,
   normalizeTierKey,
+  isMemberVisibleOnWebsite,
+  setMemberWebsiteVisibility,
+  toggleMemberWebsiteVisibility,
+  setTeamWebsiteVisibility,
 } from "../data/team";
 import { generateMemberIdCard, generateQrCodeDataUrl, downloadDataUrl } from "../utils/idCardGenerator";
 
@@ -68,6 +73,7 @@ export default function AdminPortal() {
 
   // Roster Filter & Search
   const [tierFilter, setTierFilter] = useState("all");
+  const [visibilityFilter, setVisibilityFilter] = useState("all"); // 'all' | 'visible' | 'hidden'
   const [searchQuery, setSearchQuery] = useState("");
   const [registryVersion, setRegistryVersion] = useState(0);
 
@@ -80,6 +86,7 @@ export default function AdminPortal() {
   const [formCustomId, setFormCustomId] = useState("");
   const [formImage, setFormImage] = useState("");
   const [formImagePreview, setFormImagePreview] = useState("");
+  const [formShowOnWebsite, setFormShowOnWebsite] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSuccessMessage, setFormSuccessMessage] = useState("");
 
@@ -89,6 +96,7 @@ export default function AdminPortal() {
   const [bulkParsedPreview, setBulkParsedPreview] = useState([]);
   const [bulkDefaultDept, setBulkDefaultDept] = useState("RVSCET Jamshedpur");
   const [bulkDefaultRole, setBulkDefaultRole] = useState("Registered Participant");
+  const [bulkShowOnWebsite, setBulkShowOnWebsite] = useState(false);
   const [isBulkImporting, setIsBulkImporting] = useState(false);
   const [bulkSuccessMessage, setBulkSuccessMessage] = useState("");
 
@@ -97,12 +105,16 @@ export default function AdminPortal() {
   const [generatingCard, setGeneratingCard] = useState(false);
   const [generatedCardData, setGeneratedCardData] = useState(null);
 
-  // Auto-generate ID preview when formTier changes
+  // Auto-generate ID & default visibility preview when formTier changes
   useEffect(() => {
-    if (!formCustomId) {
-      setFormCustomId(generateUniqueMemberId(formTier));
-    }
+    setFormCustomId(generateUniqueMemberId(formTier));
+    setFormShowOnWebsite(formTier === "executive" || formTier === "core");
   }, [formTier]);
+
+  // Default bulk visibility when bulkTier changes
+  useEffect(() => {
+    setBulkShowOnWebsite(bulkTier === "executive" || bulkTier === "core");
+  }, [bulkTier]);
 
   // Listen for custom members updates across tabs/storage
   useEffect(() => {
@@ -125,6 +137,7 @@ export default function AdminPortal() {
     const participants = allMembers.filter((m) => m.tierKey === "participant" || m.category === "Participant");
     const volunteers = allMembers.filter((m) => m.tierKey === "volunteer" || m.category === "Volunteer");
     const faculty = facultyCoordinators;
+    const onWebsite = allMembers.filter(isMemberVisibleOnWebsite);
     return {
       total: allMembers.length,
       executives: execs.length,
@@ -133,6 +146,7 @@ export default function AdminPortal() {
       volunteers: volunteers.length,
       faculty: faculty.length,
       customCount: allMembers.filter((m) => m.isCustom).length,
+      onWebsite: onWebsite.length,
     };
   }, [allMembers]);
 
@@ -144,6 +158,12 @@ export default function AdminPortal() {
       if (tierFilter !== "all" && tKey !== tierFilter) {
         return false;
       }
+
+      // Visibility filter
+      const isVisible = isMemberVisibleOnWebsite(m);
+      if (visibilityFilter === "visible" && !isVisible) return false;
+      if (visibilityFilter === "hidden" && isVisible) return false;
+
       // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.trim().toLowerCase();
@@ -156,7 +176,7 @@ export default function AdminPortal() {
       }
       return true;
     });
-  }, [allMembers, tierFilter, searchQuery]);
+  }, [allMembers, tierFilter, visibilityFilter, searchQuery]);
 
   // Handle Admin Login
   const handleLogin = (e) => {
@@ -176,6 +196,28 @@ export default function AdminPortal() {
     localStorage.removeItem("tx2_admin_authenticated");
     setIsAuthenticated(false);
     setPasscodeInput("");
+  };
+
+  // Toggle Single Member Visibility
+  const handleToggleMemberVisibility = (member) => {
+    toggleMemberWebsiteVisibility(member.id);
+    setRegistryVersion((v) => v + 1);
+  };
+
+  // Batch Toggle Visibility for all currently filtered members
+  const handleBatchVisibility = (isVisible) => {
+    if (filteredRoster.length === 0) return;
+    const actionWord = isVisible ? "Show" : "Hide";
+    if (
+      window.confirm(
+        `${actionWord} all ${filteredRoster.length} currently filtered members on the Website Team page (/team)?`
+      )
+    ) {
+      filteredRoster.forEach((m) => {
+        setMemberWebsiteVisibility(m.id, isVisible);
+      });
+      setRegistryVersion((v) => v + 1);
+    }
   };
 
   // Handle Photo File Upload
@@ -216,6 +258,7 @@ export default function AdminPortal() {
         department: formDept.trim() || "RVSCET Jamshedpur",
         teamName: formTier === "participant" ? formTeamName.trim() : "",
         img: formImage || "",
+        showOnWebsite: formShowOnWebsite,
       });
 
       setRegistryVersion((v) => v + 1);
@@ -247,7 +290,6 @@ export default function AdminPortal() {
 
     const lines = bulkTextInput.split("\n").filter((l) => l.trim().length > 0);
     const parsed = lines.map((line, idx) => {
-      // Supports CSV "Name, Role, Department, TeamName" or simple "Name"
       const parts = line.split(",").map((p) => p.trim());
       const name = parts[0] || `Person ${idx + 1}`;
       const role = parts[1] || bulkDefaultRole || (bulkTier === "participant" ? "Participant" : TIER_CONFIG[bulkTier]?.label);
@@ -260,11 +302,12 @@ export default function AdminPortal() {
         department,
         teamName,
         tier: bulkTier,
+        showOnWebsite: bulkShowOnWebsite,
       };
     });
 
     setBulkParsedPreview(parsed);
-  }, [bulkTextInput, bulkTier, bulkDefaultRole, bulkDefaultDept]);
+  }, [bulkTextInput, bulkTier, bulkDefaultRole, bulkDefaultDept, bulkShowOnWebsite]);
 
   // Handle Bulk Import File Upload
   const handleBulkFileUpload = (e) => {
@@ -287,9 +330,15 @@ export default function AdminPortal() {
 
     setIsBulkImporting(true);
     try {
-      const added = addMembersBulk(bulkParsedPreview, bulkTier);
+      const added = addMembersBulk(bulkParsedPreview, bulkTier, {
+        showOnWebsite: bulkShowOnWebsite,
+      });
       setRegistryVersion((v) => v + 1);
-      setBulkSuccessMessage(`Successfully enrolled ${added.length} people into ${TIER_CONFIG[bulkTier]?.label}!`);
+      setBulkSuccessMessage(
+        `Successfully enrolled ${added.length} people into ${TIER_CONFIG[bulkTier]?.label}! (Website visibility: ${
+          bulkShowOnWebsite ? "Published to /team" : "Badge/Verification only"
+        })`
+      );
       setBulkTextInput("");
       setBulkParsedPreview([]);
       setTimeout(() => setBulkSuccessMessage(""), 5000);
@@ -304,7 +353,7 @@ export default function AdminPortal() {
   // Delete Member
   const handleDeleteMember = (member) => {
     if (!member.isCustom) {
-      alert("Built-in committee members cannot be deleted from this portal.");
+      alert("Built-in committee members cannot be deleted from this portal. You can toggle their visibility on the Website Team section instead.");
       return;
     }
     if (window.confirm(`Are you sure you want to remove ${member.name} (${member.id})?`)) {
@@ -320,53 +369,59 @@ export default function AdminPortal() {
     setGeneratedCardData(null);
 
     try {
-      // If member already has a static pre-rendered card and is not custom, use it
       if (!member.isCustom && member.idCardHd) {
         setGeneratedCardData({
           hdDataUrl: member.idCardHd,
-          stdDataUrl: member.idCard,
-          qrDataUrl: member.qrCode,
+          stdDataUrl: member.idCard || member.idCardHd,
+          qrDataUrl: member.qrCode || `/assets/id-cards/${member.id}_qr.png`,
         });
       } else {
-        // Generate live canvas card
-        const card = await generateMemberIdCard(member);
-        setGeneratedCardData(card);
+        const result = await generateMemberIdCard(member);
+        setGeneratedCardData(result);
       }
     } catch (err) {
-      console.error("Failed to render card:", err);
+      console.error("Failed to generate member card:", err);
+      alert("Error generating ID Card: " + err.message);
     } finally {
       setGeneratingCard(false);
     }
   };
 
-  // Export Roster to CSV
+  // Export Full Roster as CSV
   const handleExportCSV = () => {
-    const headers = ["Member ID", "Name", "Tier", "Role / Position", "Department", "Team Name", "Created At"];
+    const headers = ["MemberID", "Name", "Tier", "Role", "Department", "TeamName", "ShowOnWebsite", "VerifiedURL"];
     const rows = allMembers.map((m) => [
       `"${m.id || ""}"`,
       `"${(m.name || "").replace(/"/g, '""')}"`,
-      `"${(m.category || m.tier || "").replace(/"/g, '""')}"`,
+      `"${m.category || m.tier || ""}"`,
       `"${(m.role || m.position || "").replace(/"/g, '""')}"`,
       `"${(m.department || "").replace(/"/g, '""')}"`,
       `"${(m.teamName || "").replace(/"/g, '""')}"`,
-      `"${m.createdAt || "Official"}"`,
+      `"${isMemberVisibleOnWebsite(m) ? "YES" : "NO"}"`,
+      `"https://circuitron2-0.vercel.app/verify/${m.id}"`,
     ]);
 
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `TechXpo_2.0_Roster_Export_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `TechXpo_Roster_${tierFilter}_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
-  // Export Full JSON Backup
+  // Export Custom Members Backup JSON
   const handleExportJSON = () => {
     const custom = getCustomMembers();
-    const dataStr = JSON.stringify({ version: "2.0", exportedAt: new Date().toISOString(), customMembers: custom }, null, 2);
-    const blob = new Blob([dataStr], { type: "application/json" });
+    const overrides = localStorage.getItem("tx2_visibility_overrides") || "{}";
+    const data = {
+      version: "2.0",
+      exportedAt: new Date().toISOString(),
+      customMembers: custom,
+      visibilityOverrides: JSON.parse(overrides),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -387,6 +442,9 @@ export default function AdminPortal() {
         const members = Array.isArray(parsed) ? parsed : parsed.customMembers;
         if (Array.isArray(members)) {
           saveCustomMembers(members);
+          if (parsed.visibilityOverrides) {
+            localStorage.setItem("tx2_visibility_overrides", JSON.stringify(parsed.visibilityOverrides));
+          }
           setRegistryVersion((v) => v + 1);
           alert(`Restored ${members.length} custom members successfully!`);
         } else {
@@ -401,8 +459,13 @@ export default function AdminPortal() {
 
   // Reset Custom Members
   const handleResetData = () => {
-    if (window.confirm("Are you sure you want to clear all custom added members? This will restore the roster back to default official members only.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to clear all custom added members? This will restore the roster back to default official members only."
+      )
+    ) {
       resetCustomMembers();
+      localStorage.removeItem("tx2_visibility_overrides");
       setRegistryVersion((v) => v + 1);
     }
   };
@@ -453,25 +516,32 @@ export default function AdminPortal() {
 
             {authError && (
               <motion.div
-                initial={{ opacity: 0, y: -5 }}
+                initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center space-x-2"
+                className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs flex items-center space-x-2"
               >
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
                 <span>{authError}</span>
               </motion.div>
             )}
 
-            <button type="submit" className="w-full btn-primary py-3.5 text-xs font-bold shadow-neon">
-              Authenticate Clearance
+            <button
+              type="submit"
+              className="w-full btn-primary py-3 text-xs font-bold tracking-wider uppercase shadow-neon flex items-center justify-center space-x-2"
+            >
+              <Unlock className="w-4 h-4" />
+              <span>Unlock Secretariat Access</span>
             </button>
-          </form>
 
-          <div className="pt-2 text-center">
-            <Link to="/verify" className="text-xs text-gray-400 hover:text-accent font-mono transition-colors">
-              &larr; Return to Public Verification Desk
-            </Link>
-          </div>
+            <div className="pt-2 text-center">
+              <Link
+                to="/verify"
+                className="text-xs font-mono text-gray-400 hover:text-accent transition-colors"
+              >
+                &larr; Return to Public Verification Portal
+              </Link>
+            </div>
+          </form>
         </motion.div>
       </div>
     );
@@ -497,14 +567,24 @@ export default function AdminPortal() {
               TechXpo 2.O Admin Portal
             </h1>
             <p className="text-gray-300 text-xs sm:text-sm max-w-xl">
-              Enroll, manage, and issue high-definition ID cards with active verification links across Executive, Core Team, Participant, and Volunteer tiers.
+              Enroll, manage, and issue high-definition ID cards with active verification links across Executive, Core Team, Participant, and Volunteer tiers. Choose whether each member or team appears on the public website Team section.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 relative z-10">
             <Link
+              to="/team"
+              className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"
+              target="_blank"
+            >
+              <Users className="w-3.5 h-3.5 text-cyan-400" />
+              <span>View Website /team</span>
+            </Link>
+
+            <Link
               to="/verify"
               className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"
+              target="_blank"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Public Verify Page</span>
@@ -521,10 +601,15 @@ export default function AdminPortal() {
         </div>
 
         {/* Live Metric Statistics Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
           <div className="glass-card p-4 rounded-2xl border border-white/10 text-center space-y-1">
             <span className="text-[10px] font-mono text-gray-400 uppercase tracking-wider block">Total Roster</span>
             <span className="text-2xl sm:text-3xl font-black font-orbitron text-white">{stats.total}</span>
+          </div>
+
+          <div className="glass-card p-4 rounded-2xl border border-emerald-500/30 text-center space-y-1 bg-emerald-500/[0.03]">
+            <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider block">On Website /team</span>
+            <span className="text-2xl sm:text-3xl font-black font-orbitron text-emerald-300">{stats.onWebsite}</span>
           </div>
 
           <div className="glass-card p-4 rounded-2xl border border-primary/20 text-center space-y-1">
@@ -610,7 +695,7 @@ export default function AdminPortal() {
         {activeTab === "roster" && (
           <div className="space-y-6">
             {/* Filter and Search Bar */}
-            <div className="glass-card p-4 sm:p-5 rounded-2xl border border-primary/20 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+            <div className="glass-card p-4 sm:p-5 rounded-2xl border border-primary/20 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
               {/* Tier Filter Pills */}
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
                 {[
@@ -635,16 +720,67 @@ export default function AdminPortal() {
                 ))}
               </div>
 
-              {/* Search Box */}
-              <div className="relative min-w-[260px]">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by name, ID, role, group..."
-                  className="w-full pl-10 pr-4 py-2 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-xs font-mono focus:outline-none focus:border-accent"
-                />
+              {/* Website Visibility Filter & Search Box */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center bg-darkNavy/90 border border-primary/20 rounded-xl p-0.5">
+                  {[
+                    { id: "all", label: "All" },
+                    { id: "visible", label: "On /team" },
+                    { id: "hidden", label: "Hidden" },
+                  ].map((btn) => (
+                    <button
+                      key={btn.id}
+                      onClick={() => setVisibilityFilter(btn.id)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-mono font-bold transition-all ${
+                        visibilityFilter === btn.id
+                          ? "bg-primary/30 text-accent"
+                          : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="relative min-w-[220px]">
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search name, ID, role..."
+                    className="w-full pl-10 pr-4 py-2 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-xs font-mono focus:outline-none focus:border-accent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Batch Visibility Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-xs font-mono">
+              <span className="text-gray-400">
+                Showing <strong>{filteredRoster.length}</strong> members of {allMembers.length}
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleBatchVisibility(true)}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all"
+                  title="Show all currently filtered members on public /team page"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Show Filtered on /team</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleBatchVisibility(false)}
+                  className="px-3 py-1.5 rounded-xl bg-gray-500/15 border border-gray-500/30 text-gray-300 hover:bg-gray-500/25 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all"
+                  title="Hide all currently filtered members from public /team page"
+                >
+                  <EyeOff className="w-3.5 h-3.5" />
+                  <span>Hide Filtered from /team</span>
+                </button>
               </div>
             </div>
 
@@ -658,6 +794,7 @@ export default function AdminPortal() {
                       <th className="py-3.5 px-4">Tier &amp; Category</th>
                       <th className="py-3.5 px-4">Role / Designation</th>
                       <th className="py-3.5 px-4">Organization / Group</th>
+                      <th className="py-3.5 px-4 text-center">Website /team Section</th>
                       <th className="py-3.5 px-4">Origin</th>
                       <th className="py-3.5 px-4 text-right">Actions</th>
                     </tr>
@@ -665,7 +802,7 @@ export default function AdminPortal() {
                   <tbody className="divide-y divide-white/5">
                     {filteredRoster.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-12 text-center text-gray-400 font-mono">
+                        <td colSpan={7} className="py-12 text-center text-gray-400 font-mono">
                           No members match the current filter or search query.
                         </td>
                       </tr>
@@ -673,6 +810,7 @@ export default function AdminPortal() {
                       filteredRoster.map((m) => {
                         const tKey = normalizeTierKey(m.tierKey || m.tier || m.category);
                         const cfg = TIER_CONFIG[tKey] || TIER_CONFIG.participant;
+                        const isVisible = isMemberVisibleOnWebsite(m);
 
                         return (
                           <tr key={m.id} className="hover:bg-white/[0.02] transition-colors group">
@@ -723,9 +861,35 @@ export default function AdminPortal() {
                               <div>{m.department || "RVSCET Jamshedpur"}</div>
                               {m.teamName && (
                                 <span className="text-amber-300 text-[10px] font-mono block">
-                                  Group: {m.teamName}
+                                  Team: {m.teamName}
                                 </span>
                               )}
+                            </td>
+
+                            {/* Website /team Toggle Action */}
+                            <td className="py-3 px-4 text-center">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleMemberVisibility(m)}
+                                className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-bold inline-flex items-center space-x-1.5 transition-all shadow-sm ${
+                                  isVisible
+                                    ? "bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/25"
+                                    : "bg-gray-500/15 border border-gray-500/30 text-gray-400 hover:bg-gray-500/25 hover:text-gray-300"
+                                }`}
+                                title="Click to toggle whether this member appears on public /team page"
+                              >
+                                {isVisible ? (
+                                  <>
+                                    <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                                    <span>On /team</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <EyeOff className="w-3.5 h-3.5 text-gray-400" />
+                                    <span>Hidden</span>
+                                  </>
+                                )}
+                              </button>
                             </td>
 
                             {/* Origin */}
@@ -783,27 +947,27 @@ export default function AdminPortal() {
         )}
 
         {/* ================================================================== */}
-        {/* TAB 2: ADD INDIVIDUAL PERSON                                       */}
+        {/* TAB 2: ADD INDIVIDUAL PERSON FORM                                  */}
         {/* ================================================================== */}
         {activeTab === "add" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Form Column (7 cols) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Enrollment Form Column (7 cols) */}
             <div className="lg:col-span-7 glass-card p-6 sm:p-8 rounded-3xl border border-primary/30 space-y-6">
-              <div className="space-y-1">
+              <div>
                 <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
                   DELEGATE ENROLLMENT
                 </span>
-                <h2 className="text-2xl font-black font-orbitron text-white">
-                  Add Individual Person
+                <h2 className="text-2xl font-black font-orbitron text-white mt-1">
+                  Add Single Member
                 </h2>
-                <p className="text-gray-300 text-xs">
-                  Fill in delegate details to immediately enroll them and generate their scannable official 2026 ID card.
+                <p className="text-gray-300 text-xs mt-1">
+                  Enroll an individual into the official TechXpo 2.O registry. A unique ID, encrypted QR code, and ID card will be minted immediately.
                 </p>
               </div>
 
               {formSuccessMessage && (
                 <motion.div
-                  initial={{ opacity: 0, y: -6 }}
+                  initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs flex items-center space-x-2"
                 >
@@ -813,24 +977,23 @@ export default function AdminPortal() {
               )}
 
               <form onSubmit={handleSingleSubmit} className="space-y-5">
-                {/* Tier Selector */}
+                {/* 1. Target Tier Selector */}
                 <div>
-                  <label className="block text-xs font-mono text-gray-300 mb-2 uppercase tracking-wider font-semibold">
-                    1. Select Tier / Category *
+                  <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider font-semibold">
+                    1. Select Delegate Tier *
                   </label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
-                      { id: "executive", label: "Executive Team", color: "#0DBAE3" },
-                      { id: "core", label: "Core Team", color: "#7FE6FF" },
-                      { id: "participant", label: "Participant", color: "#FFD700" },
-                      { id: "volunteer", label: "Volunteer", color: "#34D399" },
+                      { id: "executive", label: "Executive Team", color: "#A855F7" },
+                      { id: "core", label: "Core Team", color: "#00E5FF" },
+                      { id: "participant", label: "Participant", color: "#10B981" },
+                      { id: "volunteer", label: "Volunteer", color: "#F59E0B" },
                     ].map((t) => (
                       <button
                         type="button"
                         key={t.id}
                         onClick={() => {
                           setFormTier(t.id);
-                          setFormCustomId(generateUniqueMemberId(t.id));
                         }}
                         className={`p-3 rounded-xl border text-center transition-all ${
                           formTier === t.id
@@ -866,7 +1029,7 @@ export default function AdminPortal() {
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
                     placeholder="e.g. RAHUL VERMA"
-                    className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-accent uppercase"
+                    className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-accent uppercase font-bold"
                   />
                 </div>
 
@@ -905,21 +1068,19 @@ export default function AdminPortal() {
                   </div>
                 </div>
 
-                {/* Team / Group Name (if participant) */}
-                {formTier === "participant" && (
-                  <div>
-                    <label className="block text-xs font-mono text-amber-300 mb-1.5 uppercase tracking-wider font-semibold">
-                      5. Group / Team Name (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={formTeamName}
-                      onChange={(e) => setFormTeamName(e.target.value)}
-                      placeholder="e.g. RoboKnights, Circuit Breakers"
-                      className="w-full px-4 py-3 bg-darkNavy/90 border border-amber-500/30 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-400"
-                    />
-                  </div>
-                )}
+                {/* Team / Group Name */}
+                <div>
+                  <label className="block text-xs font-mono text-amber-300 mb-1.5 uppercase tracking-wider font-semibold">
+                    5. Group / Team Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={formTeamName}
+                    onChange={(e) => setFormTeamName(e.target.value)}
+                    placeholder="e.g. Circuitron Core, RoboKnights, Web Wing"
+                    className="w-full px-4 py-3 bg-darkNavy/90 border border-amber-500/30 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-400"
+                  />
+                </div>
 
                 {/* Member ID Field with Refresh Button */}
                 <div>
@@ -941,7 +1102,7 @@ export default function AdminPortal() {
                     value={formCustomId}
                     onChange={(e) => setFormCustomId(e.target.value)}
                     placeholder="e.g. TX2-PT-8294"
-                    className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white text-sm font-mono tracking-wider focus:outline-none focus:border-accent uppercase"
+                    className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white text-sm font-mono tracking-wider focus:outline-none focus:border-accent uppercase font-bold"
                   />
                 </div>
 
@@ -972,6 +1133,36 @@ export default function AdminPortal() {
                   </div>
                 </div>
 
+                {/* Website Team Section Toggle Switch */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-darkNavy/80 border border-primary/20">
+                  <div className="space-y-0.5 pr-4">
+                    <div className="flex items-center space-x-2">
+                      <Eye className="w-4 h-4 text-cyan-400" />
+                      <span className="text-xs font-mono text-white uppercase tracking-wider font-bold">
+                        Add to Website Team Section (/team)
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-400">
+                      {formShowOnWebsite
+                        ? "Visible: This member will appear publicly in the website Team section (/team)."
+                        : "Hidden: This member is enrolled for ID badge & verification only, and will NOT appear on /team."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormShowOnWebsite(!formShowOnWebsite)}
+                    className={`w-12 h-6 rounded-full transition-colors relative p-0.5 flex-shrink-0 ${
+                      formShowOnWebsite ? "bg-cyan-500" : "bg-gray-700"
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                        formShowOnWebsite ? "translate-x-6" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -993,67 +1184,80 @@ export default function AdminPortal() {
                   className="w-full max-w-[280px] rounded-xl overflow-hidden shadow-2xl border relative text-center p-5 space-y-4"
                   style={{
                     backgroundColor: "#0A1A36",
-                    borderColor: TIER_CONFIG[formTier]?.color || "#0DBAE3",
+                    borderColor: TIER_CONFIG[formTier]?.color || "#00E5FF",
                   }}
                 >
                   {/* Category Ribbon Indicator */}
                   <div
-                    className="inline-block px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider"
+                    className="text-[10px] font-mono font-bold uppercase tracking-widest py-1 px-3 rounded-full inline-block"
                     style={{
                       backgroundColor: `${TIER_CONFIG[formTier]?.color}20`,
                       color: TIER_CONFIG[formTier]?.color,
+                      border: `1px solid ${TIER_CONFIG[formTier]?.color}40`,
                     }}
                   >
-                    {TIER_CONFIG[formTier]?.label}
+                    {TIER_CONFIG[formTier]?.badgeLabel}
                   </div>
 
                   {/* Avatar Circle */}
-                  <div className="w-24 h-24 rounded-full mx-auto overflow-hidden border-2 bg-darkNavy flex items-center justify-center shadow-lg"
-                    style={{ borderColor: TIER_CONFIG[formTier]?.color }}
-                  >
-                    {formImagePreview ? (
-                      <img src={formImagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xl font-bold font-orbitron" style={{ color: TIER_CONFIG[formTier]?.color }}>
-                        {formName ? formName.slice(0, 2).toUpperCase() : "TX"}
+                  <div className="relative w-28 h-28 mx-auto">
+                    <div
+                      className="w-full h-full rounded-full overflow-hidden border-2 flex items-center justify-center bg-darkNavy shadow-lg"
+                      style={{ borderColor: TIER_CONFIG[formTier]?.color }}
+                    >
+                      {formImagePreview ? (
+                        <img src={formImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <span
+                          className="font-black text-2xl font-orbitron"
+                          style={{ color: TIER_CONFIG[formTier]?.color }}
+                        >
+                          {formName ? formName.slice(0, 2).toUpperCase() : "TX"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Name (Bold Exo 2) */}
+                  <div>
+                    <h3 className="font-black text-lg text-white font-exo tracking-tight uppercase">
+                      {formName || "DELEGATE NAME"}
+                    </h3>
+                    <p
+                      className="font-black text-xs uppercase tracking-wider mt-1"
+                      style={{ color: TIER_CONFIG[formTier]?.color }}
+                    >
+                      {formRole || TIER_CONFIG[formTier]?.roleDefault || "PARTICIPANT"}
+                    </p>
+                  </div>
+
+                  {/* Credential ID */}
+                  <div className="pt-2 border-t border-white/10 text-left">
+                    <span className="text-[9px] font-mono text-gray-400 uppercase block">CREDENTIAL ID</span>
+                    <span className="font-mono text-sm font-bold text-white tracking-widest">
+                      {formCustomId || "TX2-XX-0000"}
+                    </span>
+                    {formTeamName && (
+                      <span className="text-[10px] font-mono text-amber-300 block mt-0.5">
+                        Team: {formTeamName}
                       </span>
                     )}
                   </div>
 
-                  {/* Name */}
-                  <div className="space-y-0.5">
-                    <h3 className="font-black font-exo2 text-white text-base leading-tight uppercase">
-                      {formName || "MEMBER NAME"}
-                    </h3>
-                    <p
-                      className="font-bold text-xs uppercase tracking-widest"
-                      style={{ color: TIER_CONFIG[formTier]?.color }}
+                  {/* Website /team status badge */}
+                  <div className="pt-1">
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full inline-block ${
+                        formShowOnWebsite
+                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                      }`}
                     >
-                      {formRole || (formTier === "participant" ? "PARTICIPANT" : "ROLE")}
-                    </p>
+                      {formShowOnWebsite ? "Will feature on /team" : "Hidden from /team"}
+                    </span>
                   </div>
-
-                  {/* ID & Scan Box */}
-                  <div className="bg-black/40 p-2.5 rounded-xl border border-white/10 text-left flex items-center justify-between">
-                    <div>
-                      <span className="text-[9px] font-mono text-gray-400 block uppercase">
-                        {TIER_CONFIG[formTier]?.label} ID
-                      </span>
-                      <span className="font-mono font-bold text-white text-xs">
-                        {formCustomId || "TX2-XX-0000"}
-                      </span>
-                    </div>
-                    <QrCode className="w-7 h-7 text-white/80" />
-                  </div>
-
-                  <span className="text-[9px] font-mono text-gray-400 block">
-                    RVSCET &bull; 30 NOV 2026
-                  </span>
                 </div>
               </div>
-              <p className="text-[11px] text-gray-400 font-mono">
-                Official 1224 &times; 1806 HD print template will be rendered upon enrollment.
-              </p>
             </div>
           </div>
         )}
@@ -1063,15 +1267,15 @@ export default function AdminPortal() {
         {/* ================================================================== */}
         {activeTab === "bulk" && (
           <div className="glass-card p-6 sm:p-8 rounded-3xl border border-primary/30 space-y-6">
-            <div className="space-y-1">
+            <div>
               <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
-                BATCH ROSTER IMPORT
+                BATCH DELEGATE ENROLLMENT
               </span>
               <h2 className="text-2xl font-black font-orbitron text-white">
                 Bulk Import Many Names
               </h2>
               <p className="text-gray-300 text-xs max-w-2xl">
-                Paste lists of names or CSV lines to enroll dozens or hundreds of people in seconds. Unique IDs will be auto-generated for each delegate.
+                Paste lists of names or CSV lines to enroll dozens or hundreds of people in seconds. Unique IDs will be auto-generated for each delegate, and you can publish the whole batch to the public Website Team section with 1 click.
               </p>
             </div>
 
@@ -1157,6 +1361,36 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
               />
             </div>
 
+            {/* Bulk Website Team Section Toggle */}
+            <div className="flex items-center justify-between p-4 rounded-xl bg-darkNavy/80 border border-primary/20">
+              <div className="space-y-0.5 pr-4">
+                <div className="flex items-center space-x-2">
+                  <Eye className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs font-mono text-white uppercase tracking-wider font-bold">
+                    Publish this Entire Batch to Website Team Section (/team)
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-400">
+                  {bulkShowOnWebsite
+                    ? `Yes: All ${bulkParsedPreview.length} imported members will be published publicly on the website /team page.`
+                    : "No: Members remain registered in the Secretariat database with official ID cards & verification links, but will not show on /team."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setBulkShowOnWebsite(!bulkShowOnWebsite)}
+                className={`w-12 h-6 rounded-full transition-colors relative p-0.5 flex-shrink-0 ${
+                  bulkShowOnWebsite ? "bg-cyan-500" : "bg-gray-700"
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                    bulkShowOnWebsite ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
             {/* Live Parsing Preview Table */}
             {bulkParsedPreview.length > 0 && (
               <div className="space-y-3">
@@ -1183,7 +1417,8 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                         <th className="py-2.5 px-3">Name</th>
                         <th className="py-2.5 px-3">Role</th>
                         <th className="py-2.5 px-3">Department</th>
-                        <th className="py-2.5 px-3">Group</th>
+                        <th className="py-2.5 px-3">Team / Group</th>
+                        <th className="py-2.5 px-3 text-center">Team Page</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
@@ -1194,6 +1429,17 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                           <td className="py-2 px-3 text-cyan-300">{item.role}</td>
                           <td className="py-2 px-3 text-gray-400">{item.department}</td>
                           <td className="py-2 px-3 text-amber-300">{item.teamName || "-"}</td>
+                          <td className="py-2 px-3 text-center">
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                                bulkShowOnWebsite
+                                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                                  : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                              }`}
+                            >
+                              {bulkShowOnWebsite ? "Will Show" : "Hidden"}
+                            </span>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -1228,179 +1474,181 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                 <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
                   DATA EXPORTS
                 </span>
-                <h3 className="text-xl font-black font-orbitron text-white">
-                  Export Roster Records
+                <h3 className="text-xl font-bold font-orbitron text-white">
+                  Export &amp; Download Rosters
                 </h3>
                 <p className="text-gray-300 text-xs">
-                  Download full roster sheets for offline accreditation, certificate printing, or secretariat archives.
+                  Download spreadsheet records of delegates, active verification URLs, and backup datasets.
                 </p>
               </div>
 
               <div className="space-y-3 pt-2">
                 <button
                   onClick={handleExportCSV}
-                  className="w-full btn-secondary py-3 text-xs font-bold flex items-center justify-center space-x-2"
+                  className="w-full btn-secondary py-3 px-4 text-xs font-bold flex items-center justify-between"
                 >
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                  <span>Export Full Roster as CSV (.csv)</span>
+                  <span className="flex items-center space-x-2">
+                    <FileSpreadsheet className="w-4 h-4 text-accent" />
+                    <span>Download Roster as CSV Spreadsheet</span>
+                  </span>
+                  <Download className="w-4 h-4 text-gray-400" />
                 </button>
 
                 <button
                   onClick={handleExportJSON}
-                  className="w-full btn-secondary py-3 text-xs font-bold flex items-center justify-center space-x-2"
+                  className="w-full btn-secondary py-3 px-4 text-xs font-bold flex items-center justify-between"
                 >
-                  <FileText className="w-4 h-4 text-primary" />
-                  <span>Export Complete Database Backup (.json)</span>
+                  <span className="flex items-center space-x-2">
+                    <FileText className="w-4 h-4 text-purple-400" />
+                    <span>Export Full JSON Database &amp; Visibility Backup</span>
+                  </span>
+                  <Download className="w-4 h-4 text-gray-400" />
                 </button>
               </div>
             </div>
 
-            {/* Restore & Danger Zone */}
-            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-red-500/30 space-y-5">
+            {/* Restore / Reset Options */}
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-primary/30 space-y-5">
               <div className="space-y-1">
-                <span className="text-xs font-mono uppercase tracking-widest text-red-400 font-bold">
-                  RESTORE &amp; MAINTENANCE
+                <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
+                  DATABASE RESTORATION
                 </span>
-                <h3 className="text-xl font-black font-orbitron text-white">
-                  Database Management
+                <h3 className="text-xl font-bold font-orbitron text-white">
+                  Restore or Reset
                 </h3>
                 <p className="text-gray-300 text-xs">
-                  Restore from an exported JSON backup or reset custom additions back to default official members.
+                  Upload a previously exported JSON backup file to instantly restore custom members, teams, and visibility configurations.
                 </p>
               </div>
 
               <div className="space-y-3 pt-2">
-                <label className="w-full btn-secondary py-3 text-xs font-bold flex items-center justify-center space-x-2 cursor-pointer">
-                  <Upload className="w-4 h-4 text-accent" />
-                  <span>Restore from JSON Backup File</span>
+                <label className="w-full btn-secondary py-3 px-4 text-xs font-bold flex items-center justify-between cursor-pointer">
+                  <span className="flex items-center space-x-2">
+                    <Upload className="w-4 h-4 text-emerald-400" />
+                    <span>Upload &amp; Restore JSON Backup</span>
+                  </span>
                   <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
                 </label>
 
                 <button
                   onClick={handleResetData}
-                  className="w-full py-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all"
+                  className="w-full px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-300 hover:bg-red-500/20 text-xs font-mono font-bold flex items-center justify-between transition-all"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Clear All Custom Additions</span>
+                  <span className="flex items-center space-x-2">
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                    <span>Clear All Custom Members</span>
+                  </span>
+                  <span className="text-[10px] text-red-400">Default Only</span>
                 </button>
               </div>
             </div>
           </div>
         )}
 
-      </div>
+        {/* ================================================================== */}
+        {/* MODAL: ID BADGE PREVIEW & DOWNLOAD                                 */}
+        {/* ================================================================== */}
+        <AnimatePresence>
+          {selectedMemberForCard && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            >
+              <motion.div
+                initial={{ scale: 0.92, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.92, opacity: 0 }}
+                className="glass-card max-w-xl w-full p-6 sm:p-8 rounded-3xl border border-primary/40 space-y-6 shadow-2xl relative"
+              >
+                {/* Close Button */}
+                <button
+                  onClick={() => {
+                    setSelectedMemberForCard(null);
+                    setGeneratedCardData(null);
+                  }}
+                  className="absolute top-5 right-5 text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10"
+                >
+                  ✕
+                </button>
 
-      {/* ==================================================================== */}
-      {/* MODAL: ID BADGE PREVIEW & DOWNLOAD                                  */}
-      {/* ==================================================================== */}
-      {selectedMemberForCard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="glass-card max-w-lg w-full p-6 sm:p-7 rounded-3xl border border-primary/40 space-y-5 shadow-2xl relative"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
-                  <QrCode className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-orbitron font-bold text-white text-sm">
-                    Official ID Badge Preview
+                <div className="space-y-1">
+                  <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
+                    OFFICIAL 2026 BADGE
+                  </span>
+                  <h3 className="text-2xl font-black font-orbitron text-white">
+                    {selectedMemberForCard.name}
                   </h3>
-                  <span className="text-[10px] font-mono text-gray-400 block">
-                    {selectedMemberForCard.name} &bull; {selectedMemberForCard.id}
-                  </span>
+                  <p className="text-xs text-gray-400 font-mono">
+                    ID: {selectedMemberForCard.id} &bull; Tier: {selectedMemberForCard.category || selectedMemberForCard.tier}
+                  </p>
                 </div>
-              </div>
-              <button
-                onClick={() => setSelectedMemberForCard(null)}
-                className="text-gray-400 hover:text-white text-lg font-bold px-2 py-1"
-              >
-                &times;
-              </button>
-            </div>
 
-            {/* Badge Render Box */}
-            <div className="relative rounded-2xl overflow-hidden border border-primary/20 bg-darkNavy flex items-center justify-center min-h-[380px]">
-              {generatingCard ? (
-                <div className="text-center space-y-2 py-12">
-                  <RefreshCw className="w-8 h-8 text-accent animate-spin mx-auto" />
-                  <span className="text-xs font-mono text-gray-300 block">
-                    Generating Official 1224 &times; 1806 Card...
-                  </span>
+                {/* Card Canvas / Image Render */}
+                <div className="relative rounded-2xl overflow-hidden border border-primary/30 bg-darkNavy flex items-center justify-center min-h-[360px] p-4">
+                  {generatingCard ? (
+                    <div className="text-center space-y-3 py-12">
+                      <RefreshCw className="w-8 h-8 text-accent animate-spin mx-auto" />
+                      <p className="text-xs font-mono text-gray-300">
+                        Generating High-Definition ID Badge (1224x1806)...
+                      </p>
+                    </div>
+                  ) : generatedCardData?.hdDataUrl ? (
+                    <img
+                      src={generatedCardData.hdDataUrl}
+                      alt={selectedMemberForCard.name}
+                      className="max-h-[460px] w-auto rounded-xl shadow-2xl object-contain"
+                    />
+                  ) : (
+                    <div className="text-center text-red-400 text-xs font-mono py-12">
+                      Failed to render badge. Please try again.
+                    </div>
+                  )}
                 </div>
-              ) : generatedCardData ? (
-                <img
-                  src={generatedCardData.stdDataUrl || generatedCardData.hdDataUrl}
-                  alt={`${selectedMemberForCard.name} Official ID Badge`}
-                  className="w-full h-auto max-h-[460px] object-contain shadow-2xl"
-                />
-              ) : (
-                <div className="text-center text-gray-400 text-xs py-12 font-mono">
-                  Card failed to generate.
+
+                {/* Actions */}
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    disabled={!generatedCardData?.hdDataUrl}
+                    onClick={() => {
+                      if (generatedCardData?.hdDataUrl) {
+                        downloadDataUrl(generatedCardData.hdDataUrl, `${selectedMemberForCard.id}_badge_hd.jpg`);
+                      }
+                    }}
+                    className="flex-1 btn-primary py-3 text-xs font-bold shadow-neon flex items-center justify-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download Print HD (1224x1806)</span>
+                  </button>
+
+                  <button
+                    disabled={!generatedCardData?.qrDataUrl}
+                    onClick={() => {
+                      if (generatedCardData?.qrDataUrl) {
+                        downloadDataUrl(generatedCardData.qrDataUrl, `${selectedMemberForCard.id}_qr.png`);
+                      }
+                    }}
+                    className="btn-secondary py-3 px-4 text-xs font-bold flex items-center space-x-2"
+                  >
+                    <QrCode className="w-4 h-4 text-accent" />
+                    <span>QR Only</span>
+                  </button>
+
+                  <Link
+                    to={`/verify/${selectedMemberForCard.id}`}
+                    target="_blank"
+                    className="btn-secondary py-3 px-4 text-xs font-bold flex items-center space-x-2"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Verify</span>
+                  </Link>
                 </div>
-              )}
-            </div>
-
-            {/* Active Link feedback */}
-            <div className="space-y-1.5 text-center text-xs text-gray-300">
-              <p className="font-mono text-[11px] text-emerald-400 flex items-center justify-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Official Circuitron Scannable QR Badge
-              </p>
-              <code className="block bg-black/50 p-2 rounded text-[11px] font-mono text-accent select-all break-all">
-                {`https://circuitron2-0.vercel.app/verify/${selectedMemberForCard.id}`}
-              </code>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              <button
-                disabled={!generatedCardData}
-                onClick={() => {
-                  if (generatedCardData?.hdDataUrl) {
-                    downloadDataUrl(
-                      generatedCardData.hdDataUrl,
-                      `${selectedMemberForCard.name.replace(/\s+/g, "_")}_TechXpo_2.0_ID_Badge_HD.jpg`
-                    );
-                  }
-                }}
-                className="btn-primary flex-1 py-3 text-xs font-bold text-center flex items-center justify-center space-x-2 shadow-neon"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download Print HD (1224&times;1806)</span>
-              </button>
-
-              <button
-                disabled={!generatedCardData}
-                onClick={() => {
-                  if (generatedCardData?.qrDataUrl) {
-                    downloadDataUrl(
-                      generatedCardData.qrDataUrl,
-                      `${selectedMemberForCard.id}_QR.png`
-                    );
-                  }
-                }}
-                className="btn-secondary py-3 px-4 text-xs font-bold flex items-center justify-center space-x-1.5"
-                title="Download Standalone QR Code"
-              >
-                <QrCode className="w-4 h-4 text-accent" />
-                <span>QR Only</span>
-              </button>
-
-              <button
-                onClick={() => setSelectedMemberForCard(null)}
-                className="btn-secondary py-3 px-4 text-xs font-bold"
-              >
-                Close
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
-
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
