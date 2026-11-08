@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { facultyCoordinators, executiveTeam, coreTeam } from "../data/team";
-import { Sparkles, Award, Shield, UserCheck, ShieldCheck } from "lucide-react";
+import { Sparkles, Award, Shield, UserCheck } from "lucide-react";
 
 function MemberAvatar({ src, name }) {
   const [hasError, setHasError] = useState(false);
@@ -118,15 +117,6 @@ export default function Team() {
                       {mentor.description}
                     </p>
                   </div>
-                  {mentor.id && (
-                    <Link
-                      to={`/verify/${mentor.id}`}
-                      className="inline-flex items-center space-x-1.5 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors pt-3 border-t border-white/5 w-full justify-center group/badge mt-4"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 group-hover/badge:scale-110 transition-transform" />
-                      <span>Verify Credential &bull; {mentor.id}</span>
-                    </Link>
-                  )}
                 </div>
               </div>
             ))}
@@ -180,15 +170,6 @@ export default function Team() {
                       {exec.tagline || exec.description}
                     </p>
                   )}
-                  {exec.id && (
-                    <Link
-                      to={`/verify/${exec.id}`}
-                      className="inline-flex items-center space-x-1.5 text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors pt-3 border-t border-white/5 w-full justify-center group/badge mt-2"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 group-hover/badge:scale-110 transition-transform" />
-                      <span>Verify Credential &bull; {exec.id}</span>
-                    </Link>
-                  )}
                 </div>
               </div>
             ))}
@@ -237,15 +218,6 @@ export default function Team() {
                   <span className="text-[10px] font-mono text-gray-300 mt-1.5 inline-block bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
                     {member.department}
                   </span>
-                )}
-                {member.id && (
-                  <Link
-                    to={`/verify/${member.id}`}
-                    className="inline-flex items-center space-x-1.5 text-[10px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors pt-2.5 border-t border-white/5 w-full justify-center group/badge mt-2"
-                  >
-                    <ShieldCheck className="w-3 h-3 text-emerald-400 group-hover/badge:scale-110 transition-transform" />
-                    <span>Verify &bull; {member.id}</span>
-                  </Link>
                 )}
               </div>
             ))}
