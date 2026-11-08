@@ -29,6 +29,8 @@ import {
   EyeOff,
   Check,
   Copy,
+  X,
+  Home,
 } from "lucide-react";
 import {
   getAllMembers,
@@ -481,6 +483,16 @@ export default function AdminPortal() {
           animate={{ opacity: 1, scale: 1 }}
           className="glass-card max-w-md w-full p-8 sm:p-10 rounded-3xl border border-primary/30 space-y-6 shadow-2xl relative overflow-hidden"
         >
+          {/* Top-Right "X" Cancel Button */}
+          <Link
+            to="/"
+            className="absolute top-5 right-5 w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white transition-all z-20 group"
+            title="Cancel & Return to Home"
+            aria-label="Cancel and return to home"
+          >
+            <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
+          </Link>
+
           {/* Cyber ambient glow */}
           <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -533,12 +545,20 @@ export default function AdminPortal() {
               <span>Unlock Secretariat Access</span>
             </button>
 
-            <div className="pt-2 text-center">
+            <div className="pt-3 border-t border-white/10 flex flex-col items-center space-y-2">
+              <Link
+                to="/"
+                className="w-full py-2.5 px-4 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/25 text-cyan-300 hover:text-cyan-200 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition-all shadow-sm group"
+              >
+                <Home className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+                <span>Return to Home</span>
+              </Link>
+
               <Link
                 to="/verify"
-                className="text-xs font-mono text-gray-400 hover:text-accent transition-colors"
+                className="text-[11px] font-mono text-gray-400 hover:text-accent transition-colors pt-0.5"
               >
-                &larr; Return to Public Verification Portal
+                &larr; Return to Public Verification Desk
               </Link>
             </div>
           </form>
@@ -572,6 +592,14 @@ export default function AdminPortal() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 relative z-10">
+            <Link
+              to="/"
+              className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"
+            >
+              <Home className="w-3.5 h-3.5 text-accent" />
+              <span>Return to Home</span>
+            </Link>
+
             <Link
               to="/team"
               className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"
@@ -1568,9 +1596,11 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                     setSelectedMemberForCard(null);
                     setGeneratedCardData(null);
                   }}
-                  className="absolute top-5 right-5 text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10"
+                  className="absolute top-5 right-5 text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  title="Close Badge Preview"
+                  aria-label="Close"
                 >
-                  ✕
+                  <X className="w-5 h-5" />
                 </button>
 
                 <div className="space-y-1">
