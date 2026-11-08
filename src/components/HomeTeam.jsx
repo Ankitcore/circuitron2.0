@@ -42,8 +42,8 @@ function HomeAvatar({ src, name }) {
 
 export default function HomeTeam() {
   const showcase = [
-    { ...facultyCoordinators[0], category: "Faculty Coordinator" },
-    { ...facultyCoordinators[1], category: "Faculty Coordinator" },
+    { ...facultyCoordinators[0], category: "Faculty Mentor" },
+    { ...facultyCoordinators[1], category: "Faculty Co-PI" },
     { ...executiveTeam[0], category: "Executive President" },
     ...(executiveTeam[3] ? [{ ...executiveTeam[3], category: "Vice President" }] : []),
     { ...executiveTeam[1], category: "PR & Communications" },

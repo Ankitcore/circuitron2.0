@@ -108,7 +108,7 @@ export default function Team() {
                 </span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-black font-orbitron text-white">
-                Faculty Coordinators
+                Faculty Mentors
               </h2>
               <div className="w-16 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
             </div>
