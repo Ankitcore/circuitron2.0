@@ -156,40 +156,102 @@ export function verifyAdminPasskey(input) {
   return ALL_AUTHORIZED_HASHES.has(computedHash);
 }
 
-const ADMIN_STORAGE_KEY = "tx2_admin_authenticated";
+export const ADMIN_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes auto-logout
+export const ADMIN_STORAGE_KEY = "tx2_admin_authenticated";
+export const ADMIN_LAST_ACTIVE_KEY = "tx2_admin_last_active";
 
 /**
- * Check if active administrator session exists.
+ * Record / refresh administrator activity timestamp.
+ * Resets the 30-minute idle countdown.
+ */
+export function touchAdminActivity() {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(ADMIN_LAST_ACTIVE_KEY, Date.now().toString());
+  } catch (e) {
+    // Ignore storage write issues
+  }
+}
+
+/**
+ * Get remaining session validity in milliseconds.
+ * Returns 0 if expired or not logged in.
+ */
+export function getAdminInactivityRemainingMs() {
+  if (typeof window === "undefined") return 0;
+  try {
+    const isAuth = localStorage.getItem(ADMIN_STORAGE_KEY) === "true";
+    if (!isAuth) return 0;
+
+    const lastActiveStr = localStorage.getItem(ADMIN_LAST_ACTIVE_KEY);
+    if (!lastActiveStr) return 0;
+
+    const lastActive = parseInt(lastActiveStr, 10);
+    if (isNaN(lastActive)) return 0;
+
+    const elapsed = Date.now() - lastActive;
+    const remaining = ADMIN_TIMEOUT_MS - elapsed;
+    return remaining > 0 ? remaining : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+/**
+ * Check if active administrator session exists and has NOT expired due to 30 min idle.
+ * Automatically purges the session if 30 minutes have elapsed.
  * @returns {boolean}
  */
 export function isAdminAuthenticated() {
   if (typeof window === "undefined") return false;
   try {
-    return localStorage.getItem(ADMIN_STORAGE_KEY) === "true";
+    const isAuth = localStorage.getItem(ADMIN_STORAGE_KEY) === "true";
+    if (!isAuth) return false;
+
+    const lastActiveStr = localStorage.getItem(ADMIN_LAST_ACTIVE_KEY);
+    if (!lastActiveStr) {
+      // If flag is present without timestamp, initialize now
+      touchAdminActivity();
+      return true;
+    }
+
+    const lastActive = parseInt(lastActiveStr, 10);
+    const now = Date.now();
+    if (isNaN(lastActive) || now - lastActive > ADMIN_TIMEOUT_MS) {
+      // 30 minutes elapsed without use -> auto-logout
+      clearAdminSession();
+      return false;
+    }
+
+    return true;
   } catch (e) {
     return false;
   }
 }
 
 /**
- * Persists administrator session in storage.
+ * Persists administrator session in storage and stamps current time.
  */
 export function setAdminSession() {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(ADMIN_STORAGE_KEY, "true");
+    localStorage.setItem(ADMIN_LAST_ACTIVE_KEY, Date.now().toString());
+    window.dispatchEvent(new CustomEvent("tx2_admin_auth_changed", { detail: { authenticated: true } }));
   } catch (e) {
     console.error("Failed to save admin session:", e);
   }
 }
 
 /**
- * Clears administrator session from storage.
+ * Clears administrator session and activity stamp from storage.
  */
 export function clearAdminSession() {
   if (typeof window === "undefined") return;
   try {
     localStorage.removeItem(ADMIN_STORAGE_KEY);
+    localStorage.removeItem(ADMIN_LAST_ACTIVE_KEY);
+    window.dispatchEvent(new CustomEvent("tx2_admin_auth_changed", { detail: { authenticated: false } }));
   } catch (e) {
     console.error("Failed to remove admin session:", e);
   }

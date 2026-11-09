@@ -70,6 +70,8 @@ import {
   isAdminAuthenticated,
   setAdminSession,
   clearAdminSession,
+  touchAdminActivity,
+  ADMIN_STORAGE_KEY,
 } from "../utils/adminAuth";
 
 export default function AdminPortal() {
@@ -289,6 +291,65 @@ export default function AdminPortal() {
     if (isAuthenticated) {
       handleCloudSync();
     }
+  }, [isAuthenticated]);
+
+  // --------------------------------------------------------------------------
+  // Auto-logout: automatically log out after 30 minutes of inactivity
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Immediately register activity on load / authentication
+    touchAdminActivity();
+
+    // Throttled activity updater: write to localStorage at most once every 10 seconds
+    let lastRecorded = Date.now();
+    const handleUserActivity = () => {
+      const now = Date.now();
+      if (now - lastRecorded > 10000) {
+        lastRecorded = now;
+        touchAdminActivity();
+      }
+    };
+
+    const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
+    events.forEach((evt) => window.addEventListener(evt, handleUserActivity, { passive: true }));
+
+    // Periodic check every 5 seconds to verify if 30 minutes have elapsed
+    const checkTimeout = () => {
+      if (!isAdminAuthenticated()) {
+        clearAdminSession();
+        setIsAuthenticated(false);
+        setAuthError("Session expired due to 30 minutes of inactivity. Please re-authenticate.");
+      }
+    };
+
+    const intervalId = setInterval(checkTimeout, 5000);
+
+    // Immediate check on tab focus or visibility return
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        checkTimeout();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", checkTimeout);
+
+    // Cross-tab synchronization
+    const handleStorageChange = (e) => {
+      if (e.key === ADMIN_STORAGE_KEY && e.newValue !== "true") {
+        setIsAuthenticated(false);
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      events.forEach((evt) => window.removeEventListener(evt, handleUserActivity));
+      clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", checkTimeout);
+      window.removeEventListener("storage", handleStorageChange);
+    };
   }, [isAuthenticated]);
 
   // Retrieve current members list
@@ -859,7 +920,7 @@ export default function AdminPortal() {
           <div className="space-y-2 relative z-10">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>SECRETARIAT CLEARANCE &bull; ACTIVE</span>
+              <span>SECRETARIAT CLEARANCE &bull; ACTIVE &bull; 30M IDLE AUTO-LOCK</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black font-orbitron gradient-text">
               TechXpo 2.O Admin Portal

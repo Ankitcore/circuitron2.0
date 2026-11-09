@@ -137,6 +137,23 @@ export default function Verify() {
   const [validatedTimestamp, setValidatedTimestamp] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
 
+  // Sync admin auth status across tabs and timeout events
+  useEffect(() => {
+    const handleAuthEvent = (e) => {
+      if (e?.detail?.authenticated !== undefined) {
+        setIsAdmin(Boolean(e.detail.authenticated));
+      } else {
+        setIsAdmin(isAdminAuthenticated());
+      }
+    };
+    window.addEventListener("tx2_admin_auth_changed", handleAuthEvent);
+    window.addEventListener("storage", handleAuthEvent);
+    return () => {
+      window.removeEventListener("tx2_admin_auth_changed", handleAuthEvent);
+      window.removeEventListener("storage", handleAuthEvent);
+    };
+  }, []);
+
   const localMember = hasTargetId ? getMemberById(targetId) : null;
   const member = localMember || cloudMember;
 
