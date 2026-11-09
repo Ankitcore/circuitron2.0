@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -129,6 +130,18 @@ export default function AdminPortal() {
     window.addEventListener("tx2_members_updated", handleUpdate);
     return () => window.removeEventListener("tx2_members_updated", handleUpdate);
   }, []);
+
+  // Escape key closes ID badge modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && selectedMemberForCard) {
+        setSelectedMemberForCard(null);
+        setGeneratedCardData(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedMemberForCard]);
 
   // Cloud Registry Synchronization State
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
@@ -1702,139 +1715,201 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
         )}
 
         {/* ================================================================== */}
-        {/* MODAL: ID BADGE PREVIEW & DOWNLOAD                                 */}
+        {/* MODAL: ID BADGE PREVIEW & DOWNLOAD (RENDERED VIA PORTAL IN BODY)   */}
         {/* ================================================================== */}
-        <AnimatePresence>
-          {selectedMemberForCard && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
-            >
-              <motion.div
-                initial={{ scale: 0.92, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.92, opacity: 0 }}
-                className="glass-card max-w-xl w-full p-6 sm:p-8 rounded-3xl border border-primary/40 space-y-6 shadow-2xl relative"
-              >
-                {/* Close Button */}
-                <button
-                  onClick={() => {
-                    setSelectedMemberForCard(null);
-                    setGeneratedCardData(null);
+        {typeof document !== "undefined" &&
+          createPortal(
+            <AnimatePresence>
+              {selectedMemberForCard && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setSelectedMemberForCard(null);
+                      setGeneratedCardData(null);
+                    }
                   }}
-                  className="absolute top-5 right-5 text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
-                  title="Close Badge Preview"
-                  aria-label="Close"
+                  className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
                 >
-                  <X className="w-5 h-5" />
-                </button>
-
-                <div className="space-y-1">
-                  <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
-                    OFFICIAL 2026 BADGE
-                  </span>
-                  <h3 className="text-2xl font-black font-orbitron text-white">
-                    {selectedMemberForCard.name}
-                  </h3>
-                  <p className="text-xs text-gray-400 font-mono flex flex-wrap items-center gap-2">
-                    <span>ID: {selectedMemberForCard.id} &bull; Tier: {selectedMemberForCard.category || selectedMemberForCard.tier}</span>
-                    {(() => {
-                      const tKey = normalizeTierKey(selectedMemberForCard.tierKey || selectedMemberForCard.tier || selectedMemberForCard.category, selectedMemberForCard.id);
-                      const isFull = tKey === "faculty" || tKey === "executive" || tKey === "core";
-                      return isFull ? (
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">
-                          ALL ARENAS &amp; SECRETARIAT
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">
-                          LIMITED ACCESS
-                        </span>
-                      );
-                    })()}
-                  </p>
-                </div>
-
-                {/* Card Canvas / Image Render */}
-                <div className="relative rounded-2xl overflow-hidden border border-primary/30 bg-darkNavy flex items-center justify-center min-h-[360px] p-4">
-                  {generatingCard ? (
-                    <div className="text-center space-y-3 py-12">
-                      <RefreshCw className="w-8 h-8 text-accent animate-spin mx-auto" />
-                      <p className="text-xs font-mono text-gray-300">
-                        Generating High-Definition ID Badge (1224x1806)...
-                      </p>
-                    </div>
-                  ) : generatedCardData?.hdDataUrl ? (
-                    <img
-                      src={generatedCardData.hdDataUrl}
-                      alt={selectedMemberForCard.name}
-                      className="max-h-[460px] w-auto rounded-xl shadow-2xl object-contain"
-                    />
-                  ) : (
-                    <div className="text-center text-red-400 text-xs font-mono py-12">
-                      Failed to render badge. Please try again.
-                    </div>
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    disabled={!generatedCardData?.hdDataUrl}
-                    onClick={() => {
-                      if (generatedCardData?.hdDataUrl) {
-                        downloadDataUrl(generatedCardData.hdDataUrl, `${selectedMemberForCard.id}_badge_hd.jpg`);
-                      }
-                    }}
-                    className="flex-1 btn-primary py-3 text-xs font-bold shadow-neon flex items-center justify-center space-x-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span>Download Print HD (1224x1806)</span>
-                  </button>
-
-                  <button
-                    disabled={!generatedCardData?.qrDataUrl}
-                    onClick={() => {
-                      if (generatedCardData?.qrDataUrl) {
-                        downloadDataUrl(generatedCardData.qrDataUrl, `${selectedMemberForCard.id}_qr.png`);
-                      }
-                    }}
-                    className="btn-secondary py-3 px-4 text-xs font-bold flex items-center space-x-2"
-                  >
-                    <QrCode className="w-4 h-4 text-accent" />
-                    <span>QR Only</span>
-                  </button>
-
+                  {/* Floating Top-Right Close Button (Always visible on any screen) */}
                   <button
                     type="button"
                     onClick={() => {
-                      const url = getMemberVerificationUrl(selectedMemberForCard);
-                      if (navigator.clipboard) {
-                        navigator.clipboard.writeText(url);
-                        alert("Cross-device verification link copied to clipboard!");
-                      }
+                      setSelectedMemberForCard(null);
+                      setGeneratedCardData(null);
                     }}
-                    className="btn-secondary py-3 px-4 text-xs font-bold flex items-center space-x-2 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/10"
-                    title="Copy cross-device verification link"
+                    className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[100000] p-2.5 sm:p-3 rounded-2xl bg-darkNavy/95 hover:bg-rose-500 border border-primary/40 hover:border-rose-400 text-white shadow-2xl transition-all duration-200 flex items-center space-x-2 group cursor-pointer"
+                    title="Close Badge Preview (Esc)"
+                    aria-label="Close Badge Preview"
                   >
-                    <Copy className="w-4 h-4" />
-                    <span>Copy Link</span>
+                    <X className="w-5 h-5 text-accent group-hover:text-white transition-colors" />
+                    <span className="text-xs font-mono font-bold hidden sm:inline text-gray-200 group-hover:text-white">
+                      Close (Esc)
+                    </span>
                   </button>
 
-                  <Link
-                    to={`/verify/${selectedMemberForCard.id}`}
-                    target="_blank"
-                    className="btn-secondary py-3 px-4 text-xs font-bold flex items-center space-x-2"
+                  <motion.div
+                    initial={{ scale: 0.92, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.92, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="glass-card max-w-xl w-full p-5 sm:p-7 rounded-3xl border border-primary/40 space-y-5 shadow-2xl relative my-auto max-h-[92vh] overflow-y-auto"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Verify</span>
-                  </Link>
-                </div>
-              </motion.div>
-            </motion.div>
+                    {/* Header Row with Close Button */}
+                    <div className="flex items-start justify-between gap-3 border-b border-primary/20 pb-4">
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold block">
+                          OFFICIAL 2026 BADGE
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-black font-orbitron text-white truncate">
+                          {selectedMemberForCard.name}
+                        </h3>
+                        <p className="text-xs text-gray-400 font-mono flex flex-wrap items-center gap-2">
+                          <span>
+                            ID: {selectedMemberForCard.id} &bull; Tier:{" "}
+                            {selectedMemberForCard.category || selectedMemberForCard.tier}
+                          </span>
+                          {(() => {
+                            const tKey = normalizeTierKey(
+                              selectedMemberForCard.tierKey ||
+                                selectedMemberForCard.tier ||
+                                selectedMemberForCard.category,
+                              selectedMemberForCard.id
+                            );
+                            const isFull =
+                              tKey === "faculty" || tKey === "executive" || tKey === "core";
+                            return isFull ? (
+                              <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">
+                                ALL ARENAS &amp; SECRETARIAT
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">
+                                LIMITED ACCESS
+                              </span>
+                            );
+                          })()}
+                        </p>
+                      </div>
+
+                      {/* Header Close Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedMemberForCard(null);
+                          setGeneratedCardData(null);
+                        }}
+                        className="p-2 sm:p-2.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-white/10 hover:border-rose-500/40 text-gray-400 hover:text-white transition-all flex items-center justify-center flex-shrink-0"
+                        title="Close Badge Preview"
+                        aria-label="Close"
+                      >
+                        <X className="w-5 h-5 text-gray-300 hover:text-rose-400" />
+                      </button>
+                    </div>
+
+                    {/* Card Canvas / Image Render */}
+                    <div className="relative rounded-2xl overflow-hidden border border-primary/30 bg-darkNavy flex items-center justify-center min-h-[300px] p-3">
+                      {generatingCard ? (
+                        <div className="text-center space-y-3 py-12">
+                          <RefreshCw className="w-8 h-8 text-accent animate-spin mx-auto" />
+                          <p className="text-xs font-mono text-gray-300">
+                            Generating High-Definition ID Badge (1224x1806)...
+                          </p>
+                        </div>
+                      ) : generatedCardData?.hdDataUrl ? (
+                        <img
+                          src={generatedCardData.hdDataUrl}
+                          alt={selectedMemberForCard.name}
+                          className="max-h-[min(460px,50vh)] w-auto rounded-xl shadow-2xl object-contain"
+                        />
+                      ) : (
+                        <div className="text-center text-red-400 text-xs font-mono py-12">
+                          Failed to render badge. Please try again.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <button
+                        disabled={!generatedCardData?.hdDataUrl}
+                        onClick={() => {
+                          if (generatedCardData?.hdDataUrl) {
+                            downloadDataUrl(
+                              generatedCardData.hdDataUrl,
+                              `${selectedMemberForCard.id}_badge_hd.jpg`
+                            );
+                          }
+                        }}
+                        className="flex-1 btn-primary py-3 text-xs font-bold shadow-neon flex items-center justify-center space-x-2 min-w-[180px]"
+                      >
+                        <Download className="w-4 h-4" />
+                        <span>Download Print HD</span>
+                      </button>
+
+                      <button
+                        disabled={!generatedCardData?.qrDataUrl}
+                        onClick={() => {
+                          if (generatedCardData?.qrDataUrl) {
+                            downloadDataUrl(
+                              generatedCardData.qrDataUrl,
+                              `${selectedMemberForCard.id}_qr.png`
+                            );
+                          }
+                        }}
+                        className="btn-secondary py-3 px-3.5 text-xs font-bold flex items-center space-x-1.5"
+                        title="Download QR code PNG"
+                      >
+                        <QrCode className="w-4 h-4 text-accent" />
+                        <span>QR Only</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url = getMemberVerificationUrl(selectedMemberForCard);
+                          if (navigator.clipboard) {
+                            navigator.clipboard.writeText(url);
+                            alert("Cross-device verification link copied to clipboard!");
+                          }
+                        }}
+                        className="btn-secondary py-3 px-3.5 text-xs font-bold flex items-center space-x-1.5 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/10"
+                        title="Copy cross-device verification link"
+                      >
+                        <Copy className="w-4 h-4" />
+                        <span>Copy Link</span>
+                      </button>
+
+                      <Link
+                        to={`/verify/${selectedMemberForCard.id}`}
+                        target="_blank"
+                        className="btn-secondary py-3 px-3.5 text-xs font-bold flex items-center space-x-1.5"
+                        title="Open verification page in new tab"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Verify</span>
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedMemberForCard(null);
+                          setGeneratedCardData(null);
+                        }}
+                        className="btn-secondary py-3 px-3.5 text-xs font-bold flex items-center space-x-1.5 text-gray-300 hover:text-white hover:border-rose-500/40"
+                        title="Close preview"
+                      >
+                        <X className="w-4 h-4 text-rose-400" />
+                        <span>Close</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body
           )}
-        </AnimatePresence>
       </div>
     </div>
   );

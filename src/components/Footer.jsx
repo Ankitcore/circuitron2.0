@@ -39,7 +39,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-darkNavy/90 border-t border-primary/20 relative z-20 pt-16 pb-8 overflow-hidden">
+    <footer className="bg-darkNavy/90 border-t border-primary/20 relative pt-16 pb-8 overflow-hidden">
       {/* Background radial glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-primary/5 rounded-full blur-[140px] pointer-events-none" />
 
