@@ -52,8 +52,10 @@ import {
   setMemberWebsiteVisibility,
   toggleMemberWebsiteVisibility,
   setTeamWebsiteVisibility,
+  fetchMembersFromCloud,
+  syncAllMembersToCloud,
 } from "../data/team";
-import { generateMemberIdCard, generateQrCodeDataUrl, downloadDataUrl } from "../utils/idCardGenerator";
+import { generateMemberIdCard, generateQrCodeDataUrl, downloadDataUrl, getMemberVerificationUrl } from "../utils/idCardGenerator";
 import {
   verifyAdminPasskey,
   isAdminAuthenticated,
@@ -125,6 +127,34 @@ export default function AdminPortal() {
     window.addEventListener("tx2_members_updated", handleUpdate);
     return () => window.removeEventListener("tx2_members_updated", handleUpdate);
   }, []);
+
+  // Cloud Registry Synchronization State
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+  const [cloudSyncMessage, setCloudSyncMessage] = useState("");
+
+  const handleCloudSync = async () => {
+    setIsCloudSyncing(true);
+    setCloudSyncMessage("");
+    try {
+      const count = await fetchMembersFromCloud();
+      await syncAllMembersToCloud();
+      setRegistryVersion((v) => v + 1);
+      setCloudSyncMessage(`Cloud Registry Synced (${count} records)`);
+      setTimeout(() => setCloudSyncMessage(""), 4000);
+    } catch (e) {
+      console.warn("Cloud sync error:", e);
+      setCloudSyncMessage("Cloud sync fallback: local registry active");
+      setTimeout(() => setCloudSyncMessage(""), 4000);
+    } finally {
+      setIsCloudSyncing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      handleCloudSync();
+    }
+  }, [isAuthenticated]);
 
   // Retrieve current members list
   const allMembers = useMemo(() => {
@@ -398,7 +428,7 @@ export default function AdminPortal() {
       `"${(m.department || "").replace(/"/g, '""')}"`,
       `"${(m.teamName || "").replace(/"/g, '""')}"`,
       `"${isMemberVisibleOnWebsite(m) ? "YES" : "NO"}"`,
-      `"https://circuitron2-0.vercel.app/verify/${m.id}"`,
+      `"${getMemberVerificationUrl(m)}"`,
     ]);
 
     const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
@@ -617,6 +647,17 @@ export default function AdminPortal() {
             </Link>
 
             <button
+              type="button"
+              onClick={handleCloudSync}
+              disabled={isCloudSyncing}
+              className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5 text-accent border-accent/40 hover:bg-accent/10 transition-all"
+              title="Synchronize delegates with Central Secretariat Cloud Registry"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isCloudSyncing ? "animate-spin text-accent" : ""}`} />
+              <span>{isCloudSyncing ? "Syncing..." : "Sync Cloud"}</span>
+            </button>
+
+            <button
               onClick={handleLogout}
               className="px-4 py-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 text-xs font-mono font-bold flex items-center space-x-1.5 transition-all"
             >
@@ -625,6 +666,17 @@ export default function AdminPortal() {
             </button>
           </div>
         </div>
+
+        {/* Cloud Sync Status Banner */}
+        {cloudSyncMessage && (
+          <div className="px-4 py-2.5 rounded-2xl bg-accent/10 border border-accent/30 text-accent font-mono text-xs flex items-center justify-between shadow-[0_0_20px_rgba(0,229,255,0.15)]">
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              {cloudSyncMessage}
+            </span>
+            <button onClick={() => setCloudSyncMessage("")} className="text-gray-400 hover:text-white font-bold">&times;</button>
+          </div>
+        )}
 
         {/* Live Metric Statistics Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
@@ -1668,6 +1720,22 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                   >
                     <QrCode className="w-4 h-4 text-accent" />
                     <span>QR Only</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = getMemberVerificationUrl(selectedMemberForCard);
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(url);
+                        alert("Cross-device verification link copied to clipboard!");
+                      }
+                    }}
+                    className="btn-secondary py-3 px-4 text-xs font-bold flex items-center space-x-2 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/10"
+                    title="Copy cross-device verification link"
+                  >
+                    <Copy className="w-4 h-4" />
+                    <span>Copy Link</span>
                   </button>
 
                   <Link

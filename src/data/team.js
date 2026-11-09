@@ -297,6 +297,73 @@ export function saveCustomMembers(members) {
 }
 
 /**
+ * Asynchronously sync custom member to the central cloud registry (/api/members)
+ */
+export async function syncMemberToCloud(member) {
+  if (!member || typeof window === "undefined") return;
+  try {
+    await fetch("/api/members", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ member }),
+      keepalive: true,
+    });
+  } catch (err) {
+    console.warn("Cloud sync error for member:", err);
+  }
+}
+
+/**
+ * Asynchronously sync all custom members to the central cloud registry (/api/members)
+ */
+export async function syncAllMembersToCloud() {
+  if (typeof window === "undefined") return;
+  try {
+    const custom = getCustomMembers();
+    if (custom.length === 0) return;
+    await fetch("/api/members", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ members: custom }),
+      keepalive: true,
+    });
+  } catch (err) {
+    console.warn("Cloud sync error for all members:", err);
+  }
+}
+
+/**
+ * Fetch and merge custom members from central cloud registry
+ */
+export async function fetchMembersFromCloud() {
+  if (typeof window === "undefined") return [];
+  try {
+    const res = await fetch("/api/members");
+    if (!res.ok) return [];
+    const json = await res.json();
+    if (json.success && Array.isArray(json.members) && json.members.length > 0) {
+      const local = getCustomMembers();
+      const localMap = new Map(local.map((m) => [m.id?.toUpperCase(), m]));
+      let added = false;
+      json.members.forEach((m) => {
+        if (m && m.id && !localMap.has(m.id.toUpperCase())) {
+          localMap.set(m.id.toUpperCase(), m);
+          added = true;
+        }
+      });
+      if (added) {
+        const merged = Array.from(localMap.values());
+        saveCustomMembers(merged);
+        return merged;
+      }
+    }
+  } catch (err) {
+    console.warn("Fetch cloud members error:", err);
+  }
+  return getCustomMembers();
+}
+
+/**
  * Normalize tier string to standard key ('executive' | 'core' | 'participant' | 'volunteer' | 'faculty')
  * Safely checks both tier string and optional ID prefix (e.g. TX2-FC-)
  */
@@ -383,6 +450,7 @@ export function addMember(data) {
   const filtered = current.filter((m) => m.id !== id);
   const updated = [newMember, ...filtered];
   saveCustomMembers(updated);
+  syncMemberToCloud(newMember);
   return newMember;
 }
 
@@ -438,6 +506,7 @@ export function addMembersBulk(membersList, defaultTier = "participant", options
 
   const updated = [...newMembers, ...current];
   saveCustomMembers(updated);
+  syncAllMembersToCloud();
   return newMembers;
 }
 
@@ -454,6 +523,7 @@ export function updateMember(id, updatedFields) {
   const merged = { ...existing, ...updatedFields, updatedAt: new Date().toISOString() };
   current[index] = merged;
   saveCustomMembers([...current]);
+  syncMemberToCloud(merged);
   return merged;
 }
 
@@ -465,6 +535,11 @@ export function deleteMember(id) {
   const current = getCustomMembers();
   const filtered = current.filter((m) => m.id !== normId);
   saveCustomMembers(filtered);
+  try {
+    if (typeof window !== "undefined") {
+      fetch(`/api/members?id=${encodeURIComponent(normId)}`, { method: "DELETE" }).catch(() => {});
+    }
+  } catch (e) {}
   return filtered.length !== current.length;
 }
 

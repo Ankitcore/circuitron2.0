@@ -1,5 +1,43 @@
 import QRCode from "qrcode";
-import { TIER_CONFIG, normalizeTierKey } from "../data/team";
+import { TIER_CONFIG, normalizeTierKey, getMemberById } from "../data/team";
+
+/**
+ * Build a self-contained verification URL carrying member credentials.
+ * This guarantees any device/phone camera scanning the QR code can instantly verify
+ * the delegate even if the device has never visited the admin portal.
+ */
+export function getMemberVerificationUrl(memberOrId) {
+  if (!memberOrId) return "https://circuitron2-0.vercel.app/verify";
+
+  let member = memberOrId;
+  if (typeof memberOrId === "string") {
+    const found = getMemberById(memberOrId);
+    if (found) {
+      member = found;
+    } else {
+      const cleanId = memberOrId.trim().toUpperCase();
+      return `https://circuitron2-0.vercel.app/verify/${cleanId}`;
+    }
+  }
+
+  const id = (member.id || "").trim().toUpperCase();
+  const baseUrl = `https://circuitron2-0.vercel.app/verify/${id}`;
+  const params = new URLSearchParams();
+
+  if (member.name) params.set("n", member.name.trim());
+  const role = member.role || member.position;
+  if (role) params.set("r", role.trim());
+  const rawTier = member.tierKey || member.tier || member.category;
+  if (rawTier) params.set("t", normalizeTierKey(rawTier, id));
+  if (member.department) params.set("d", member.department.trim());
+  if (member.teamName) params.set("g", member.teamName.trim());
+  if (member.img && typeof member.img === "string" && member.img.startsWith("http")) {
+    params.set("img", member.img.trim());
+  }
+
+  const qs = params.toString();
+  return qs ? `${baseUrl}?${qs}` : baseUrl;
+}
 
 /**
  * Draw the stylized TechXpo "X" logo mark in the center of a QR code canvas
@@ -46,8 +84,18 @@ function drawTechXpoMark(ctx, size) {
 /**
  * Generate a high-resolution, royal-blue verification QR code
  */
-export async function generateQrCodeDataUrl(memberId, size = 600) {
-  const url = `https://circuitron2-0.vercel.app/verify/${memberId.trim().toUpperCase()}`;
+export async function generateQrCodeDataUrl(memberOrId, size = 600) {
+  let url;
+  if (!memberOrId) {
+    url = "https://circuitron2-0.vercel.app/verify";
+  } else if (typeof memberOrId === "object") {
+    url = getMemberVerificationUrl(memberOrId);
+  } else {
+    const found = getMemberById(memberOrId);
+    url = found
+      ? getMemberVerificationUrl(found)
+      : `https://circuitron2-0.vercel.app/verify/${memberOrId.trim().toUpperCase()}`;
+  }
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
@@ -231,7 +279,7 @@ export async function generateMemberIdCard(member) {
   }
 
   // 8. Generate & Draw Royal Blue QR Code (at X: 211, Y: 1273, W: 355, H: 355)
-  const qrDataUrl = await generateQrCodeDataUrl(member.id, 500);
+  const qrDataUrl = await generateQrCodeDataUrl(member, 500);
   const qrImg = await loadImage(qrDataUrl);
   if (qrImg) {
     ctx.drawImage(qrImg, 211, 1273, 355, 355);
@@ -248,7 +296,7 @@ export async function generateMemberIdCard(member) {
   thumbCtx.drawImage(canvas, 0, 0, 408, 602);
   const stdDataUrl = thumbCanvas.toDataURL("image/jpeg", 0.90);
 
-  return { hdDataUrl, stdDataUrl, qrDataUrl };
+  return { hdDataUrl, stdDataUrl, qrDataUrl, verificationUrl: getMemberVerificationUrl(member) };
 }
 
 /**

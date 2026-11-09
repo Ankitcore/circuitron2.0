@@ -21,8 +21,8 @@ import {
   LogOut,
   Camera,
 } from "lucide-react";
-import { getMemberById } from "../data/team";
-import { generateMemberIdCard, downloadDataUrl } from "../utils/idCardGenerator";
+import { getMemberById, addMember } from "../data/team";
+import { generateMemberIdCard, downloadDataUrl, getMemberVerificationUrl } from "../utils/idCardGenerator";
 import {
   verifyAdminPasskey,
   isAdminAuthenticated,
@@ -48,6 +48,8 @@ export default function Verify() {
   const [showScannerModal, setShowScannerModal] = useState(false);
   const [customCardImage, setCustomCardImage] = useState(null);
   const [isRenderingCard, setIsRenderingCard] = useState(false);
+  const [cloudMember, setCloudMember] = useState(null);
+  const [isQueryingCloud, setIsQueryingCloud] = useState(false);
 
   // Admin authorization state
   const [isAdmin, setIsAdmin] = useState(() => {
@@ -68,14 +70,97 @@ export default function Verify() {
   const [validatedTimestamp, setValidatedTimestamp] = useState(null);
   const [isValidating, setIsValidating] = useState(false);
 
-  const member = hasTargetId ? getMemberById(targetId) : null;
+  const localMember = hasTargetId ? getMemberById(targetId) : null;
+  const member = localMember || cloudMember;
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     setInputSearchId(targetId);
     setValidatedTimestamp(null);
     setCustomCardImage(null);
-  }, [targetId, hasTargetId]);
+
+    if (!hasTargetId) {
+      setCloudMember(null);
+      setIsQueryingCloud(false);
+      return;
+    }
+
+    // If member already exists in local storage, use it directly
+    const foundLocal = getMemberById(targetId);
+    if (foundLocal) {
+      setCloudMember(null);
+      setIsQueryingCloud(false);
+      return;
+    }
+
+    // 1. Check self-contained credential query parameters (instant cross-device verification)
+    const qName = searchParams.get("n");
+    if (qName && qName.trim()) {
+      const qRole = searchParams.get("r");
+      const qTier = searchParams.get("t");
+      const qDept = searchParams.get("d");
+      const qGroup = searchParams.get("g");
+      const qImg = searchParams.get("img");
+
+      const reconstructed = {
+        id: targetId,
+        name: qName.trim(),
+        role: qRole ? qRole.trim() : "Delegate",
+        position: qRole ? qRole.trim() : "Delegate",
+        tierKey: qTier || "participant",
+        category: qTier ? qTier.toUpperCase() : "Participant",
+        tier: qTier ? qTier.toUpperCase() : "Participant",
+        department: qDept ? qDept.trim() : "TechXpo Delegate",
+        teamName: qGroup ? qGroup.trim() : "",
+        img: qImg || "",
+        isCustom: true,
+      };
+
+      try {
+        addMember(reconstructed);
+      } catch (e) {
+        console.warn("Failed caching member to localStorage:", e);
+      }
+      setCloudMember(reconstructed);
+      setIsQueryingCloud(false);
+      return;
+    }
+
+    // 2. Query Central Cloud Secretariat Registry (/api/members)
+    let cancelled = false;
+    setIsQueryingCloud(true);
+
+    fetch(`/api/members?id=${encodeURIComponent(targetId)}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        if (data && data.success && data.member) {
+          try {
+            addMember(data.member);
+          } catch (e) {}
+          setCloudMember(data.member);
+        } else {
+          setCloudMember(null);
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.warn("Cloud member lookup error:", err);
+        setCloudMember(null);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setIsQueryingCloud(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [targetId, hasTargetId, searchParams]);
 
   // Handle generating card for custom members when modal is requested
   useEffect(() => {
@@ -113,7 +198,7 @@ export default function Verify() {
   };
 
   const handleShare = () => {
-    const url = window.location.href;
+    const url = member ? getMemberVerificationUrl(member) : window.location.href;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url);
       setCopied(true);
@@ -242,6 +327,28 @@ export default function Verify() {
               </form>
             </div>
           </div>
+        ) : isQueryingCloud ? (
+          /* ================= QUERYING CLOUD REGISTRY ================= */
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="glass-card rounded-3xl border-2 border-primary/40 p-10 sm:p-14 text-center space-y-5 bg-darkNavy/90 shadow-[0_0_50px_rgba(0,229,255,0.2)]"
+          >
+            <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary/40 flex items-center justify-center text-accent mx-auto shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+              <ShieldCheck className="w-8 h-8 animate-pulse text-accent" />
+            </div>
+            <div className="space-y-2">
+              <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
+                CONNECTING TO CLOUD REGISTRY
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black font-orbitron text-white">
+                Verifying Credential ID <span className="text-accent">{targetId}</span>
+              </h2>
+              <p className="text-gray-300 text-sm max-w-md mx-auto">
+                Syncing with TechXpo 2.O Secretariat Central Registry for cross-device authentication...
+              </p>
+            </div>
+          </motion.div>
         ) : member ? (
           /* ================= VALID CREDENTIAL CARD ================= */
           <motion.div
@@ -636,7 +743,7 @@ export default function Verify() {
                 <CheckCircle2 className="w-3.5 h-3.5" /> Official Circuitron Scannable QR Badge
               </p>
               <code className="block bg-black/50 p-2 rounded text-[11px] font-mono text-accent select-all break-all">
-                {`https://circuitron2-0.vercel.app/verify/${member?.id || targetId}`}
+                {getMemberVerificationUrl(member || targetId)}
               </code>
             </div>
 
