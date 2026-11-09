@@ -166,11 +166,11 @@ export default function InteractiveCyberGrid() {
         </motion.div>
 
         <motion.div
-          animate={{ y: [0, -12, 0], opacity: [0.1, 0.22, 0.1] }}
+          animate={{ y: [0, -12, 0], opacity: [0.15, 0.35, 0.15] }}
           transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute bottom-24 left-1/4 text-[9px] font-mono text-accent tracking-wider hidden lg:block"
+          className="absolute bottom-16 sm:bottom-24 left-4 sm:left-1/4 text-[8px] sm:text-[9px] font-mono text-accent tracking-wider block"
         >
-          [CREATED::ANKIT KUMAR_2026]
+          {"[CREATED::ANKIT::2026 ]"}
         </motion.div>
       </div>
     </div>
