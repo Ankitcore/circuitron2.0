@@ -871,23 +871,6 @@ export default function AdminPortal() {
 
           <div className="flex flex-wrap items-center gap-3 relative z-10">
             <Link
-              to="/"
-              className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"
-            >
-              <Home className="w-3.5 h-3.5 text-accent" />
-              <span>Return to Home</span>
-            </Link>
-
-            <Link
-              to="/team"
-              className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"
-              target="_blank"
-            >
-              <Users className="w-3.5 h-3.5 text-cyan-400" />
-              <span>View Website /team</span>
-            </Link>
-
-            <Link
               to="/verify"
               className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"
               target="_blank"
