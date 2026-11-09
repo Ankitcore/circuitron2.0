@@ -21,8 +21,77 @@ import {
   LogOut,
   Camera,
 } from "lucide-react";
-import { getMemberById, addMember } from "../data/team";
+import { getMemberById, addMember, normalizeTierKey } from "../data/team";
 import { generateMemberIdCard, downloadDataUrl, getMemberVerificationUrl } from "../utils/idCardGenerator";
+
+/**
+ * Determine official security access clearance level based on member tier:
+ * - Faculty Coordinators, Executive Team, and Core Team: "All Arenas & Secretariat" (Full Access)
+ * - Volunteers: "Limited Access • Assigned Event Arenas"
+ * - Participants: "Limited Access • Registered Event Arenas Only"
+ */
+function getAccessClearance(member) {
+  if (!member) {
+    return {
+      tierKey: "participant",
+      isFullAccess: false,
+      title: "Limited Access",
+      detail: "General Floor & Audience Area Only",
+      badge: "LIMITED ACCESS",
+      theme: {
+        container: "bg-amber-500/10 border-amber-500/30",
+        icon: "text-amber-400",
+        badge: "bg-amber-500/20 text-amber-300 border border-amber-500/40",
+      },
+    };
+  }
+
+  const tierKey = normalizeTierKey(member.tierKey || member.tier || member.category, member.id);
+
+  if (tierKey === "faculty" || tierKey === "executive" || tierKey === "core") {
+    return {
+      tierKey,
+      isFullAccess: true,
+      title: "All Arenas & Secretariat",
+      detail: "Unrestricted Clearance • All Competition Arenas & Secretariat Control Room",
+      badge: "FULL ACCESS",
+      theme: {
+        container: "bg-emerald-500/10 border-emerald-500/30",
+        icon: "text-emerald-400",
+        badge: "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40",
+      },
+    };
+  }
+
+  if (tierKey === "volunteer") {
+    return {
+      tierKey: "volunteer",
+      isFullAccess: false,
+      title: "Limited Access • Assigned Event Arenas",
+      detail: "Operational Zone Clearance • Assigned Event Grounds & Volunteer Lounge (Non-Secretariat)",
+      badge: "LIMITED ACCESS",
+      theme: {
+        container: "bg-sky-500/10 border-sky-500/30",
+        icon: "text-sky-400",
+        badge: "bg-sky-500/20 text-sky-300 border border-sky-500/40",
+      },
+    };
+  }
+
+  // Participants & other general delegates
+  return {
+    tierKey: "participant",
+    isFullAccess: false,
+    title: "Limited Access • Registered Event Arenas Only",
+    detail: "Competitor Clearance • Designated Competition Arenas & General Floor (Non-Secretariat)",
+    badge: "LIMITED ACCESS",
+    theme: {
+      container: "bg-amber-500/10 border-amber-500/30",
+      icon: "text-amber-400",
+      badge: "bg-amber-500/20 text-amber-300 border border-amber-500/40",
+    },
+  };
+}
 import {
   verifyAdminPasskey,
   isAdminAuthenticated,
@@ -524,17 +593,27 @@ export default function Verify() {
                 </div>
 
                 {/* Security Clearance level */}
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs">
-                  <div className="flex items-center space-x-2">
-                    <Lock className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                    <span className="text-gray-300 font-mono text-[11px]">
-                      Access Level: <strong className="text-white">All Arenas &amp; Secretariat</strong>
-                    </span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">
-                    AUTHORIZED
-                  </span>
-                </div>
+                {(() => {
+                  const clearance = getAccessClearance(member);
+                  return (
+                    <div className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs transition-all ${clearance.theme.container}`}>
+                      <div className="flex items-center space-x-2.5">
+                        <Lock className={`w-4 h-4 flex-shrink-0 ${clearance.theme.icon}`} />
+                        <div>
+                          <span className="text-gray-300 font-mono text-[11px] block">
+                            Access Level: <strong className="text-white">{clearance.title}</strong>
+                          </span>
+                          <span className="text-[10px] text-gray-400 font-mono block mt-0.5">
+                            {clearance.detail}
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded font-mono text-[10px] font-bold tracking-wider self-start sm:self-auto ${clearance.theme.badge}`}>
+                        {clearance.badge}
+                      </span>
+                    </div>
+                  );
+                })()}
 
               </div>
             </div>
@@ -769,6 +848,14 @@ export default function Verify() {
                 <h3 className="font-orbitron font-bold text-white text-sm">
                   Physical ID Badge &bull; {member?.id || targetId}
                 </h3>
+                {(() => {
+                  const clearance = getAccessClearance(member);
+                  return (
+                    <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded tracking-wider ${clearance.theme.badge}`}>
+                      {clearance.badge}
+                    </span>
+                  );
+                })()}
               </div>
               <button
                 onClick={() => setShowIdCardModal(false)}

@@ -1738,8 +1738,21 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                   <h3 className="text-2xl font-black font-orbitron text-white">
                     {selectedMemberForCard.name}
                   </h3>
-                  <p className="text-xs text-gray-400 font-mono">
-                    ID: {selectedMemberForCard.id} &bull; Tier: {selectedMemberForCard.category || selectedMemberForCard.tier}
+                  <p className="text-xs text-gray-400 font-mono flex flex-wrap items-center gap-2">
+                    <span>ID: {selectedMemberForCard.id} &bull; Tier: {selectedMemberForCard.category || selectedMemberForCard.tier}</span>
+                    {(() => {
+                      const tKey = normalizeTierKey(selectedMemberForCard.tierKey || selectedMemberForCard.tier || selectedMemberForCard.category, selectedMemberForCard.id);
+                      const isFull = tKey === "faculty" || tKey === "executive" || tKey === "core";
+                      return isFull ? (
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">
+                          ALL ARENAS &amp; SECRETARIAT
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">
+                          LIMITED ACCESS
+                        </span>
+                      );
+                    })()}
                   </p>
                 </div>
 
