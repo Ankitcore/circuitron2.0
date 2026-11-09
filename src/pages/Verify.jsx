@@ -403,7 +403,7 @@ export default function Verify() {
         {!hasTargetId ? (
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Live Camera & Badge Photo QR Scanner */}
-            <MemberQrScanner onScanSuccess={handleScanSuccess} />
+            <MemberQrScanner onScanSuccess={handleScanSuccess} autoStart={true} />
 
             {/* Manual Typing Authentication Card */}
             <div className="glass-card p-6 sm:p-8 rounded-3xl border-2 border-primary/30 space-y-5 bg-darkNavy/90 shadow-[0_0_50px_rgba(0,229,255,0.15)]">
