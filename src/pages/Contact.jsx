@@ -210,7 +210,12 @@ export default function Contact() {
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black font-orbitron gradient-text tracking-tight">
             Contact &amp; Assistance Hub
           </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
+          />
 
           <p className="text-gray-300 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
             Direct communication lines for registered delegates, participating institutions, faculty advisors, and event sponsors.

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { events } from "../data/events";
 import { Bot, Cpu, Sparkles, ExternalLink, ArrowRight, ShieldCheck, Zap } from "lucide-react";
+import CyberProgressBar from "./CyberProgressBar";
 
 export default function FeaturedEvents() {
   const featured = events.slice(0, 3);
@@ -48,7 +49,13 @@ export default function FeaturedEvents() {
           <h2 className="text-4xl sm:text-5xl font-black font-orbitron gradient-text">
             Featured Competitions
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
+          />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
             Battle your robots in high-stakes combat arenas, race autonomous bots against the clock, or display your breakthrough hardware prototypes.
           </p>
@@ -110,15 +117,16 @@ export default function FeaturedEvents() {
                       {event.id === 1 ? "80% Reserved" : event.id === 2 ? "90% Reserved" : "75% Reserved"}
                     </span>
                   </div>
-                  <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: event.id === 1 ? "80%" : event.id === 2 ? "90%" : "75%" }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.1, delay: 0.2 + index * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-                      className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                    />
-                  </div>
+                  <CyberProgressBar
+                    value={event.id === 1 ? 80 : event.id === 2 ? 90 : 75}
+                    gradient="from-primary to-accent"
+                    height="h-1"
+                    borderColor="border-primary/25"
+                    delay={0.15 + index * 0.08}
+                    duration={1.1}
+                    inView={true}
+                    showShimmer={true}
+                  />
                 </div>
               </div>
 

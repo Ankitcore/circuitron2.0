@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import CyberProgressBar from "../components/CyberProgressBar";
 import {
   events,
   exhibitionGroups,
@@ -584,15 +585,16 @@ export default function Events() {
                         {event.id === 1 ? "80% Filled" : event.id === 2 ? "90% Filled" : "75% Filled"}
                       </span>
                     </div>
-                    <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: event.id === 1 ? "80%" : event.id === 2 ? "90%" : "75%" }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.1, delay: 0.15 + (index % 3) * 0.1 }}
-                        className="h-full bg-gradient-to-r from-primary via-accent to-cyberPurple rounded-full"
-                      />
-                    </div>
+                    <CyberProgressBar
+                      value={event.id === 1 ? 80 : event.id === 2 ? 90 : 75}
+                      gradient="from-primary via-accent to-cyberPurple"
+                      height="h-1"
+                      borderColor="border-primary/25"
+                      delay={0.12 + (index % 3) * 0.08}
+                      duration={1.1}
+                      inView={true}
+                      showShimmer={true}
+                    />
                   </div>
                 </div>
 

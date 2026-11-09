@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Users, Calendar, Award, Sparkles, ArrowRight, Zap, Target } from "lucide-react";
+import CyberProgressBar from "./CyberProgressBar";
 
 export default function Stats() {
   return (
@@ -26,7 +27,13 @@ export default function Stats() {
           <h2 className="text-4xl sm:text-5xl font-black font-orbitron gradient-text">
             About TechXpo 2.O
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
+          />
           <p className="text-gray-300 max-w-3xl mx-auto text-base sm:text-lg leading-relaxed">
             TechXpo 2.0 is where innovation meets imagination and technology shapes tomorrow. More than just a tech festival, it's an immersive experience celebrating creativity, emerging technologies. Organized by{" "}
             <strong className="text-white font-bold">
@@ -99,15 +106,15 @@ export default function Stats() {
                   <span>Prize Pool Backing</span>
                   <span className="font-bold text-amber-400">100% Unlocked</span>
                 </div>
-                <div className="w-full h-1.5 bg-darkNavy/80 rounded-full overflow-hidden p-[1px] border border-amber-500/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: "100%" }}
-                    transition={{ duration: 1.2, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                    viewport={{ once: true }}
-                    className="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={100}
+                  gradient="from-amber-500 via-yellow-400 to-amber-300"
+                  borderColor="border-amber-500/25"
+                  delay={0.25}
+                  duration={1.2}
+                  inView={true}
+                  showShimmer={true}
+                />
               </div>
             </div>
           </motion.div>
@@ -139,15 +146,15 @@ export default function Stats() {
                   <span>Slot Intake</span>
                   <span className="font-bold text-accent">85% Enrolled</span>
                 </div>
-                <div className="w-full h-1.5 bg-darkNavy/80 rounded-full overflow-hidden p-[1px] border border-primary/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: "85%" }}
-                    transition={{ duration: 1.2, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-                    viewport={{ once: true }}
-                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={85}
+                  gradient="from-primary to-accent"
+                  borderColor="border-primary/25"
+                  delay={0.35}
+                  duration={1.2}
+                  inView={true}
+                  showShimmer={true}
+                />
               </div>
             </div>
           </motion.div>
@@ -179,15 +186,15 @@ export default function Stats() {
                   <span>Arena Specs</span>
                   <span className="font-bold text-cyberPurple">92% Ready</span>
                 </div>
-                <div className="w-full h-1.5 bg-darkNavy/80 rounded-full overflow-hidden p-[1px] border border-cyberPurple/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: "92%" }}
-                    transition={{ duration: 1.2, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                    viewport={{ once: true }}
-                    className="h-full bg-gradient-to-r from-cyberPurple via-primary to-accent rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={92}
+                  gradient="from-cyberPurple via-primary to-accent"
+                  borderColor="border-cyberPurple/25"
+                  delay={0.45}
+                  duration={1.2}
+                  inView={true}
+                  showShimmer={true}
+                />
               </div>
             </div>
           </motion.div>

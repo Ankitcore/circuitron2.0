@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Calendar, MapPin, Download, ArrowRight, Sparkles, Trophy, Users, Bot, ExternalLink } from "lucide-react";
 import TechModel3D from "./TechModel3D";
 import CountdownTimer from "./CountdownTimer";
+import CyberProgressBar from "./CyberProgressBar";
 
 export default function Hero() {
   return (
@@ -17,16 +18,16 @@ export default function Hero() {
           
           {/* Left Column: Hero Content */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left"
           >
             {/* Announcement Top Pill */}
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-full glass-panel border border-primary/30 text-[11px] sm:text-xs font-semibold text-accent shadow-neon max-w-full truncate"
             >
               <img
@@ -40,9 +41,9 @@ export default function Hero() {
             {/* Giant Title */}
             <div className="space-y-2">
               <motion.h1
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
+                transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 className="text-3xl xs:text-4xl sm:text-6xl lg:text-7xl font-black font-orbitron tracking-tight"
               >
                 <span className="gradient-text block">TechXpo 2.O</span>
@@ -53,9 +54,9 @@ export default function Hero() {
 
               {/* Tagline Bracket */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 className="inline-block"
               >
                 <p className="text-sm xs:text-base sm:text-xl lg:text-2xl font-bold font-orbitron tracking-wider text-accent uppercase">
@@ -151,14 +152,17 @@ export default function Hero() {
                   <div className="text-[9px] sm:text-[10px] text-gray-400">Prize Pool</div>
                 </div>
                 {/* Micro Progress Bar */}
-                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden mt-2 p-[0.5px] border border-yellow-400/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={100}
+                  gradient="from-amber-500 to-yellow-400"
+                  height="h-1"
+                  borderColor="border-yellow-400/25"
+                  delay={0.5}
+                  duration={1.0}
+                  inView={false}
+                  showShimmer={true}
+                  className="mt-2"
+                />
               </motion.div>
 
               <motion.div
@@ -174,14 +178,17 @@ export default function Hero() {
                   <div className="text-[9px] sm:text-[10px] text-gray-400">Combat &amp; Race</div>
                 </div>
                 {/* Micro Progress Bar */}
-                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden mt-2 p-[0.5px] border border-primary/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: "100%" }}
-                    transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={100}
+                  gradient="from-primary to-accent"
+                  height="h-1"
+                  borderColor="border-primary/25"
+                  delay={0.6}
+                  duration={1.0}
+                  inView={false}
+                  showShimmer={true}
+                  className="mt-2"
+                />
               </motion.div>
 
               <motion.div
@@ -197,14 +204,17 @@ export default function Hero() {
                   <div className="text-[9px] sm:text-[10px] text-gray-400">Innovators</div>
                 </div>
                 {/* Micro Progress Bar */}
-                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden mt-2 p-[0.5px] border border-accent/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: "85%" }}
-                    transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-accent to-cyberPurple rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={85}
+                  gradient="from-accent to-cyberPurple"
+                  height="h-1"
+                  borderColor="border-accent/25"
+                  delay={0.7}
+                  duration={1.0}
+                  inView={false}
+                  showShimmer={true}
+                  className="mt-2"
+                />
               </motion.div>
             </div>
           </motion.div>

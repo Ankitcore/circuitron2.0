@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Zap } from "lucide-react";
+import CyberProgressBar from "./CyberProgressBar";
 
 // Target countdown deadline: 29th November 2026 at 11:59:00 PM IST
 const TARGET_DATE = new Date("2026-11-29T23:59:00+05:30").getTime();
@@ -87,16 +88,15 @@ export default function CountdownTimer() {
             <span>{timeLeft.expired ? "COUNTDOWN CONCLUDED" : "REGISTRATIONS LIVE"}</span>
           </span>
         </div>
-        <div className="w-full h-1.5 bg-darkNavy/90 rounded-full overflow-hidden p-[1px] border border-primary/20">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: timeLeft.expired ? "100%" : "72%" }}
-            transition={{ duration: 1.4, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-            className="h-full bg-gradient-to-r from-primary via-accent to-cyberPurple rounded-full relative"
-          >
-            <div className="absolute inset-0 bg-white/25 animate-pulse rounded-full" />
-          </motion.div>
-        </div>
+        <CyberProgressBar
+          value={timeLeft.expired ? 100 : 72}
+          gradient="from-primary via-accent to-cyberPurple"
+          height="h-1.5"
+          delay={0.4}
+          duration={1.3}
+          inView={false}
+          showShimmer={true}
+        />
       </div>
     </motion.div>
   );

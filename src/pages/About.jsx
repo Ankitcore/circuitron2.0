@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Lightbulb, Award, Users, CheckCircle, Sparkles, Target, Compass, Rocket } from "lucide-react";
+import CyberProgressBar from "../components/CyberProgressBar";
 
 export default function About() {
   const itemVariants = {
@@ -157,15 +158,16 @@ export default function About() {
                   <span>Lab Prototyping Access</span>
                   <span className="text-primary font-bold">100% Equipped</span>
                 </div>
-                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-primary/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: "100%" }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.1, delay: 0.3 }}
-                    className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={100}
+                  gradient="from-primary to-accent"
+                  height="h-1"
+                  borderColor="border-primary/25"
+                  delay={0.25}
+                  duration={1.1}
+                  inView={true}
+                  showShimmer={true}
+                />
               </div>
             </motion.div>
 
@@ -193,15 +195,16 @@ export default function About() {
                   <span>Applied Project Success</span>
                   <span className="text-accent font-bold">95% Verified</span>
                 </div>
-                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-accent/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: "95%" }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.1, delay: 0.4 }}
-                    className="h-full bg-gradient-to-r from-accent to-yellow-400 rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={95}
+                  gradient="from-accent to-yellow-400"
+                  height="h-1"
+                  borderColor="border-accent/25"
+                  delay={0.35}
+                  duration={1.1}
+                  inView={true}
+                  showShimmer={true}
+                />
               </div>
             </motion.div>
 
@@ -229,15 +232,16 @@ export default function About() {
                   <span>Cross-Branch Synergy</span>
                   <span className="text-cyberPurple font-bold">100% Unified</span>
                 </div>
-                <div className="w-full h-1 bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border border-cyberPurple/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: "100%" }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.1, delay: 0.5 }}
-                    className="h-full bg-gradient-to-r from-cyberPurple to-primary rounded-full"
-                  />
-                </div>
+                <CyberProgressBar
+                  value={100}
+                  gradient="from-cyberPurple to-primary"
+                  height="h-1"
+                  borderColor="border-cyberPurple/25"
+                  delay={0.45}
+                  duration={1.1}
+                  inView={true}
+                  showShimmer={true}
+                />
               </div>
             </motion.div>
           </div>

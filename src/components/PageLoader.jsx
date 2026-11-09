@@ -31,13 +31,28 @@ export default function PageLoader() {
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col items-center space-y-1">
+      <div className="mt-6 flex flex-col items-center space-y-2">
         <span className="font-orbitron font-bold text-xs uppercase tracking-[0.25em] text-accent">
           Circuitron 2.0
         </span>
         <span className="font-mono text-[11px] text-gray-400">
           Loading system telemetry...
         </span>
+
+        {/* High-Tech Indeterminate Cyber Progress Bar */}
+        <div className="w-36 h-1 bg-darkNavy/90 rounded-full overflow-hidden p-[0.5px] border border-primary/30 relative">
+          <motion.div
+            animate={{
+              x: ["-100%", "200%"],
+            }}
+            transition={{
+              duration: 1.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="w-1/2 h-full bg-gradient-to-r from-transparent via-cyan-400 to-accent rounded-full shadow-[0_0_8px_#00ffff]"
+          />
+        </div>
       </div>
     </div>
   );
