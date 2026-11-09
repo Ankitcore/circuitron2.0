@@ -612,7 +612,7 @@ export default function Contact() {
                           onChange={handleChange}
                           required
                           maxLength={80}
-                          placeholder="e.g. Rahul Verma"
+                          placeholder="e.g. Amit Sharma"
                           className="w-full px-3.5 py-2.5 sm:px-4 sm:py-3 bg-darkNavy/80 border border-primary/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-xs sm:text-sm"
                         />
                       </div>

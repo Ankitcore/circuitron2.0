@@ -14,28 +14,7 @@ const memoryStore = globalThis.__circuitron_members_store;
 
 const TMP_FILE = path.join(os.tmpdir(), "circuitron_members.json");
 
-const INITIAL_MEMBERS = [
-  {
-    id: "TX2-PT-9295",
-    name: "Rahul Verma",
-    role: "Competitor",
-    position: "Competitor",
-    category: "Participant",
-    tier: "Registered Participant",
-    tierKey: "participant",
-    department: "RVSCET, JAMSHEDPUR",
-    teamName: "Group Name",
-    img: "",
-    tagline: "Official Symposium Competitor",
-    description: "Verified Participant for TechXpo 2.O",
-    isCustom: true,
-    showOnWebsite: false,
-    createdAt: "2026-11-09T00:00:00.000Z",
-    idCard: "/assets/id-cards/TX2-PT-BLANK.jpg",
-    idCardHd: "/assets/id-cards/TX2-PT-BLANK-hd.jpg",
-    qrCode: "/assets/id-cards/TX2-PT-9295_qr.png",
-  },
-];
+const INITIAL_MEMBERS = [];
 
 // Helper to load file backup if memoryStore is empty
 function loadFromFile() {
@@ -46,7 +25,14 @@ function loadFromFile() {
         const list = JSON.parse(raw);
         if (Array.isArray(list) && list.length > 0) {
           list.forEach((m) => {
-            if (m && m.id) memoryStore.set(m.id.trim().toUpperCase(), m);
+            if (
+              m &&
+              m.id &&
+              m.id.trim().toUpperCase() !== "TX2-PT-9295" &&
+              m.name?.trim().toLowerCase() !== "rahul verma"
+            ) {
+              memoryStore.set(m.id.trim().toUpperCase(), m);
+            }
           });
         }
       }
@@ -55,11 +41,10 @@ function loadFromFile() {
     }
   }
 
-  // Ensure default initial members exist if store is still empty
-  if (memoryStore.size === 0) {
-    INITIAL_MEMBERS.forEach((m) => {
-      if (m && m.id) memoryStore.set(m.id.trim().toUpperCase(), m);
-    });
+  // Ensure legacy mock participant is purged
+  if (memoryStore.has("TX2-PT-9295")) {
+    memoryStore.delete("TX2-PT-9295");
+    saveToFile();
   }
 }
 
@@ -172,15 +157,24 @@ export default async function handler(req, res) {
       return res.status(404).json({ success: false, error: "Member not found" });
     }
 
-    // Return all custom members
-    let all = Array.from(memoryStore.values());
+    // Return all custom members (excluding any legacy mock records)
+    let all = Array.from(memoryStore.values()).filter(
+      (m) => m && m.id?.toUpperCase() !== "TX2-PT-9295" && m.name?.trim().toLowerCase() !== "rahul verma"
+    );
     if (all.length === 0 && kv) {
       const fromKv = await fetchFromKv(kv, "all_custom_members");
       if (Array.isArray(fromKv)) {
         fromKv.forEach((m) => {
-          if (m && m.id) memoryStore.set(m.id.trim().toUpperCase(), m);
+          if (
+            m &&
+            m.id &&
+            m.id.trim().toUpperCase() !== "TX2-PT-9295" &&
+            m.name?.trim().toLowerCase() !== "rahul verma"
+          ) {
+            memoryStore.set(m.id.trim().toUpperCase(), m);
+          }
         });
-        all = fromKv;
+        all = Array.from(memoryStore.values());
       }
     }
 

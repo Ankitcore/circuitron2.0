@@ -212,28 +212,7 @@ export const coreTeam = [
 // ============================================================================
 export const CUSTOM_MEMBERS_KEY = "tx2_custom_members";
 
-export const initialCustomMembers = [
-  {
-    id: "TX2-PT-9295",
-    name: "Rahul Verma",
-    role: "Competitor",
-    position: "Competitor",
-    category: "Participant",
-    tier: "Registered Participant",
-    tierKey: "participant",
-    department: "RVSCET, JAMSHEDPUR",
-    teamName: "Group Name",
-    img: "",
-    tagline: "Official Symposium Competitor",
-    description: "Verified Participant for TechXpo 2.O",
-    isCustom: true,
-    showOnWebsite: false,
-    createdAt: "2026-11-09T00:00:00.000Z",
-    idCard: "/assets/id-cards/TX2-PT-BLANK.jpg",
-    idCardHd: "/assets/id-cards/TX2-PT-BLANK-hd.jpg",
-    qrCode: "/assets/id-cards/TX2-PT-9295_qr.png",
-  },
-];
+export const initialCustomMembers = [];
 
 export const TIER_CONFIG = {
   executive: {
@@ -298,23 +277,24 @@ export function getCustomMembers() {
   try {
     const raw = localStorage.getItem(CUSTOM_MEMBERS_KEY);
     if (!raw) {
-      localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify(initialCustomMembers));
-      return [...initialCustomMembers];
+      localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify([]));
+      return [];
     }
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [...initialCustomMembers];
+    if (!Array.isArray(parsed)) return [];
 
-    // Seed initial custom members if not already deleted
-    const hasInitial = parsed.some((m) => m && m.id === "TX2-PT-9295");
-    if (!hasInitial && !localStorage.getItem("tx2_deleted_TX2-PT-9295")) {
-      const merged = [...initialCustomMembers, ...parsed];
-      localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify(merged));
-      return merged;
+    // Purge Rahul Verma / TX2-PT-9295 if present from legacy sessions
+    const cleaned = parsed.filter(
+      (m) => m && m.id?.toUpperCase() !== "TX2-PT-9295" && m.name?.trim().toLowerCase() !== "rahul verma"
+    );
+    if (cleaned.length !== parsed.length) {
+      localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify(cleaned));
+      localStorage.setItem("tx2_deleted_TX2-PT-9295", "1");
     }
-    return parsed;
+    return cleaned;
   } catch (err) {
     console.error("Failed to parse custom members from localStorage:", err);
-    return [...initialCustomMembers];
+    return [];
   }
 }
 
@@ -417,7 +397,13 @@ export async function fetchMembersFromCloud() {
       const localMap = new Map(local.map((m) => [m.id?.toUpperCase(), m]));
       let added = false;
       json.members.forEach((m) => {
-        if (m && m.id && !localMap.has(m.id.toUpperCase())) {
+        if (
+          m &&
+          m.id &&
+          m.id.trim().toUpperCase() !== "TX2-PT-9295" &&
+          m.name?.trim().toLowerCase() !== "rahul verma" &&
+          !localMap.has(m.id.toUpperCase())
+        ) {
           localMap.set(m.id.toUpperCase(), m);
           added = true;
         }

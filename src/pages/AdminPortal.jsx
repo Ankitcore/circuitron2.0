@@ -1395,7 +1395,7 @@ export default function AdminPortal() {
                     required
                     value={formName}
                     onChange={(e) => setFormName(e.target.value)}
-                    placeholder="e.g. RAHUL VERMA"
+                    placeholder="e.g. AMIT SHARMA"
                     className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-accent uppercase font-bold"
                   />
                 </div>
@@ -1820,7 +1820,7 @@ export default function AdminPortal() {
                         required
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        placeholder="e.g. Rahul Verma"
+                        placeholder="e.g. Amit Sharma"
                         className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-accent"
                       />
                     </div>
@@ -2189,7 +2189,7 @@ export default function AdminPortal() {
                 placeholder={`Example formats accepted:
 Aman Kumar
 Sneha Sharma
-Rahul Verma, RoboWars Fighter, Dept. of ME, IronFist
+Amit Sharma, RoboWars Fighter, Dept. of ME, IronFist
 Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                 className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 font-mono text-xs focus:outline-none focus:border-accent leading-relaxed"
               />
