@@ -43,7 +43,7 @@ function RouteMetadataUpdater() {
       "/schedule": "Timeline Schedule & Rounds | TechXpo 2.O",
       "/contact": "Support & Help Desk | TechXpo 2.O",
       "/verify": "Credential Verification | TechXpo 2.O",
-      "/admin": "Secretariat Admin Portal | TechXpo 2.O",
+      "/admin": "Admin Portal | TechXpo 2.O",
     };
 
     const descriptions = {
@@ -53,9 +53,9 @@ function RouteMetadataUpdater() {
       "/team": "Meet the visionary faculty coordinators, executive leaders, and student operational heads powering TechXpo 2.O.",
       "/gallery": "Browse highlights, robot arena battles, project showcases, and championship moments from previous editions.",
       "/schedule": "Check the official event timeline, check-in schedules, arena testing windows, and closing ceremonies.",
-      "/contact": "Contact the TechXpo 2.O secretariat for queries, partnerships, accommodation assistance, and technical guidance.",
+      "/contact": "Contact the TechXpo 2.O team for queries, partnerships, accommodation assistance, and technical guidance.",
       "/verify": "Official digital credential verification portal for TechXpo 2.O delegates, committee members, and executives.",
-      "/admin": "Official Secretariat Admin Portal for managing rosters, adding delegates, and issuing high-definition ID badges.",
+      "/admin": "Official Admin Portal for managing rosters, adding delegates, and issuing high-definition ID badges.",
     };
 
     if (pathname.startsWith("/verify/")) {

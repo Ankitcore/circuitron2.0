@@ -649,7 +649,7 @@ export function resetCustomMembers() {
 
 // ============================================================================
 // Website Team Section Visibility System
-// Allows Secretariat Admins to decide whether any member or entire team
+// Allows Admins to decide whether any member or entire team
 // appears on the public /team directory or remains strictly for ID/verification.
 // ============================================================================
 

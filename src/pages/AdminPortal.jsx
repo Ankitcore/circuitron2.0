@@ -840,7 +840,7 @@ export default function AdminPortal() {
               <KeyRound className="w-8 h-8" />
             </div>
             <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold">
-              TECHXPO 2.O SECRETARIAT
+              TECHXPO 2.O ADMIN
             </span>
             <h1 className="text-2xl sm:text-3xl font-black font-orbitron text-white">
               Admin Portal
@@ -853,7 +853,7 @@ export default function AdminPortal() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider">
-                Secretariat Passcode
+                Admin Passcode
               </label>
               <input
                 type="password"
@@ -907,7 +907,7 @@ export default function AdminPortal() {
   }
 
   // ==========================================================================
-  // VIEW: AUTHENTICATED SECRETARIAT ADMIN PORTAL
+  // VIEW: AUTHENTICATED ADMIN PORTAL
   // ==========================================================================
   return (
     <div className="min-h-screen pt-28 pb-20">
@@ -920,7 +920,7 @@ export default function AdminPortal() {
           <div className="space-y-2 relative z-10">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>SECRETARIAT CLEARANCE &bull; ACTIVE &bull; 30M IDLE AUTO-LOCK</span>
+              <span>ADMIN CLEARANCE &bull; ACTIVE &bull; 30M IDLE AUTO-LOCK</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black font-orbitron gradient-text">
               TechXpo 2.O Admin Portal
@@ -955,7 +955,7 @@ export default function AdminPortal() {
               onClick={handleCloudSync}
               disabled={isCloudSyncing}
               className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5 text-accent border-accent/40 hover:bg-accent/10 transition-all"
-              title="Synchronize delegates with Central Secretariat Cloud Registry"
+              title="Synchronize delegates with Central Cloud Registry"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isCloudSyncing ? "animate-spin text-accent" : ""}`} />
               <span>{isCloudSyncing ? "Syncing..." : "Sync Cloud"}</span>
@@ -2257,7 +2257,7 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                 <p className="text-[11px] text-gray-400">
                   {bulkShowOnWebsite
                     ? `Yes: All ${bulkParsedPreview.length} imported members will be published publicly on the website /team page.`
-                    : "No: Members remain registered in the Secretariat database with official ID cards & verification links, but will not show on /team."}
+                    : "No: Members remain registered in the Admin database with official ID cards & verification links, but will not show on /team."}
                 </p>
               </div>
               <button
@@ -2456,7 +2456,7 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
         )}
 
         {/* ================================================================== */}
-        {/* MODAL: MULTI-DEVICE SECRETARIAT ROSTER SYNC (PORTAL IN BODY)       */}
+        {/* MODAL: MULTI-DEVICE ADMIN ROSTER SYNC (PORTAL IN BODY)       */}
         {/* ================================================================== */}
         {typeof document !== "undefined" &&
           createPortal(

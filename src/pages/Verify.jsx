@@ -345,7 +345,7 @@ export default function Verify() {
       setAdminAuthError("");
       setShowIdCardModal(true);
     } else {
-      setAdminAuthError("Invalid passkey. Access is restricted to Secretariat Administrators.");
+      setAdminAuthError("Invalid passkey. Access is restricted to Administrators.");
     }
   };
 
@@ -640,7 +640,7 @@ export default function Verify() {
                 <div className="flex items-center space-x-2">
                   <Unlock className="w-4 h-4 text-amber-400 flex-shrink-0" />
                   <span>
-                    <strong>Secretariat Admin Mode:</strong> High-definition physical ID badge downloads unlocked.
+                    <strong>Admin Mode:</strong> High-definition physical ID badge downloads unlocked.
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -649,7 +649,7 @@ export default function Verify() {
                     className="px-3 py-1 rounded bg-accent/20 hover:bg-accent/30 text-accent text-[11px] font-bold uppercase tracking-wider transition-colors flex items-center space-x-1"
                   >
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Secretariat Admin Portal</span>
+                    <span>Admin Portal</span>
                   </Link>
                   <button
                     onClick={handleAdminLogout}
@@ -894,7 +894,7 @@ export default function Verify() {
         </div>
       )}
 
-      {/* ================= MODAL: SECRETARIAT ADMIN LOGIN ================= */}
+      {/* ================= MODAL: ADMIN LOGIN ================= */}
       {showAdminLoginModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
           <motion.div
@@ -910,7 +910,7 @@ export default function Verify() {
                 </div>
                 <div>
                   <h3 className="font-orbitron font-bold text-white text-sm">
-                    Secretariat Admin Access
+                    Admin Access
                   </h3>
                   <span className="text-[10px] font-mono text-gray-400 block">
                     ID Badge Download Clearance
@@ -929,7 +929,7 @@ export default function Verify() {
             </div>
 
             <p className="text-gray-300 text-xs leading-relaxed">
-              Official physical ID badge downloads are restricted to Secretariat Administrators. Regular participants and attendees can validate credentials and share links.
+              Official physical ID badge downloads are restricted to Administrators. Regular participants and attendees can validate credentials and share links.
             </p>
 
             <form onSubmit={handleAdminLogin} className="space-y-4">

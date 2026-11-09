@@ -108,7 +108,7 @@ export default function Navbar() {
           <div className="hidden sm:flex items-center space-x-2.5">
             <Link
               to="/admin"
-              title="Secretariat Admin Portal"
+              title="Admin Portal"
               className="p-2 rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-400 hover:text-accent hover:border-accent/40 transition-all flex items-center justify-center"
             >
               <ShieldCheck className="w-4 h-4" />
@@ -193,7 +193,7 @@ export default function Navbar() {
                   className="w-full py-2.5 px-3 rounded-xl bg-darkNavy/80 border border-primary/20 text-xs font-mono text-gray-300 hover:text-accent flex items-center justify-center space-x-1.5"
                 >
                   <ShieldCheck className="w-4 h-4 text-accent" />
-                  <span>Secretariat Admin Portal</span>
+                  <span>Admin Portal</span>
                 </Link>
               </div>
             </div>
