@@ -19,9 +19,12 @@ import {
   Unlock,
   KeyRound,
   LogOut,
+  Camera,
 } from "lucide-react";
 import { getMemberById, addMember, normalizeTierKey } from "../data/team";
 import { generateMemberIdCard, downloadDataUrl, getMemberVerificationUrl } from "../utils/idCardGenerator";
+import MemberQrScanner from "../components/MemberQrScanner";
+import QrScannerModal from "../components/QrScannerModal";
 
 /**
  * Determine official security access clearance level based on member tier:
@@ -111,6 +114,7 @@ export default function Verify() {
   const [inputSearchId, setInputSearchId] = useState(targetId);
   const [copied, setCopied] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
+  const [showScannerModal, setShowScannerModal] = useState(false);
   const [customCardImage, setCustomCardImage] = useState(null);
   const [isRenderingCard, setIsRenderingCard] = useState(false);
   const [cloudMember, setCloudMember] = useState(null);
@@ -288,6 +292,24 @@ export default function Verify() {
     }
   };
 
+  const handleScanSuccess = (scanResult) => {
+    if (scanResult) {
+      const cleanId = typeof scanResult === "object" ? scanResult.id : String(scanResult).trim().toUpperCase();
+      const targetPath = typeof scanResult === "object" && scanResult.path ? scanResult.path : `/verify/${cleanId}`;
+
+      setInputSearchId(cleanId);
+      setShowScannerModal(false);
+      navigate(targetPath);
+      setIsValidating(true);
+      setTimeout(() => {
+        setIsValidating(false);
+        setValidatedTimestamp(
+          new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+        );
+      }, 400);
+    }
+  };
+
   const handleShare = () => {
     const url = member ? getMemberVerificationUrl(member) : window.location.href;
     if (navigator.clipboard) {
@@ -348,22 +370,30 @@ export default function Verify() {
             <span className="font-mono tracking-wider">OFFICIAL TECHXPO 2.O AUTHENTICATION PORTAL</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black font-orbitron gradient-text">
-            {hasTargetId ? "Credential Verification" : "Official Verification Portal"}
+            {hasTargetId ? "Credential Verification" : "Member Verification & Scanner Desk"}
           </h1>
           <p className="text-gray-300 text-sm sm:text-base max-w-xl mx-auto">
             {hasTargetId
               ? "Official cryptographic validation and credential dossier for TechXpo 2.O leaders, coordinators, and delegates at RVSCET Jamshedpur."
-              : "Enter any official TechXpo 2.O Delegate, Coordinator, or Executive ID to verify authenticity, active credentials, and access clearance."}
+              : "Scan official TechXpo 2.O badge QR code with your camera or enter Delegate ID to verify authenticity, active credentials, and access clearance."}
           </p>
 
           {hasTargetId && (
-            <div className="pt-2 flex items-center justify-center">
+            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowScannerModal(true)}
+                className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-cyan-500 via-primary to-accent text-darkNavy font-orbitron font-extrabold text-xs sm:text-sm flex items-center space-x-2.5 shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:shadow-[0_0_40px_rgba(0,229,255,0.6)] hover:scale-105 transition-all duration-300 group"
+              >
+                <Camera className="w-4 h-4 text-darkNavy group-hover:rotate-12 transition-transform" />
+                <span>Scan Another Member QR</span>
+              </button>
               <Link
                 to="/verify"
                 className="py-2.5 px-5 rounded-2xl bg-darkNavy/90 border border-primary/30 text-gray-300 hover:text-white text-xs font-orbitron font-bold flex items-center space-x-2 transition-all hover:bg-white/5 shadow-md"
               >
                 <Search className="w-4 h-4 text-accent" />
-                <span>Lookup Another ID</span>
+                <span>Lookup by ID</span>
               </Link>
             </div>
           )}
@@ -372,6 +402,9 @@ export default function Verify() {
         {/* ================= CONDITION 1: BARE /verify DESK (NO ID) ================= */}
         {!hasTargetId ? (
           <div className="max-w-2xl mx-auto space-y-6">
+            {/* Live Camera & Badge Photo QR Scanner */}
+            <MemberQrScanner onScanSuccess={handleScanSuccess} />
+
             {/* Manual Typing Authentication Card */}
             <div className="glass-card p-6 sm:p-8 rounded-3xl border-2 border-primary/30 space-y-5 bg-darkNavy/90 shadow-[0_0_50px_rgba(0,229,255,0.15)]">
               <div className="flex items-center space-x-3 pb-3 border-b border-primary/20">
@@ -380,7 +413,7 @@ export default function Verify() {
                 </div>
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-bold block">
-                    CREDENTIAL VERIFICATION DESK
+                    MANUAL CREDENTIAL LOOKUP
                   </span>
                   <h3 className="text-lg sm:text-xl font-black font-orbitron text-white">
                     Authenticate Delegate Credential by ID
@@ -395,7 +428,6 @@ export default function Verify() {
                   onChange={(e) => setInputSearchId(e.target.value)}
                   placeholder="ENTER DELEGATE ID (e.g. TX2-EX-7264, TX2-FC-8492)"
                   className="flex-1 px-5 py-3.5 bg-darkNavy/90 border-2 border-primary/30 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase tracking-wider"
-                  autoFocus
                 />
                 <button
                   type="submit"
@@ -422,14 +454,6 @@ export default function Verify() {
                     {sample}
                   </button>
                 ))}
-              </div>
-
-              {/* Native smartphone camera notice */}
-              <div className="pt-3 border-t border-primary/10 text-xs text-gray-400 font-mono flex items-start space-x-2.5">
-                <Sparkles className="w-4 h-4 text-accent flex-shrink-0 mt-0.5" />
-                <span>
-                  Badge QR codes can also be scanned directly with any smartphone camera app to load instant cryptographic verification.
-                </span>
               </div>
             </div>
           </div>
@@ -693,13 +717,23 @@ export default function Verify() {
                   <span>{copied ? "Link Copied!" : "Share Credential"}</span>
                 </button>
 
+                {/* Scan Another Member QR Option */}
+                <button
+                  type="button"
+                  onClick={() => setShowScannerModal(true)}
+                  className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-2 border-primary/40 text-accent hover:border-accent"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>Scan Next QR</span>
+                </button>
+
                 {/* Lookup Another ID Option */}
                 <Link
                   to="/verify"
-                  className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-2 border-primary/40 text-accent hover:border-accent"
+                  className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-2"
                 >
                   <Search className="w-4 h-4" />
-                  <span>Lookup Another ID</span>
+                  <span>Lookup ID</span>
                 </Link>
 
                 {/* Admin Status Pill / Login Trigger */}
@@ -766,8 +800,16 @@ export default function Verify() {
             </div>
 
             <div className="pt-4 flex flex-wrap justify-center gap-3">
-              <Link to="/verify" className="btn-primary text-xs py-2.5 px-5 font-bold flex items-center space-x-2">
-                <Search className="w-4 h-4 text-darkNavy" />
+              <button
+                type="button"
+                onClick={() => setShowScannerModal(true)}
+                className="btn-primary text-xs py-2.5 px-5 font-bold flex items-center space-x-2 shadow-neon"
+              >
+                <Camera className="w-4 h-4 text-darkNavy" />
+                <span>Scan Badge QR</span>
+              </button>
+              <Link to="/verify" className="btn-secondary text-xs py-2.5 px-5 font-bold flex items-center space-x-2">
+                <Search className="w-4 h-4" />
                 <span>Try Another ID</span>
               </Link>
               <Link to="/contact" className="btn-secondary text-xs py-2.5 px-5 font-bold">
@@ -806,6 +848,15 @@ export default function Verify() {
                 placeholder="e.g. TX2-EX-7264, TX2-EX-4918, TX2-FC-8492"
                 className="flex-1 px-4 py-3 bg-darkNavy/90 border border-primary/30 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm font-mono uppercase"
               />
+              <button
+                type="button"
+                onClick={() => setShowScannerModal(true)}
+                className="py-3 px-5 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-orbitron font-bold flex items-center justify-center space-x-2 hover:bg-cyan-500/25 transition-all shadow-sm"
+                title="Open camera or photo QR scanner"
+              >
+                <Camera className="w-4 h-4 text-cyan-400" />
+                <span>Scan QR</span>
+              </button>
               <button type="submit" className="btn-primary py-3 px-6 text-xs font-bold whitespace-nowrap">
                 Verify Credential
               </button>
@@ -986,7 +1037,12 @@ export default function Verify() {
         </div>
       )}
 
-
+      {/* ================= MODAL: LIVE QR AUTHENTICATOR SCANNER ================= */}
+      <QrScannerModal
+        isOpen={showScannerModal}
+        onClose={() => setShowScannerModal(false)}
+        onScanSuccess={handleScanSuccess}
+      />
     </motion.div>
   );
 }
