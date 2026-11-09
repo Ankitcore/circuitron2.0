@@ -716,12 +716,13 @@ export default function Contact() {
             <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-primary/30 shadow-2xl bg-darkNavy relative min-h-[360px] flex flex-col">
               <iframe
                 title="RVSCET Jamshedpur Campus Map"
-                src="https://maps.google.com/maps?q=22.8053067,86.2738051+(RVS+College+of+Engineering+and+Technology)&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.368545802167!2d86.27123017582524!3d22.80530667932822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f5e30ff76d3319%3A0x4986ace5ea086802!2sRVS%20College%20of%20Engineering%20and%20Technology!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
                 width="100%"
                 height="100%"
                 className="w-full h-full min-h-[360px] border-0 filter contrast-125"
                 loading="lazy"
                 allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
               />
               <div className="p-3 bg-darkNavy/90 border-t border-primary/20 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-gray-300">
                 <span className="flex items-center space-x-1.5">
