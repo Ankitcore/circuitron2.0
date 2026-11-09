@@ -77,14 +77,20 @@ export default function Hero() {
                 <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
                 <span className="font-semibold text-white">30 November 2026</span>
               </div>
-              <div className="flex items-center space-x-2 bg-darkNavy/80 px-3.5 py-2 rounded-xl border border-primary/20">
+              <a
+                href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 bg-darkNavy/80 hover:bg-darkNavy px-3.5 py-2 rounded-xl border border-primary/20 hover:border-primary/50 transition-all group"
+                title="Open RVSCET Campus on Google Maps"
+              >
                 <img
                   src="/assets/rvscet-logo.webp"
                   alt="RVSCET"
-                  className="w-4 h-4 object-contain flex-shrink-0"
+                  className="w-4 h-4 object-contain flex-shrink-0 group-hover:scale-110 transition-transform"
                 />
-                <span className="font-semibold text-white">RVSCET Campus, Jamshedpur</span>
-              </div>
+                <span className="font-semibold text-white group-hover:text-accent transition-colors">RVSCET Campus, Jamshedpur</span>
+              </a>
             </div>
 
             {/* Countdown Component */}

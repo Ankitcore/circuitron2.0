@@ -179,12 +179,25 @@ export default function HomeContact() {
                 </div>
               </div>
 
-              <div className="glass-card p-5 rounded-xl border border-primary/20 flex items-start space-x-4">
-                <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 flex-shrink-0">
+              <a
+                href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glass-card p-5 rounded-xl border border-primary/20 hover:border-purple-500/40 flex items-start space-x-4 transition-all duration-300 group block"
+                title="Open Venue on Google Maps"
+              >
+                <div className="w-12 h-12 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 flex-shrink-0 group-hover:scale-110 transition-transform">
                   <MapPin className="w-6 h-6" />
                 </div>
-                <div>
-                  <h4 className="text-white font-bold font-orbitron text-sm">Venue Location</h4>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-white font-bold font-orbitron text-sm group-hover:text-purple-300 transition-colors">
+                      Venue Location
+                    </h4>
+                    <span className="text-[10px] font-mono text-purple-400 flex items-center gap-1 group-hover:underline">
+                      Maps &rarr;
+                    </span>
+                  </div>
                   <p className="text-gray-300 text-sm">
                     RVS College of Engineering &amp; Technology
                   </p>
@@ -192,7 +205,7 @@ export default function HomeContact() {
                     Edalbera, PO- Bhilai Pahari, Jamshedpur - 831001
                   </p>
                 </div>
-              </div>
+              </a>
             </div>
           </motion.div>
 

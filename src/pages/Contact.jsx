@@ -375,7 +375,7 @@ export default function Contact() {
 
               <div className="pt-4 mt-2 border-t border-primary/10">
                 <a
-                  href="https://maps.google.com/?q=RVSCET+Jamshedpur"
+                  href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full inline-flex items-center justify-center space-x-2 py-2 px-3 rounded-xl bg-darkNavy/80 hover:bg-purple-500/20 border border-purple-500/30 text-white font-orbitron text-xs font-bold transition-all"
@@ -716,7 +716,7 @@ export default function Contact() {
             <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-primary/30 shadow-2xl bg-darkNavy relative min-h-[360px] flex flex-col">
               <iframe
                 title="RVSCET Jamshedpur Campus Map"
-                src="https://maps.google.com/maps?q=RVS+College+of+Engineering+and+Technology+Jamshedpur&t=&z=14&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=22.8053067,86.2738051+(RVS+College+of+Engineering+and+Technology)&t=&z=15&ie=UTF8&iwloc=&output=embed"
                 width="100%"
                 height="100%"
                 className="w-full h-full min-h-[360px] border-0 filter contrast-125"
@@ -729,7 +729,7 @@ export default function Contact() {
                   <span>Edalbera, Bhilai Pahari, Jamshedpur &bull; NH-33</span>
                 </span>
                 <a
-                  href="https://maps.google.com/?q=RVSCET+Jamshedpur"
+                  href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-accent hover:underline flex items-center space-x-1 font-bold"

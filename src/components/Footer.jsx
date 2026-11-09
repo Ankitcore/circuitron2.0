@@ -154,17 +154,23 @@ export default function Footer() {
               </h4>
             </div>
             <div className="space-y-3 text-sm text-gray-300">
-              <div className="flex items-start space-x-3">
-                <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
+              <a
+                href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start space-x-3 group transition-colors"
+                title="View RVSCET on Google Maps"
+              >
+                <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-1 group-hover:text-accent transition-colors" />
                 <div>
-                  <p className="font-semibold text-white">
+                  <p className="font-semibold text-white group-hover:text-accent transition-colors">
                     RVS College of Engineering &amp; Technology
                   </p>
-                  <p className="text-gray-400 text-xs mt-0.5">
+                  <p className="text-gray-400 text-xs mt-0.5 group-hover:text-gray-300 transition-colors">
                     Edalbera, PO- Bhilai Pahari, Jamshedpur, Jharkhand - 831001
                   </p>
                 </div>
-              </div>
+              </a>
 
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-accent flex-shrink-0" />
