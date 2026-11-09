@@ -114,6 +114,16 @@ export default function AdminPortal() {
   const [generatingCard, setGeneratingCard] = useState(false);
   const [generatedCardData, setGeneratedCardData] = useState(null);
 
+  // Device Peer Sync State (1-click QR / Link transfer between phone and PC)
+  const [showDeviceSyncModal, setShowDeviceSyncModal] = useState(false);
+  const [deviceSyncQrUrl, setDeviceSyncQrUrl] = useState("");
+  const [deviceSyncShareUrl, setDeviceSyncShareUrl] = useState("");
+  const [isCopiedSyncLink, setIsCopiedSyncLink] = useState(false);
+
+  // Cloud Registry Synchronization State
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+  const [cloudSyncMessage, setCloudSyncMessage] = useState("");
+
   // Auto-generate ID & default visibility preview when formTier changes
   useEffect(() => {
     setFormCustomId(generateUniqueMemberId(formTier));
@@ -150,12 +160,6 @@ export default function AdminPortal() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedMemberForCard, showDeviceSyncModal]);
-
-  // Device Peer Sync State (1-click QR / Link transfer between phone and PC)
-  const [showDeviceSyncModal, setShowDeviceSyncModal] = useState(false);
-  const [deviceSyncQrUrl, setDeviceSyncQrUrl] = useState("");
-  const [deviceSyncShareUrl, setDeviceSyncShareUrl] = useState("");
-  const [isCopiedSyncLink, setIsCopiedSyncLink] = useState(false);
 
   // Auto-detect & import sync payload from URL parameters (e.g., when scanned with phone)
   useEffect(() => {
@@ -215,10 +219,6 @@ export default function AdminPortal() {
       }
     }
   }, [showDeviceSyncModal, registryVersion]);
-
-  // Cloud Registry Synchronization State
-  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
-  const [cloudSyncMessage, setCloudSyncMessage] = useState("");
 
   const autoUpgradeLocalImages = async () => {
     const custom = getCustomMembers();
