@@ -170,7 +170,7 @@ export default function InteractiveCyberGrid() {
           transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           className="absolute bottom-16 sm:bottom-24 left-4 sm:left-1/4 text-[8px] sm:text-[9px] font-mono text-accent tracking-wider block"
         >
-          {"[CREATED::ANKIT::2026 ]"}
+          {"[CREATED::ANKIT::327 ]"}
         </motion.div>
       </div>
     </div>
