@@ -67,7 +67,7 @@ export const executiveTeam = [
     tier: "Executive Leadership Team",
     category: "Executive Team",
     isExecutive: true,
-    department: "Dept. of ECE",
+    department: "Dept. of EEE",
     idCard: "/assets/id-cards/TX2-EX-7264.jpg",
     idCardHd: "/assets/id-cards/TX2-EX-7264-hd.jpg",
     qrCode: "/assets/id-cards/TX2-EX-7264_qr.png",

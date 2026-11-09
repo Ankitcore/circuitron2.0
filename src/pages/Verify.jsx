@@ -23,13 +23,14 @@ import {
 } from "lucide-react";
 import { getMemberById } from "../data/team";
 import { generateMemberIdCard, downloadDataUrl } from "../utils/idCardGenerator";
+import {
+  verifyAdminPasskey,
+  isAdminAuthenticated,
+  setAdminSession,
+  clearAdminSession,
+} from "../utils/adminAuth";
 import QrScannerModal from "../components/QrScannerModal";
 import EmbeddedQrScanner from "../components/EmbeddedQrScanner";
-
-const ADMIN_PASSCODES = [
-  "2026techxpo@admin",
-  "ankit327",
-];
 
 export default function Verify() {
   const { id: paramId } = useParams();
@@ -52,11 +53,11 @@ export default function Verify() {
   const [isAdmin, setIsAdmin] = useState(() => {
     if (typeof window !== "undefined") {
       const urlKey = searchParams.get("admin") || searchParams.get("key") || "";
-      if (urlKey && ADMIN_PASSCODES.includes(urlKey.toLowerCase().trim())) {
-        localStorage.setItem("tx2_admin_authenticated", "true");
+      if (urlKey && verifyAdminPasskey(urlKey)) {
+        setAdminSession();
         return true;
       }
-      return localStorage.getItem("tx2_admin_authenticated") === "true";
+      return isAdminAuthenticated();
     }
     return false;
   });
@@ -132,9 +133,8 @@ export default function Verify() {
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
-    const entered = adminPassInput.trim().toLowerCase();
-    if (ADMIN_PASSCODES.includes(entered)) {
-      localStorage.setItem("tx2_admin_authenticated", "true");
+    if (verifyAdminPasskey(adminPassInput)) {
+      setAdminSession();
       setIsAdmin(true);
       setShowAdminLoginModal(false);
       setAdminPassInput("");
@@ -146,7 +146,7 @@ export default function Verify() {
   };
 
   const handleAdminLogout = () => {
-    localStorage.removeItem("tx2_admin_authenticated");
+    clearAdminSession();
     setIsAdmin(false);
     setShowIdCardModal(false);
   };

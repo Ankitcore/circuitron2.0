@@ -136,11 +136,11 @@ export default function HomeContact() {
                 <div>
                   <h4 className="text-white font-bold font-orbitron text-sm">Campus Secretariat Helpline</h4>
                   <div className="flex flex-wrap gap-x-3 gap-y-1 mt-0.5">
-                    <a href="tel:+917979807498" className="text-accent hover:text-white font-mono text-xs font-bold transition-colors">
-                      +91 79798 07498
-                    </a>
                     <a href="tel:+919631535834" className="text-accent hover:text-white font-mono text-xs font-bold transition-colors">
                       +91 96315 35834
+                    </a>
+                    <a href="tel:+918709658260" className="text-accent hover:text-white font-mono text-xs font-bold transition-colors">
+                      +91 87096 58260
                     </a>
                   </div>
                   <p className="text-gray-400 text-xs mt-0.5">Available 09:00 AM &ndash; 07:00 PM</p>
@@ -156,15 +156,26 @@ export default function HomeContact() {
                 </div>
                 <div className="flex-1">
                   <h4 className="text-white font-bold font-orbitron text-sm">Instant WhatsApp Helpline</h4>
-                  <a
-                    href="https://wa.me/917979807498?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-emerald-400 hover:text-emerald-300 font-mono text-xs font-bold transition-colors inline-flex items-center space-x-1 mt-0.5"
-                  >
-                    <span>+91 79798 07498 &bull; Chat with Organizers</span>
-                  </a>
-                  <p className="text-gray-400 text-xs mt-0.5">Quick responses on WhatsApp</p>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
+                    <a
+                      href="https://wa.me/919631535834?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:text-emerald-300 font-mono text-xs font-bold transition-colors inline-flex items-center space-x-1"
+                    >
+                      <span>+91 96315 35834</span>
+                    </a>
+                    <span className="text-emerald-500/50">&bull;</span>
+                    <a
+                      href="https://wa.me/918709658260?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:text-emerald-300 font-mono text-xs font-bold transition-colors inline-flex items-center space-x-1"
+                    >
+                      <span>+91 87096 58260</span>
+                    </a>
+                  </div>
+                  <p className="text-gray-400 text-xs mt-0.5">Quick responses on WhatsApp &bull; Chat with Organizers</p>
                 </div>
               </div>
 

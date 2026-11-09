@@ -137,11 +137,10 @@ export default function Contact() {
       icon: <Phone className="w-6 h-6 text-accent" />,
       title: "Campus Secretariat",
       details: [
-        "+91 79798 07498",
         "+91 96315 35834",
         "+91 87096 58260",
       ],
-      action: "tel:+917979807498",
+      action: "tel:+919631535834",
       actionText: "Call Primary Desk",
     },
     {
@@ -152,10 +151,11 @@ export default function Contact() {
       ),
       title: "WhatsApp Helpline",
       details: [
-        "+91 79798 07498",
+        "+91 96315 35834",
+        "+91 87096 58260",
         "Instant support for registration & rules",
       ],
-      action: "https://wa.me/917979807498?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O",
+      action: "https://wa.me/919631535834?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O",
       actionText: "Chat on WhatsApp",
     },
     {
@@ -266,11 +266,22 @@ export default function Contact() {
                             }
                             if (isPhone) {
                               const cleanPhone = d.replace(/\s+/g, "");
+                              const isWhatsApp = card.title.toLowerCase().includes("whatsapp");
                               return (
                                 <a
                                   key={i}
-                                  href={`tel:${cleanPhone}`}
-                                  className="block text-accent hover:text-white hover:underline text-xs font-mono font-bold transition-colors"
+                                  href={
+                                    isWhatsApp
+                                      ? `https://wa.me/${cleanPhone.replace("+", "")}?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O`
+                                      : `tel:${cleanPhone}`
+                                  }
+                                  target={isWhatsApp ? "_blank" : undefined}
+                                  rel={isWhatsApp ? "noopener noreferrer" : undefined}
+                                  className={`block ${
+                                    isWhatsApp
+                                      ? "text-emerald-400 hover:text-emerald-300"
+                                      : "text-accent hover:text-white"
+                                  } hover:underline text-xs font-mono font-bold transition-colors`}
                                 >
                                   {d}
                                 </a>

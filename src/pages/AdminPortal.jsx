@@ -54,19 +54,18 @@ import {
   setTeamWebsiteVisibility,
 } from "../data/team";
 import { generateMemberIdCard, generateQrCodeDataUrl, downloadDataUrl } from "../utils/idCardGenerator";
-
-const ADMIN_PASSCODES = ["2026techxpo@admin", "ankit327"];
+import {
+  verifyAdminPasskey,
+  isAdminAuthenticated,
+  setAdminSession,
+  clearAdminSession,
+} from "../utils/adminAuth";
 
 export default function AdminPortal() {
   const navigate = useNavigate();
 
   // Authentication State
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("tx2_admin_authenticated") === "true";
-    }
-    return false;
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(() => isAdminAuthenticated());
   const [passcodeInput, setPasscodeInput] = useState("");
   const [authError, setAuthError] = useState("");
 
@@ -183,9 +182,8 @@ export default function AdminPortal() {
   // Handle Admin Login
   const handleLogin = (e) => {
     e.preventDefault();
-    const entered = passcodeInput.trim().toLowerCase();
-    if (ADMIN_PASSCODES.includes(entered)) {
-      localStorage.setItem("tx2_admin_authenticated", "true");
+    if (verifyAdminPasskey(passcodeInput)) {
+      setAdminSession();
       setIsAuthenticated(true);
       setAuthError("");
     } else {
@@ -195,7 +193,7 @@ export default function AdminPortal() {
 
   // Handle Admin Logout
   const handleLogout = () => {
-    localStorage.removeItem("tx2_admin_authenticated");
+    clearAdminSession();
     setIsAuthenticated(false);
     setPasscodeInput("");
   };
