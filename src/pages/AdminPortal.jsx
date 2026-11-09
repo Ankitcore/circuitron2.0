@@ -2118,22 +2118,6 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                         <span>QR Only</span>
                       </button>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const url = getMemberVerificationUrl(selectedMemberForCard);
-                          if (navigator.clipboard) {
-                            navigator.clipboard.writeText(url);
-                            alert("Cross-device verification link copied to clipboard!");
-                          }
-                        }}
-                        className="btn-secondary py-3 px-3.5 text-xs font-bold flex items-center space-x-1.5 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/10"
-                        title="Copy cross-device verification link"
-                      >
-                        <Copy className="w-4 h-4" />
-                        <span>Copy Link</span>
-                      </button>
-
                       <Link
                         to={`/verify/${selectedMemberForCard.id}`}
                         target="_blank"
