@@ -109,7 +109,7 @@ export default function App() {
         style={{ zIndex: 0 }}
       />
       <Navbar />
-      <main className="relative">
+      <main className="relative z-10">
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
