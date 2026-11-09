@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 import { TIER_CONFIG, normalizeTierKey, getMemberById } from "../data/team";
+import { TECHXPO_QR_LOGO_SRC } from "./techxpoLogoBase64";
 
 /**
  * Build the canonical official verification URL.
@@ -61,45 +62,65 @@ export function getSelfContainedVerificationUrl(memberOrId) {
   return qs ? `${baseUrl}?${qs}` : baseUrl;
 }
 
-/**
- * Draw the stylized TechXpo "X" logo mark in the center of a QR code canvas
- */
-function drawTechXpoMark(ctx, size) {
-  const center = size / 2;
-  const boxW = size * 0.26;
-  const boxH = size * 0.26;
-  const x = center - boxW / 2;
-  const y = center - boxH / 2;
+let cachedLogoImg = null;
 
-  // White pill container behind logo
+async function getTechXpoLogoImage() {
+  if (cachedLogoImg) return cachedLogoImg;
+  cachedLogoImg = await loadImage(TECHXPO_QR_LOGO_SRC);
+  if (!cachedLogoImg) {
+    cachedLogoImg = await loadImage("/assets/id-cards/techxpo-x-logo.png");
+  }
+  return cachedLogoImg;
+}
+
+/**
+ * Draw the official stylized TechXpo "X" logo mark in the center of a QR code canvas
+ */
+async function drawTechXpoMark(ctx, size) {
+  const center = size / 2;
+  const logoW = Math.round(size * 0.247);
+  const logoH = Math.round(logoW * (386 / 500));
+  const logoX = Math.round(center - logoW / 2);
+  const logoY = Math.round(center - logoH / 2);
+
+  const padX = Math.round(logoW * 0.054);
+  const padY = Math.round(logoH * 0.067);
+  const boxX = logoX - padX;
+  const boxY = logoY - padY;
+  const boxW = logoW + padX * 2;
+  const boxH = logoH + padY * 2;
+  const radius = Math.round(boxW * 0.06);
+
+  // White protective container behind logo
   ctx.save();
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#FFFFFF";
   ctx.beginPath();
   if (ctx.roundRect) {
-    ctx.roundRect(x - 4, y - 4, boxW + 8, boxH + 8, 8);
+    ctx.roundRect(boxX, boxY, boxW, boxH, radius);
   } else {
-    ctx.rect(x - 4, y - 4, boxW + 8, boxH + 8);
+    ctx.rect(boxX, boxY, boxW, boxH);
   }
   ctx.fill();
 
-  // Draw cyber X emblem
-  ctx.lineCap = "round";
-  ctx.lineWidth = boxW * 0.22;
+  const logoImg = await getTechXpoLogoImage();
+  if (logoImg) {
+    ctx.drawImage(logoImg, logoX, logoY, logoW, logoH);
+  } else {
+    // Fallback cyber X emblem if image cannot be loaded
+    ctx.lineCap = "round";
+    ctx.lineWidth = boxW * 0.22;
+    ctx.strokeStyle = "#123597";
+    ctx.beginPath();
+    ctx.moveTo(boxX + 6, boxY + 6);
+    ctx.lineTo(boxX + boxW - 6, boxY + boxH - 6);
+    ctx.stroke();
 
-  // First diagonal (Navy Blue #1e3a8a)
-  ctx.strokeStyle = "#123597";
-  ctx.beginPath();
-  ctx.moveTo(x + 4, y + 4);
-  ctx.lineTo(x + boxW - 4, y + boxH - 4);
-  ctx.stroke();
-
-  // Second diagonal (Cyan #00bfff)
-  ctx.strokeStyle = "#00bfff";
-  ctx.beginPath();
-  ctx.moveTo(x + boxW - 4, y + 4);
-  ctx.lineTo(x + 4, y + boxH - 4);
-  ctx.stroke();
-
+    ctx.strokeStyle = "#00bfff";
+    ctx.beginPath();
+    ctx.moveTo(boxX + boxW - 6, boxY + 6);
+    ctx.lineTo(boxX + 6, boxY + boxH - 6);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
@@ -133,7 +154,7 @@ export async function generateQrCodeDataUrl(memberOrId, size = 600) {
   });
 
   const ctx = canvas.getContext("2d");
-  drawTechXpoMark(ctx, size);
+  await drawTechXpoMark(ctx, size);
 
   return canvas.toDataURL("image/png");
 }
