@@ -79,8 +79,8 @@ export default function RobotMascotBackground() {
         }}
         className="absolute bottom-4 sm:bottom-8 -left-3 sm:left-4 md:left-8 lg:left-12 w-24 xs:w-32 sm:w-44 md:w-52 lg:w-60 max-w-[28vw] pointer-events-none"
       >
-        {/* Ambient Hologram Pedestal Glow beneath standing bot */}
-        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-28 sm:w-44 h-8 bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent rounded-full blur-md animate-pulse pointer-events-none" />
+        {/* Ambient Aura beneath standing bot */}
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-32 sm:w-48 h-12 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none opacity-30" />
         <div className="absolute bottom-1/4 left-1/4 w-28 h-28 sm:w-44 sm:h-44 bg-cyberPurple/25 rounded-full blur-3xl pointer-events-none opacity-40" />
 
         {/* Floating Idle Levitation Motion */}
@@ -102,9 +102,6 @@ export default function RobotMascotBackground() {
               decoding="async"
             />
           </picture>
-
-          {/* Hologram Floating Platform Ring */}
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20 sm:w-32 h-3 rounded-full border border-primary/40 border-dashed animate-spin-slow opacity-50 shadow-[0_0_8px_#00bfff] pointer-events-none" />
         </motion.div>
       </motion.div>
     </div>
