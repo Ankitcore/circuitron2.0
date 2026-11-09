@@ -2,11 +2,28 @@ import QRCode from "qrcode";
 import { TIER_CONFIG, normalizeTierKey, getMemberById } from "../data/team";
 
 /**
- * Build a self-contained verification URL carrying member credentials.
- * This guarantees any device/phone camera scanning the QR code can instantly verify
- * the delegate even if the device has never visited the admin portal.
+ * Build the canonical official verification URL.
+ * Guarantees standard clean URL matching official TechXpo badges (Version 6 QR matrix).
  */
 export function getMemberVerificationUrl(memberOrId) {
+  if (!memberOrId) return "https://circuitron2-0.vercel.app/verify";
+
+  let cleanId = "";
+  if (typeof memberOrId === "object") {
+    cleanId = (memberOrId.id || "").trim().toUpperCase();
+  } else {
+    cleanId = String(memberOrId).trim().toUpperCase();
+  }
+
+  return cleanId
+    ? `https://circuitron2-0.vercel.app/verify/${cleanId}`
+    : "https://circuitron2-0.vercel.app/verify";
+}
+
+/**
+ * Optional self-contained verification URL carrying member credentials for manual link sharing.
+ */
+export function getSelfContainedVerificationUrl(memberOrId) {
   if (!memberOrId) return "https://circuitron2-0.vercel.app/verify";
 
   let member = memberOrId;

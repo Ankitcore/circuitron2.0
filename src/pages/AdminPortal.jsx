@@ -55,7 +55,10 @@ import {
   setTeamWebsiteVisibility,
   fetchMembersFromCloud,
   syncAllMembersToCloud,
+  encodeMembersForSync,
+  decodeMembersFromSync,
 } from "../data/team";
+import QRCode from "qrcode";
 import { generateMemberIdCard, generateQrCodeDataUrl, downloadDataUrl, getMemberVerificationUrl } from "../utils/idCardGenerator";
 import { compressAvatarImage, uploadAvatarToCloud } from "../utils/imageCompressor";
 import {
@@ -131,17 +134,87 @@ export default function AdminPortal() {
     return () => window.removeEventListener("tx2_members_updated", handleUpdate);
   }, []);
 
-  // Escape key closes ID badge modal
+  // Escape key closes modals
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === "Escape" && selectedMemberForCard) {
-        setSelectedMemberForCard(null);
-        setGeneratedCardData(null);
+      if (e.key === "Escape") {
+        if (selectedMemberForCard) {
+          setSelectedMemberForCard(null);
+          setGeneratedCardData(null);
+        }
+        if (showDeviceSyncModal) {
+          setShowDeviceSyncModal(false);
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedMemberForCard]);
+  }, [selectedMemberForCard, showDeviceSyncModal]);
+
+  // Device Peer Sync State (1-click QR / Link transfer between phone and PC)
+  const [showDeviceSyncModal, setShowDeviceSyncModal] = useState(false);
+  const [deviceSyncQrUrl, setDeviceSyncQrUrl] = useState("");
+  const [deviceSyncShareUrl, setDeviceSyncShareUrl] = useState("");
+  const [isCopiedSyncLink, setIsCopiedSyncLink] = useState(false);
+
+  // Auto-detect & import sync payload from URL parameters (e.g., when scanned with phone)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const syncToken = params.get("sync") || params.get("import");
+    if (syncToken) {
+      try {
+        const imported = decodeMembersFromSync(decodeURIComponent(syncToken));
+        if (Array.isArray(imported) && imported.length > 0) {
+          const current = getCustomMembers();
+          const map = new Map(current.map((m) => [m.id?.toUpperCase(), m]));
+          imported.forEach((m) => {
+            if (m && m.id) map.set(m.id.toUpperCase(), m);
+          });
+          const merged = Array.from(map.values());
+          saveCustomMembers(merged);
+          setRegistryVersion((v) => v + 1);
+          setCloudSyncMessage(`Successfully synced ${imported.length} member(s) from peer device!`);
+          setTimeout(() => setCloudSyncMessage(""), 5000);
+          // Clean search params from URL without reloading
+          const url = new URL(window.location.href);
+          url.searchParams.delete("sync");
+          url.searchParams.delete("import");
+          window.history.replaceState({}, document.title, url.pathname + (url.search ? url.search : ""));
+        }
+      } catch (err) {
+        console.warn("Failed parsing sync URL token:", err);
+      }
+    }
+  }, []);
+
+  // Generate Sync QR code whenever modal opens
+  useEffect(() => {
+    if (showDeviceSyncModal) {
+      try {
+        const custom = getCustomMembers();
+        const token = encodeMembersForSync(custom);
+        const origin = typeof window !== "undefined" ? window.location.origin : "https://circuitron2-0.vercel.app";
+        const shareUrl = `${origin}/admin?sync=${encodeURIComponent(token)}`;
+        setDeviceSyncShareUrl(shareUrl);
+
+        QRCode.toDataURL(shareUrl, {
+          width: 500,
+          margin: 2,
+          color: { dark: "#0A1A36", light: "#FFFFFF" },
+          errorCorrectionLevel: "M",
+        })
+          .then((dataUrl) => {
+            setDeviceSyncQrUrl(dataUrl);
+          })
+          .catch((err) => {
+            console.warn("Failed generating sync QR:", err);
+          });
+      } catch (err) {
+        console.warn("Error preparing sync URL:", err);
+      }
+    }
+  }, [showDeviceSyncModal, registryVersion]);
 
   // Cloud Registry Synchronization State
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
@@ -178,11 +251,12 @@ export default function AdminPortal() {
     setIsCloudSyncing(true);
     setCloudSyncMessage("");
     try {
-      const count = await fetchMembersFromCloud();
+      const fetched = await fetchMembersFromCloud();
       await autoUpgradeLocalImages();
       await syncAllMembersToCloud();
+      const count = Array.isArray(fetched) ? fetched.length : getCustomMembers().length;
       setRegistryVersion((v) => v + 1);
-      setCloudSyncMessage(`Cloud Registry Synced (${count} records)`);
+      setCloudSyncMessage(`Cloud Registry Synced (${count} custom delegates active)`);
       setTimeout(() => setCloudSyncMessage(""), 4000);
     } catch (e) {
       console.warn("Cloud sync error:", e);
@@ -699,6 +773,16 @@ export default function AdminPortal() {
               <ExternalLink className="w-3.5 h-3.5" />
               <span>Public Verify Page</span>
             </Link>
+
+            <button
+              type="button"
+              onClick={() => setShowDeviceSyncModal(true)}
+              className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5 text-purple-300 border-purple-500/40 hover:bg-purple-500/10 transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]"
+              title="Sync custom delegates to phone, tablet or other browser via QR code or 1-click link"
+            >
+              <QrCode className="w-3.5 h-3.5 text-purple-400" />
+              <span>Sync Devices</span>
+            </button>
 
             <button
               type="button"
@@ -1636,7 +1720,33 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
         {/* TAB 4: BACKUP, RESTORE & EXPORT                                    */}
         {/* ================================================================== */}
         {activeTab === "backup" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Multi-Device Peer Sync */}
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-purple-500/40 space-y-5 bg-purple-500/[0.03]">
+              <div className="space-y-1">
+                <span className="text-xs font-mono uppercase tracking-widest text-purple-400 font-bold">
+                  MULTI-DEVICE SYNC
+                </span>
+                <h3 className="text-xl font-bold font-orbitron text-white">
+                  Sync with Phone / Tablet
+                </h3>
+                <p className="text-gray-300 text-xs">
+                  Generate a quick sync QR code or 1-click URL to instantly clone all custom delegates onto another browser or mobile device.
+                </p>
+              </div>
+
+              <div className="space-y-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDeviceSyncModal(true)}
+                  className="w-full btn-primary py-3 px-4 text-xs font-bold flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 border border-purple-400/40 shadow-neon"
+                >
+                  <QrCode className="w-4 h-4" />
+                  <span>Open Multi-Device Sync QR</span>
+                </button>
+              </div>
+            </div>
+
             {/* Export Options */}
             <div className="glass-card p-6 sm:p-8 rounded-3xl border border-primary/30 space-y-5">
               <div className="space-y-1">
@@ -1713,6 +1823,149 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
             </div>
           </div>
         )}
+
+        {/* ================================================================== */}
+        {/* MODAL: MULTI-DEVICE SECRETARIAT ROSTER SYNC (PORTAL IN BODY)       */}
+        {/* ================================================================== */}
+        {typeof document !== "undefined" &&
+          createPortal(
+            <AnimatePresence>
+              {showDeviceSyncModal && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                      setShowDeviceSyncModal(false);
+                    }
+                  }}
+                  className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+                >
+                  {/* Floating Close Button */}
+                  <button
+                    type="button"
+                    onClick={() => setShowDeviceSyncModal(false)}
+                    className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[100000] p-2.5 sm:p-3 rounded-2xl bg-darkNavy/95 hover:bg-rose-500 border border-purple-500/40 hover:border-rose-400 text-white shadow-2xl transition-all duration-200 flex items-center space-x-2 group cursor-pointer"
+                    title="Close Sync Modal (Esc)"
+                    aria-label="Close Sync Modal"
+                  >
+                    <X className="w-5 h-5 text-purple-400 group-hover:text-white transition-colors" />
+                    <span className="text-xs font-mono font-bold hidden sm:inline text-gray-200 group-hover:text-white">
+                      Close (Esc)
+                    </span>
+                  </button>
+
+                  <motion.div
+                    initial={{ scale: 0.92, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.92, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="glass-card max-w-lg w-full p-6 sm:p-8 rounded-3xl border border-purple-500/40 space-y-6 shadow-[0_0_50px_rgba(168,85,247,0.2)] relative my-auto max-h-[92vh] overflow-y-auto"
+                  >
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3 border-b border-purple-500/20 pb-4">
+                      <div className="space-y-1">
+                        <span className="text-xs font-mono uppercase tracking-widest text-purple-400 font-bold block">
+                          MULTI-DEVICE ROSTER SYNC
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-black font-orbitron text-white">
+                          Sync with Mobile / Scanner
+                        </h3>
+                        <p className="text-xs text-gray-300">
+                          Instantly transfer all enrolled custom members across devices with zero setup.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setShowDeviceSyncModal(false)}
+                        className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-white/10 hover:border-rose-500/40 text-gray-400 hover:text-white transition-all"
+                      >
+                        <X className="w-5 h-5 text-gray-300 hover:text-rose-400" />
+                      </button>
+                    </div>
+
+                    {/* QR Code Container */}
+                    <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-darkNavy/90 border border-purple-500/30 space-y-3">
+                      {deviceSyncQrUrl ? (
+                        <div className="p-3 bg-white rounded-2xl shadow-2xl">
+                          <img
+                            src={deviceSyncQrUrl}
+                            alt="Sync QR Code"
+                            className="w-56 h-56 object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-56 h-56 flex items-center justify-center text-xs font-mono text-purple-300">
+                          <RefreshCw className="w-6 h-6 animate-spin" />
+                        </div>
+                      )}
+                      <p className="text-xs text-center font-mono text-gray-300 max-w-xs">
+                        Scan this QR code using your phone or tablet camera to open the admin portal and instantly load the entire roster!
+                      </p>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="space-y-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (deviceSyncShareUrl && navigator.clipboard) {
+                            navigator.clipboard.writeText(deviceSyncShareUrl);
+                            setIsCopiedSyncLink(true);
+                            setTimeout(() => setIsCopiedSyncLink(false), 3000);
+                          }
+                        }}
+                        className="w-full btn-primary py-3 px-4 text-xs font-bold flex items-center justify-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 border border-purple-400/40 shadow-neon"
+                      >
+                        {isCopiedSyncLink ? (
+                          <>
+                            <Check className="w-4 h-4 text-emerald-300" />
+                            <span>1-Click Sync Link Copied to Clipboard!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copy 1-Click Sync Link (Share via WhatsApp)</span>
+                          </>
+                        )}
+                      </button>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleExportJSON}
+                          className="flex-1 btn-secondary py-2.5 px-3 text-xs font-bold flex items-center justify-center space-x-1.5"
+                        >
+                          <Download className="w-3.5 h-3.5 text-accent" />
+                          <span>Download Backup</span>
+                        </button>
+
+                        <label className="flex-1 btn-secondary py-2.5 px-3 text-xs font-bold flex items-center justify-center space-x-1.5 cursor-pointer">
+                          <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Import Backup</span>
+                          <input type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Cloud Sync Permanent Setup Tip */}
+                    <div className="p-3.5 rounded-2xl bg-primary/10 border border-primary/20 text-[11px] text-gray-300 space-y-1.5">
+                      <div className="flex items-center space-x-1.5 text-accent font-bold">
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Optional: 100% Automated Background Cloud Sync</span>
+                      </div>
+                      <p className="leading-relaxed">
+                        To enable hands-free automatic cloud synchronization across all devices without needing to scan QR codes, add <code className="text-cyan-300 bg-white/5 px-1 py-0.5 rounded">UPSTASH_REDIS_REST_URL</code> and <code className="text-cyan-300 bg-white/5 px-1 py-0.5 rounded">UPSTASH_REDIS_REST_TOKEN</code> to your Vercel Project Settings &gt; Environment Variables.
+                      </p>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
 
         {/* ================================================================== */}
         {/* MODAL: ID BADGE PREVIEW & DOWNLOAD (RENDERED VIA PORTAL IN BODY)   */}

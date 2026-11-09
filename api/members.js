@@ -14,21 +14,52 @@ const memoryStore = globalThis.__circuitron_members_store;
 
 const TMP_FILE = path.join(os.tmpdir(), "circuitron_members.json");
 
+const INITIAL_MEMBERS = [
+  {
+    id: "TX2-PT-9295",
+    name: "Rahul Verma",
+    role: "Competitor",
+    position: "Competitor",
+    category: "Participant",
+    tier: "Registered Participant",
+    tierKey: "participant",
+    department: "RVSCET, JAMSHEDPUR",
+    teamName: "Group Name",
+    img: "",
+    tagline: "Official Symposium Competitor",
+    description: "Verified Participant for TechXpo 2.O",
+    isCustom: true,
+    showOnWebsite: false,
+    createdAt: "2026-11-09T00:00:00.000Z",
+    idCard: "/assets/id-cards/TX2-PT-BLANK.jpg",
+    idCardHd: "/assets/id-cards/TX2-PT-BLANK-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-PT-9295_qr.png",
+  },
+];
+
 // Helper to load file backup if memoryStore is empty
 function loadFromFile() {
-  if (memoryStore.size > 0) return;
-  try {
-    if (fs.existsSync(TMP_FILE)) {
-      const raw = fs.readFileSync(TMP_FILE, "utf8");
-      const list = JSON.parse(raw);
-      if (Array.isArray(list)) {
-        list.forEach((m) => {
-          if (m && m.id) memoryStore.set(m.id.trim().toUpperCase(), m);
-        });
+  if (memoryStore.size === 0) {
+    try {
+      if (fs.existsSync(TMP_FILE)) {
+        const raw = fs.readFileSync(TMP_FILE, "utf8");
+        const list = JSON.parse(raw);
+        if (Array.isArray(list) && list.length > 0) {
+          list.forEach((m) => {
+            if (m && m.id) memoryStore.set(m.id.trim().toUpperCase(), m);
+          });
+        }
       }
+    } catch (e) {
+      // ignore
     }
-  } catch (e) {
-    // ignore
+  }
+
+  // Ensure default initial members exist if store is still empty
+  if (memoryStore.size === 0) {
+    INITIAL_MEMBERS.forEach((m) => {
+      if (m && m.id) memoryStore.set(m.id.trim().toUpperCase(), m);
+    });
   }
 }
 

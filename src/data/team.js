@@ -212,6 +212,29 @@ export const coreTeam = [
 // ============================================================================
 export const CUSTOM_MEMBERS_KEY = "tx2_custom_members";
 
+export const initialCustomMembers = [
+  {
+    id: "TX2-PT-9295",
+    name: "Rahul Verma",
+    role: "Competitor",
+    position: "Competitor",
+    category: "Participant",
+    tier: "Registered Participant",
+    tierKey: "participant",
+    department: "RVSCET, JAMSHEDPUR",
+    teamName: "Group Name",
+    img: "",
+    tagline: "Official Symposium Competitor",
+    description: "Verified Participant for TechXpo 2.O",
+    isCustom: true,
+    showOnWebsite: false,
+    createdAt: "2026-11-09T00:00:00.000Z",
+    idCard: "/assets/id-cards/TX2-PT-BLANK.jpg",
+    idCardHd: "/assets/id-cards/TX2-PT-BLANK-hd.jpg",
+    qrCode: "/assets/id-cards/TX2-PT-9295_qr.png",
+  },
+];
+
 export const TIER_CONFIG = {
   executive: {
     id: "executive",
@@ -258,7 +281,7 @@ export const TIER_CONFIG = {
     label: "Faculty Coordinator",
     badgeLabel: "Faculty Coordinator",
     roleDefault: "Head PI",
-    deptDefault: "Dept. of ECE, RVSCET",
+    deptDefault: "RVSCET, JAMSHEDPUR",
     prefix: "TX2-FC-",
     blankTemplate: "/assets/id-cards/TX2-FC-BLANK-hd.jpg",
     stdTemplate: "/assets/id-cards/TX2-FC-BLANK.jpg",
@@ -271,15 +294,27 @@ export const TIER_CONFIG = {
  * Safely retrieve custom members from browser localStorage
  */
 export function getCustomMembers() {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return initialCustomMembers;
   try {
     const raw = localStorage.getItem(CUSTOM_MEMBERS_KEY);
-    if (!raw) return [];
+    if (!raw) {
+      localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify(initialCustomMembers));
+      return [...initialCustomMembers];
+    }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [...initialCustomMembers];
+
+    // Seed initial custom members if not already deleted
+    const hasInitial = parsed.some((m) => m && m.id === "TX2-PT-9295");
+    if (!hasInitial && !localStorage.getItem("tx2_deleted_TX2-PT-9295")) {
+      const merged = [...initialCustomMembers, ...parsed];
+      localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify(merged));
+      return merged;
+    }
+    return parsed;
   } catch (err) {
     console.error("Failed to parse custom members from localStorage:", err);
-    return [];
+    return [...initialCustomMembers];
   }
 }
 
@@ -293,6 +328,42 @@ export function saveCustomMembers(members) {
     window.dispatchEvent(new CustomEvent("tx2_members_updated", { detail: members }));
   } catch (err) {
     console.error("Failed to save custom members to localStorage:", err);
+  }
+}
+
+/**
+ * Compress custom members into a shareable URL-safe base64 string
+ */
+export function encodeMembersForSync(members) {
+  try {
+    const list = Array.isArray(members) ? members : getCustomMembers();
+    const json = JSON.stringify(list);
+    return btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode("0x" + p1)))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+  } catch (e) {
+    console.error("Failed encoding members for sync:", e);
+    return "";
+  }
+}
+
+/**
+ * Decode a shareable URL-safe string into custom members array
+ */
+export function decodeMembersFromSync(token) {
+  try {
+    if (!token) return [];
+    let str = token.replace(/-/g, "+").replace(/_/g, "/");
+    while (str.length % 4) str += "=";
+    const json = decodeURIComponent(
+      Array.prototype.map.call(atob(str), (c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2)).join("")
+    );
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.error("Failed decoding members from sync token:", e);
+    return [];
   }
 }
 
@@ -537,6 +608,7 @@ export function deleteMember(id) {
   saveCustomMembers(filtered);
   try {
     if (typeof window !== "undefined") {
+      localStorage.setItem(`tx2_deleted_${normId}`, "1");
       fetch(`/api/members?id=${encodeURIComponent(normId)}`, { method: "DELETE" }).catch(() => {});
     }
   } catch (e) {}
