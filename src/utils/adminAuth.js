@@ -120,7 +120,7 @@ export function sha256(str) {
 // Plaintext passkeys are NEVER kept in this file or any bundled build artifact.
 const AUTHORIZED_PASSKEY_HASHES = [
   "b284b7a6daa1835eaedeb129fb9b756a9b22db51cba64f70aebe58b5ec4de5f5", // primary admin passkey hash
-  "47cf068a4e03e066ee6cfcc19fdee108f9b140e05752063c233d9bc5f5cd5278", // secretariat admin passkey hash
+  "47cf068a4e03e066ee6cfcc19fdee108f9b140e05752063c233d9bc5f5cd5278", // admin passkey hash
 ];
 
 // Optional environment variable configuration (e.g. from Vercel / .env)

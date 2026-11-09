@@ -2666,7 +2666,7 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
                               tKey === "faculty" || tKey === "executive" || tKey === "core";
                             return isFull ? (
                               <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/40">
-                                ALL ARENAS &amp; SECRETARIAT
+                                ALL ARENAS &amp; ADMIN CONTROL
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/40">

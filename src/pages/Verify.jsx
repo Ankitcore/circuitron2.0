@@ -27,7 +27,7 @@ import QrScannerModal from "../components/QrScannerModal";
 
 /**
  * Determine official security access clearance level based on member tier:
- * - Faculty Coordinators, Executive Team, and Core Team: "All Arenas & Secretariat" (Full Access)
+ * - Faculty Coordinators, Executive Team, and Core Team: "All Arenas & Admin Control" (Full Access)
  * - Volunteers: "Limited Access • Assigned Event Arenas"
  * - Participants: "Limited Access • Registered Event Arenas Only"
  */
@@ -53,8 +53,8 @@ function getAccessClearance(member) {
     return {
       tierKey,
       isFullAccess: true,
-      title: "All Arenas & Secretariat",
-      detail: "Unrestricted Clearance • All Competition Arenas & Secretariat Control Room",
+      title: "All Arenas & Admin Control",
+      detail: "Unrestricted Clearance • All Competition Arenas & Admin Control Room",
       badge: "FULL ACCESS",
       theme: {
         container: "bg-emerald-500/10 border-emerald-500/30",
@@ -69,7 +69,7 @@ function getAccessClearance(member) {
       tierKey: "volunteer",
       isFullAccess: false,
       title: "Limited Access • Assigned Event Arenas",
-      detail: "Operational Zone Clearance • Assigned Event Grounds & Volunteer Lounge (Non-Secretariat)",
+      detail: "Operational Zone Clearance • Assigned Event Grounds & Volunteer Lounge",
       badge: "LIMITED ACCESS",
       theme: {
         container: "bg-sky-500/10 border-sky-500/30",
@@ -84,7 +84,7 @@ function getAccessClearance(member) {
     tierKey: "participant",
     isFullAccess: false,
     title: "Limited Access • Registered Event Arenas Only",
-    detail: "Competitor Clearance • Designated Competition Arenas & General Floor (Non-Secretariat)",
+    detail: "Competitor Clearance • Designated Competition Arenas & General Floor",
     badge: "LIMITED ACCESS",
     theme: {
       container: "bg-amber-500/10 border-amber-500/30",
@@ -251,7 +251,7 @@ export default function Verify() {
       return;
     }
 
-    // 2. Query Central Cloud Secretariat Registry (/api/members)
+    // 2. Query Central Cloud Registry (/api/members)
     let cancelled = false;
     setIsQueryingCloud(true);
 
@@ -461,7 +461,7 @@ export default function Verify() {
                 Verifying Credential ID <span className="text-accent">{targetId}</span>
               </h2>
               <p className="text-gray-300 text-sm max-w-md mx-auto">
-                Syncing with TechXpo 2.O Secretariat Central Registry for cross-device authentication...
+                Syncing with TechXpo 2.O Central Registry for cross-device authentication...
               </p>
             </div>
           </motion.div>
@@ -744,7 +744,7 @@ export default function Verify() {
                 <code className="text-red-400 font-mono font-bold bg-red-500/10 px-2 py-0.5 rounded">
                   {targetId}
                 </code>
-                . Please verify the ID number or contact the event secretariat.
+                . Please verify the ID number or contact the event administration.
               </p>
             </div>
 
