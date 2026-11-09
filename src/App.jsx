@@ -90,7 +90,7 @@ export default function App() {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy">
+    <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy overflow-x-hidden w-full max-w-full">
       <ScrollProgressBar />
       <RouteMetadataUpdater />
       <Suspense fallback={null}>

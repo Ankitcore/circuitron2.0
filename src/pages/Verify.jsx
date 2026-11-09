@@ -338,7 +338,7 @@ export default function Verify() {
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (verifyAdminPasskey(adminPassInput)) {
-      setAdminSession();
+      setAdminSession(adminPassInput);
       setIsAdmin(true);
       setShowAdminLoginModal(false);
       setAdminPassInput("");

@@ -159,6 +159,20 @@ export function verifyAdminPasskey(input) {
 export const ADMIN_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes auto-logout
 export const ADMIN_STORAGE_KEY = "tx2_admin_authenticated";
 export const ADMIN_LAST_ACTIVE_KEY = "tx2_admin_last_active";
+export const ADMIN_TOKEN_KEY = "tx2_admin_token";
+
+/**
+ * Retrieve the current active administrator authorization token (SHA-256 hash).
+ * @returns {string}
+ */
+export function getAdminAuthToken() {
+  if (typeof window === "undefined") return "";
+  try {
+    return localStorage.getItem(ADMIN_TOKEN_KEY) || "";
+  } catch (e) {
+    return "";
+  }
+}
 
 /**
  * Record / refresh administrator activity timestamp.
@@ -231,12 +245,19 @@ export function isAdminAuthenticated() {
 
 /**
  * Persists administrator session in storage and stamps current time.
+ * @param {string} [passkey] - The validated passkey string to derive bearer token from
  */
-export function setAdminSession() {
+export function setAdminSession(passkey = "") {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(ADMIN_STORAGE_KEY, "true");
     localStorage.setItem(ADMIN_LAST_ACTIVE_KEY, Date.now().toString());
+    if (passkey) {
+      localStorage.setItem(ADMIN_TOKEN_KEY, sha256(passkey.trim().toLowerCase()));
+    } else if (!localStorage.getItem(ADMIN_TOKEN_KEY)) {
+      // Default to primary hash if not explicitly provided
+      localStorage.setItem(ADMIN_TOKEN_KEY, AUTHORIZED_PASSKEY_HASHES[0]);
+    }
     window.dispatchEvent(new CustomEvent("tx2_admin_auth_changed", { detail: { authenticated: true } }));
   } catch (e) {
     console.error("Failed to save admin session:", e);
@@ -251,6 +272,7 @@ export function clearAdminSession() {
   try {
     localStorage.removeItem(ADMIN_STORAGE_KEY);
     localStorage.removeItem(ADMIN_LAST_ACTIVE_KEY);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
     window.dispatchEvent(new CustomEvent("tx2_admin_auth_changed", { detail: { authenticated: false } }));
   } catch (e) {
     console.error("Failed to remove admin session:", e);

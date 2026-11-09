@@ -5,6 +5,31 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
+import crypto from "crypto";
+
+// Authorized SHA-256 passkey hashes
+const AUTHORIZED_PASSKEY_HASHES = new Set([
+  "b284b7a6daa1835eaedeb129fb9b756a9b22db51cba64f70aebe58b5ec4de5f5", // primary admin passkey hash
+  "47cf068a4e03e066ee6cfcc19fdee108f9b140e05752063c233d9bc5f5cd5278", // admin passkey hash
+  ...(process.env.ADMIN_PASSKEY_HASHES ? process.env.ADMIN_PASSKEY_HASHES.split(",").map((h) => h.trim().toLowerCase()) : []),
+  ...(process.env.ADMIN_PASSKEY ? [crypto.createHash("sha256").update(process.env.ADMIN_PASSKEY.trim().toLowerCase()).digest("hex")] : []),
+]);
+
+function isAuthorizedAdmin(req) {
+  const authHeader = req.headers.authorization || req.headers["x-admin-auth"] || "";
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim().toLowerCase();
+  if (!token) return false;
+  return AUTHORIZED_PASSKEY_HASHES.has(token);
+}
+
+function sanitizeText(str = "", maxLen = 200) {
+  if (typeof str !== "string") return "";
+  return str
+    .replace(/<[^>]*>?/gm, "")
+    .replace(/javascript:/gi, "")
+    .trim()
+    .slice(0, maxLen);
+}
 
 // In-memory global store to survive warm lambdas and local dev sessions
 if (!globalThis.__circuitron_members_store) {
@@ -181,70 +206,115 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, members: all, count: all.length });
   }
 
-  // 2. POST: Upsert member or batch of members
+  // 2. POST: Upsert member or batch of members (Requires Administrator Authorization)
   if (req.method === "POST") {
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized: Valid administrator authorization required to update member registry.",
+      });
+    }
+
     try {
       const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body || {};
-      const items = Array.isArray(body.members)
+      const rawItems = Array.isArray(body.members)
         ? body.members
         : body.member
         ? [body.member]
         : [];
 
-      if (items.length === 0 && body.id && body.name) {
-        items.push(body);
+      if (rawItems.length === 0 && body.id && body.name) {
+        rawItems.push(body);
       }
 
-      if (items.length === 0) {
+      if (rawItems.length === 0) {
         return res.status(400).json({ success: false, error: "No valid member data provided." });
       }
 
-      items.forEach((m) => {
-        if (m && m.id) {
-          const normId = m.id.trim().toUpperCase();
-          memoryStore.set(normId, { ...m, id: normId, updatedAt: new Date().toISOString() });
-        }
-      });
+      const idRegex = /^[A-Za-z0-9_-]{3,50}$/;
+      const validItems = [];
+
+      for (const m of rawItems) {
+        if (!m || !m.id) continue;
+        const normId = m.id.trim().toUpperCase();
+        if (!idRegex.test(normId)) continue;
+
+        // Server-side field sanitization
+        const sanitizedMember = {
+          ...m,
+          id: normId,
+          name: sanitizeText(m.name, 100),
+          role: sanitizeText(m.role, 80),
+          tier: sanitizeText(m.tier, 60),
+          category: sanitizeText(m.category, 60),
+          tierKey: sanitizeText(m.tierKey, 40),
+          department: sanitizeText(m.department, 120),
+          college: sanitizeText(m.college, 150),
+          teamName: sanitizeText(m.teamName, 100),
+          phone: sanitizeText(m.phone, 30),
+          email: sanitizeText(m.email, 120),
+          updatedAt: new Date().toISOString(),
+        };
+
+        memoryStore.set(normId, sanitizedMember);
+        validItems.push(sanitizedMember);
+      }
 
       saveToFile();
 
       // Persist to KV if configured
-      if (kv) {
-        for (const m of items) {
-          if (m && m.id) {
-            await saveToKv(kv, `member:${m.id.trim().toUpperCase()}`, m);
-          }
+      if (kv && validItems.length > 0) {
+        for (const m of validItems) {
+          await saveToKv(kv, `member:${m.id}`, m);
         }
         await saveToKv(kv, "all_custom_members", Array.from(memoryStore.values()));
       }
 
       return res.status(200).json({
         success: true,
-        message: `Successfully synced ${items.length} member(s) to cloud registry.`,
+        message: `Successfully synced ${validItems.length} member(s) to cloud registry.`,
         totalStored: memoryStore.size,
       });
     } catch (err) {
       console.error("POST /api/members error:", err);
-      return res.status(500).json({ success: false, error: err.message });
+      return res.status(500).json({
+        success: false,
+        error: "An internal server error occurred while syncing member records.",
+      });
     }
   }
 
-  // 3. DELETE: Remove member
+  // 3. DELETE: Remove member (Requires Administrator Authorization)
   if (req.method === "DELETE") {
-    const targetId = (req.query.id || (req.body && req.body.id) || "").trim().toUpperCase();
-    if (!targetId) {
-      return res.status(400).json({ success: false, error: "ID required for deletion." });
+    if (!isAuthorizedAdmin(req)) {
+      return res.status(401).json({
+        success: false,
+        error: "Unauthorized: Valid administrator authorization required to delete member records.",
+      });
     }
 
-    memoryStore.delete(targetId);
-    saveToFile();
+    try {
+      const targetId = (req.query.id || (req.body && req.body.id) || "").trim().toUpperCase();
+      if (!targetId) {
+        return res.status(400).json({ success: false, error: "ID required for deletion." });
+      }
 
-    if (kv) {
-      await saveToKv(kv, `member:${targetId}`, null);
-      await saveToKv(kv, "all_custom_members", Array.from(memoryStore.values()));
+      memoryStore.delete(targetId);
+      saveToFile();
+
+      if (kv) {
+        await saveToKv(kv, `member:${targetId}`, null);
+        await saveToKv(kv, "all_custom_members", Array.from(memoryStore.values()));
+      }
+
+      return res.status(200).json({ success: true, message: `Removed member ${targetId}` });
+    } catch (err) {
+      console.error("DELETE /api/members error:", err);
+      return res.status(500).json({
+        success: false,
+        error: "An internal server error occurred while deleting member record.",
+      });
     }
-
-    return res.status(200).json({ success: true, message: `Removed member ${targetId}` });
   }
 
   return res.status(405).json({ success: false, error: "Method not allowed" });

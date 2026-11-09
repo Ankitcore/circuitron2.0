@@ -409,7 +409,7 @@ export default function AdminPortal() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (verifyAdminPasskey(passcodeInput)) {
-      setAdminSession();
+      setAdminSession(passcodeInput);
       setIsAuthenticated(true);
       setAuthError("");
     } else {

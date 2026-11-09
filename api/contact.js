@@ -101,7 +101,6 @@ export default async function handler(req, res) {
         success: false,
         error:
           "Email service pending configuration. Please add RESEND_API_KEY in your Vercel Project Settings > Environment Variables.",
-        debugInfo: { cleanName, cleanEmail, subject: cleanSubject },
       });
     }
 

@@ -201,7 +201,7 @@ export default function Footer() {
         {/* Bottom Credits */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 space-y-3 sm:space-y-0">
           <p>
-            &copy; 2026 Circuitron &bull; RVS College of Engineering &amp; Technology. All rights reserved.
+            &copy; {new Date().getFullYear()} Circuitron &bull; RVS College of Engineering &amp; Technology. All rights reserved.
           </p>
           <div className="flex items-center space-x-1 text-gray-400">
             <span>Engineered with passion by</span>

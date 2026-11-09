@@ -4,6 +4,8 @@
 // Registered Participants, and Event Volunteers with Dynamic Admin Storage.
 // ============================================================================
 
+import { getAdminAuthToken } from "../utils/adminAuth";
+
 export const facultyCoordinators = [
   {
     id: "TX2-FC-8492",
@@ -354,9 +356,13 @@ export function decodeMembersFromSync(token) {
 export async function syncMemberToCloud(member) {
   if (!member || typeof window === "undefined") return;
   try {
+    const token = getAdminAuthToken();
     await fetch("/api/members", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify({ member }),
       keepalive: true,
     });
@@ -373,9 +379,13 @@ export async function syncAllMembersToCloud() {
   try {
     const custom = getCustomMembers();
     if (custom.length === 0) return;
+    const token = getAdminAuthToken();
     await fetch("/api/members", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify({ members: custom }),
       keepalive: true,
     });
@@ -634,7 +644,13 @@ export function deleteMember(id) {
   try {
     if (typeof window !== "undefined") {
       localStorage.setItem(`tx2_deleted_${normId}`, "1");
-      fetch(`/api/members?id=${encodeURIComponent(normId)}`, { method: "DELETE" }).catch(() => {});
+      const token = getAdminAuthToken();
+      fetch(`/api/members?id=${encodeURIComponent(normId)}`, {
+        method: "DELETE",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      }).catch(() => {});
     }
   } catch (e) {}
   return filtered.length !== current.length;
