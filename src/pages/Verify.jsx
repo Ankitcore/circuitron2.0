@@ -292,11 +292,14 @@ export default function Verify() {
     }
   };
 
-  const handleScanSuccess = (scannedId) => {
-    if (scannedId) {
-      const cleanId = scannedId.trim().toUpperCase();
+  const handleScanSuccess = (scanResult) => {
+    if (scanResult) {
+      const cleanId = typeof scanResult === "object" ? scanResult.id : String(scanResult).trim().toUpperCase();
+      const targetPath = typeof scanResult === "object" && scanResult.path ? scanResult.path : `/verify/${cleanId}`;
+
       setInputSearchId(cleanId);
-      navigate(`/verify/${cleanId}`);
+      setShowScannerModal(false);
+      navigate(targetPath);
       setIsValidating(true);
       setTimeout(() => {
         setIsValidating(false);
@@ -435,6 +438,24 @@ export default function Verify() {
                   <span>Verify Credential</span>
                 </button>
               </form>
+
+              {/* Quick Sample IDs */}
+              <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-mono text-gray-400">
+                <span>Quick Test:</span>
+                {["TX2-EX-7264", "TX2-FC-8492", "TX2-CT-5819"].map((sample) => (
+                  <button
+                    key={sample}
+                    type="button"
+                    onClick={() => {
+                      setInputSearchId(sample);
+                      navigate(`/verify/${sample}`);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-cyan-300 border border-primary/20 transition-colors"
+                  >
+                    {sample}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ) : isQueryingCloud ? (

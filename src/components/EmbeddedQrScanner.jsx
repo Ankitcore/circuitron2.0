@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Camera,
   Upload,
@@ -11,11 +11,16 @@ import {
   Play,
   Square,
   SwitchCamera,
-  Lock,
+  Flashlight,
+  Maximize2,
+  ScanLine,
 } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import { parseScannedQrCode } from "./QrScannerModal";
 
+/**
+ * Play futuristic audio confirmation beep upon successful QR decode
+ */
 function playScanBeep() {
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -36,24 +41,28 @@ function playScanBeep() {
     osc.start();
     osc.stop(ctx.currentTime + 0.17);
   } catch (e) {
-    // No-op if audio context is blocked
+    // Silently ignore if audio context is blocked
   }
 }
 
 export default function EmbeddedQrScanner({ onScanSuccess }) {
   const [activeMode, setActiveMode] = useState("camera"); // "camera" | "upload"
   const [cameras, setCameras] = useState([]);
-  const [selectedCameraId, setSelectedCameraId] = useState("");
+  const [selectedCameraIndex, setSelectedCameraIndex] = useState(0);
   const [isScanning, setIsScanning] = useState(false);
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [scannerError, setScannerError] = useState("");
   const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [detectedId, setDetectedId] = useState(null);
   const [hasStartedOnce, setHasStartedOnce] = useState(false);
+  const [torchAvailable, setTorchAvailable] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const html5QrCodeRef = useRef(null);
   const readerElementId = "embedded-techxpo-qr-reader";
   const fileInputRef = useRef(null);
+  const isTransitioningRef = useRef(false);
 
   // Auto-attempt start on mount if permission was already granted previously
   useEffect(() => {
@@ -95,6 +104,8 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
       } finally {
         html5QrCodeRef.current = null;
         setIsScanning(false);
+        setTorchOn(false);
+        setTorchAvailable(false);
       }
     }
   };
@@ -103,13 +114,16 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
    * Main camera activation function
    * Supports mobile rear cameras, desktop/laptop webcams, and specific selected devices.
    */
-  const startCamera = async (cameraIdToUse = "") => {
+  const startCamera = async (deviceOrConstraint = null) => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
     setIsRequestingPermission(true);
     setScannerError("");
 
     const element = document.getElementById(readerElementId);
     if (!element) {
       setIsRequestingPermission(false);
+      isTransitioningRef.current = false;
       return;
     }
 
@@ -123,16 +137,19 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
       html5QrCodeRef.current = qrScanner;
 
       const scanConfig = {
-        fps: 15,
-        qrbox: { width: 240, height: 240 },
+        fps: 20,
+        qrbox: (viewfinderWidth, viewfinderHeight) => {
+          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          const edgeSize = Math.floor(minEdge * 0.76);
+          return { width: edgeSize, height: edgeSize };
+        },
         aspectRatio: 1.0,
       };
 
       // 3. Start scanning with robust multi-stage device resolution
-      if (cameraIdToUse) {
-        // User explicitly chose a camera from dropdown
+      if (deviceOrConstraint) {
         await qrScanner.start(
-          cameraIdToUse,
+          deviceOrConstraint,
           scanConfig,
           (decodedText) => handleDecode(decodedText),
           () => {}
@@ -148,7 +165,6 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
           );
         } catch (envErr) {
           console.warn("Environment camera not available, falling back to user webcam:", envErr);
-          // If on desktop/laptop without environment camera, fallback to user (front webcam)
           await qrScanner.start(
             { facingMode: "user" },
             scanConfig,
@@ -161,20 +177,19 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
       setIsScanning(true);
       setHasStartedOnce(true);
 
-      // 4. Discover cameras in background to populate switcher dropdown without blocking stream
+      // Check torch capability
+      try {
+        const capabilities = qrScanner.getRunningTrackCapabilities();
+        if (capabilities && capabilities.torch) {
+          setTorchAvailable(true);
+        }
+      } catch (e) {}
+
+      // Discover cameras in background to populate switcher
       try {
         const devices = await Html5Qrcode.getCameras();
         if (devices && devices.length > 0) {
           setCameras(devices);
-          if (!cameraIdToUse) {
-            const backCam = devices.find(
-              (c) =>
-                c.label.toLowerCase().includes("back") ||
-                c.label.toLowerCase().includes("rear") ||
-                c.label.toLowerCase().includes("environment")
-            );
-            setSelectedCameraId(backCam ? backCam.id : devices[0].id);
-          }
         }
       } catch (enumErr) {
         console.warn("Could not list video devices:", enumErr);
@@ -185,17 +200,18 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
       const str = String(err).toLowerCase();
       if (str.includes("notallowed") || str.includes("permission") || str.includes("denied")) {
         setScannerError(
-          "Camera access was denied. Please click the camera/lock icon in your browser address bar to allow permissions, then click 'Retry Camera'."
+          "Camera permission was blocked. Please tap the lock/camera icon in your browser address bar to allow camera access, then tap 'Retry Camera'."
         );
       } else if (str.includes("notfound") || str.includes("devicesnotfound")) {
-        setScannerError("No camera found on this device. You can upload an image of the QR code instead.");
+        setScannerError("No camera detected on this device. You can upload a photo of the QR badge instead.");
       } else if (str.includes("notreadable") || str.includes("trackstart") || str.includes("busy") || str.includes("source")) {
-        setScannerError("Camera is currently in use by another app or browser tab. Please close other camera apps and click 'Retry Camera'.");
+        setScannerError("Camera is currently occupied by another browser tab or app. Please close other camera apps and tap 'Retry Camera'.");
       } else {
-        setScannerError("Unable to access camera. Please allow camera permissions in your browser or switch to 'Upload QR Image'.");
+        setScannerError("Unable to initialize camera video stream. Please allow camera permissions or upload an image of the QR code.");
       }
     } finally {
       setIsRequestingPermission(false);
+      isTransitioningRef.current = false;
     }
   };
 
@@ -203,35 +219,56 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
    * Main camera activation triggered by user click
    */
   const handleStartCameraClick = () => {
-    startCamera(selectedCameraId);
+    const targetDev = cameras.length > 0 ? cameras[selectedCameraIndex]?.id : null;
+    startCamera(targetDev);
   };
 
   /**
-   * Handle dropdown camera switch
+   * Quick camera flip button (toggles front/back or next camera device)
    */
-  const handleCameraChange = (e) => {
-    const newId = e.target.value;
-    setSelectedCameraId(newId);
-    if (isScanning || hasStartedOnce) {
-      startCamera(newId);
+  const handleFlipCamera = () => {
+    if (cameras.length <= 1) return;
+    const nextIdx = (selectedCameraIndex + 1) % cameras.length;
+    setSelectedCameraIndex(nextIdx);
+    startCamera(cameras[nextIdx].id);
+  };
+
+  /**
+   * Toggle Torch / Flashlight for scanning in dark arenas
+   */
+  const handleToggleTorch = async () => {
+    if (!html5QrCodeRef.current || !torchAvailable) return;
+    try {
+      const next = !torchOn;
+      await html5QrCodeRef.current.applyVideoConstraints({
+        advanced: [{ torch: next }],
+      });
+      setTorchOn(next);
+    } catch (err) {
+      console.warn("Torch toggle error:", err);
     }
   };
 
+  /**
+   * Handle successful QR code decode
+   */
   const handleDecode = (text) => {
-    const id = parseScannedQrCode(text);
-    if (!id) return;
+    const scanResult = parseScannedQrCode(text);
+    if (!scanResult) return;
 
     playScanBeep();
-    setDetectedId(id);
+    setDetectedId(scanResult.id);
     stopCamera();
 
     setTimeout(() => {
-      onScanSuccess(id);
+      onScanSuccess(scanResult);
     }, 600);
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
+  /**
+   * Handle QR image upload file
+   */
+  const handleFileUpload = async (file) => {
     if (!file) return;
 
     setScannerError("");
@@ -246,11 +283,11 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
       if (decodedText) {
         handleDecode(decodedText);
       } else {
-        setScannerError("No readable QR code found in this image. Please upload a clear photo.");
+        setScannerError("No readable QR code found in this photo. Please upload a clear, well-lit snapshot.");
       }
     } catch (err) {
       setIsProcessingFile(false);
-      setScannerError("Could not detect a valid QR code in this image. Please upload a clearer snapshot.");
+      setScannerError("Could not recognize a valid QR code in this image. Please ensure the QR code is clearly visible.");
     } finally {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -259,41 +296,68 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
   };
 
   return (
-    <div className="glass-card rounded-3xl border-2 border-primary/30 p-6 sm:p-8 space-y-6 relative overflow-hidden bg-darkNavy/90 shadow-[0_0_50px_rgba(0,229,255,0.15)]">
-      {/* Top Banner */}
+    <div className="glass-card rounded-3xl border-2 border-primary/30 p-5 sm:p-8 space-y-6 relative overflow-hidden bg-darkNavy/90 shadow-[0_0_50px_rgba(0,229,255,0.15)]">
+      {/* Scoped CSS to ensure HTML5Qrcode video fills the viewfinder cleanly with zero distortion */}
+      <style>{`
+        #${readerElementId} {
+          width: 100% !important;
+          height: 100% !important;
+          position: relative !important;
+          border: none !important;
+          overflow: hidden !important;
+          border-radius: 1.25rem !important;
+        }
+        #${readerElementId} video {
+          width: 100% !important;
+          height: 100% !important;
+          object-fit: cover !important;
+          border-radius: 1.25rem !important;
+        }
+        #${readerElementId} img {
+          display: none !important;
+        }
+        #${readerElementId}__scan_region {
+          background: transparent !important;
+        }
+        #${readerElementId}__dashboard {
+          display: none !important;
+        }
+      `}</style>
+
+      {/* Header Station Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-primary/20">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-accent p-0.5 shadow-neon flex-shrink-0">
-            <div className="w-full h-full bg-darkNavy rounded-[10px] flex items-center justify-center">
-              <Camera className="w-5 h-5 text-accent animate-pulse" />
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-primary to-accent p-0.5 shadow-neon flex-shrink-0">
+            <div className="w-full h-full bg-darkNavy rounded-[14px] flex items-center justify-center">
+              <ScanLine className={`w-5 h-5 ${isScanning ? "text-cyan-300 animate-pulse" : "text-gray-400"}`} />
             </div>
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-bold">
-                LIVE OPTICAL AUTHENTICATOR
+                SECRETARIAT OPTICAL VERIFIER
               </span>
               <span className={`w-2 h-2 rounded-full ${isScanning ? "bg-emerald-400 animate-ping" : "bg-gray-500"}`} />
             </div>
             <h3 className="text-lg sm:text-xl font-black font-orbitron text-white">
-              Scan ID Card QR Code
+              Instant Badge Scanner
             </h3>
           </div>
         </div>
 
-        {/* Mode Switcher */}
-        <div className="flex bg-darkNavy/90 p-1 rounded-xl border border-primary/20 self-start sm:self-auto">
+        {/* Mode Switcher Tabs */}
+        <div className="flex bg-black/40 p-1 rounded-2xl border border-primary/30 self-start sm:self-auto shadow-inner">
           <button
             type="button"
             onClick={() => setActiveMode("camera")}
-            className={`py-1.5 px-3 rounded-lg text-xs font-orbitron font-bold flex items-center space-x-1.5 transition-all ${
+            className={`py-2 px-4 rounded-xl text-xs font-orbitron font-bold flex items-center space-x-1.5 transition-all ${
               activeMode === "camera"
-                ? "bg-accent text-darkNavy shadow-neon"
+                ? "bg-gradient-to-r from-cyan-500 to-primary text-darkNavy shadow-neon font-black"
                 : "text-gray-400 hover:text-white"
             }`}
           >
             <Camera className="w-3.5 h-3.5" />
-            <span>Camera</span>
+            <span>Live Camera</span>
           </button>
           <button
             type="button"
@@ -301,70 +365,50 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
               setActiveMode("upload");
               stopCamera();
             }}
-            className={`py-1.5 px-3 rounded-lg text-xs font-orbitron font-bold flex items-center space-x-1.5 transition-all ${
+            className={`py-2 px-4 rounded-xl text-xs font-orbitron font-bold flex items-center space-x-1.5 transition-all ${
               activeMode === "upload"
-                ? "bg-accent text-darkNavy shadow-neon"
+                ? "bg-gradient-to-r from-cyan-500 to-primary text-darkNavy shadow-neon font-black"
                 : "text-gray-400 hover:text-white"
             }`}
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>Upload Image</span>
+            <span>Upload Photo</span>
           </button>
         </div>
       </div>
 
-      {/* Camera Dropdown if multiple cameras detected */}
-      {activeMode === "camera" && cameras.length > 1 && isScanning && (
-        <div className="flex items-center justify-between text-xs font-mono text-gray-300">
-          <span className="text-gray-400 flex items-center space-x-1">
-            <SwitchCamera className="w-3.5 h-3.5 text-accent" />
-            <span>Switch Camera:</span>
-          </span>
-          <select
-            value={selectedCameraId}
-            onChange={handleCameraChange}
-            className="bg-darkNavy border border-primary/30 rounded-xl px-3 py-1.5 text-accent text-xs font-mono focus:outline-none focus:border-accent max-w-[240px]"
-          >
-            {cameras.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.label || `Camera ${c.id.slice(0, 8)}`}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      {/* Viewfinder Viewport */}
-      <div className="relative rounded-2xl overflow-hidden bg-black/80 border border-primary/40 aspect-square max-w-[340px] mx-auto flex items-center justify-center shadow-inner">
+      {/* Main Viewport Container */}
+      <div className="relative rounded-3xl overflow-hidden bg-black/85 border-2 border-primary/30 aspect-square max-w-[360px] mx-auto flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.8)]">
         {activeMode === "camera" ? (
           <>
             {/* HTML5 QR Code Mount Node */}
             <div id={readerElementId} className="w-full h-full overflow-hidden" />
 
-            {/* Initial State / Permission Prompt View */}
+            {/* Inactive State / Permission Activation Prompt */}
             {!isScanning && !detectedId && (
-              <div className="absolute inset-0 bg-darkNavy/90 flex flex-col items-center justify-center p-6 text-center space-y-4 z-10">
-                <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/30 flex items-center justify-center text-accent shadow-neon animate-pulse">
-                  <Camera className="w-8 h-8" />
+              <div className="absolute inset-0 bg-darkNavy/95 flex flex-col items-center justify-center p-6 text-center space-y-4 z-10">
+                <div className="relative w-20 h-20 rounded-3xl bg-accent/10 border-2 border-accent/40 flex items-center justify-center text-accent shadow-[0_0_30px_rgba(0,229,255,0.3)]">
+                  <Camera className="w-10 h-10 animate-pulse" />
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-darkNavy animate-ping" />
                 </div>
-                <div>
-                  <h4 className="text-white font-bold font-orbitron text-sm">
-                    Camera Scanner Ready
+                <div className="space-y-1">
+                  <h4 className="text-white font-bold font-orbitron text-base">
+                    Camera Authenticator Ready
                   </h4>
-                  <p className="text-gray-400 text-xs font-mono max-w-[220px] mt-1">
-                    Click below to allow camera access and start scanning ID badges
+                  <p className="text-gray-400 text-xs font-mono max-w-[240px] mx-auto">
+                    Activate camera to scan official TechXpo 2.O delegate badges in real time
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleStartCameraClick}
                   disabled={isRequestingPermission}
-                  className="btn-primary py-3 px-6 text-xs font-orbitron font-bold flex items-center space-x-2 shadow-neon hover:scale-105 transition-all"
+                  className="btn-primary py-3.5 px-7 text-xs font-orbitron font-bold flex items-center space-x-2.5 shadow-neon hover:scale-105 active:scale-95 transition-all"
                 >
                   {isRequestingPermission ? (
                     <>
                       <RefreshCw className="w-4 h-4 animate-spin text-darkNavy" />
-                      <span>Requesting Permission...</span>
+                      <span>Requesting Camera...</span>
                     </>
                   ) : (
                     <>
@@ -376,90 +420,176 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
               </div>
             )}
 
-            {/* Cyber Reticle HUD when scanning */}
+            {/* Active Cyber Reticle HUD */}
             {isScanning && !detectedId && (
-              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-6">
+              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-between p-6 z-10">
+                {/* Top Corner Brackets */}
                 <div className="w-full flex justify-between">
-                  <div className="w-8 h-8 border-t-2 border-l-2 border-accent rounded-tl-lg" />
-                  <div className="w-8 h-8 border-t-2 border-r-2 border-accent rounded-tr-lg" />
+                  <div className="w-8 h-8 border-t-4 border-l-4 border-cyan-400 rounded-tl-xl shadow-[0_0_15px_#00e5ff]" />
+                  <div className="w-8 h-8 border-t-4 border-r-4 border-cyan-400 rounded-tr-xl shadow-[0_0_15px_#00e5ff]" />
                 </div>
 
-                <motion.div
-                  animate={{ y: [-80, 80, -80] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                  className="w-48 h-0.5 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#00e5ff]"
-                />
+                {/* Center Crosshairs & Laser Sweep */}
+                <div className="relative w-48 h-48 flex items-center justify-center">
+                  {/* Outer Targeting Ring */}
+                  <div className="absolute inset-0 border border-cyan-500/30 rounded-2xl animate-pulse" />
+                  {/* Central Reticle */}
+                  <div className="w-4 h-4 border-t-2 border-l-2 border-r-2 border-b-2 border-cyan-400/60 rounded" />
 
+                  {/* Animated Laser Sweep Beam */}
+                  <motion.div
+                    animate={{ y: [-75, 75, -75] }}
+                    transition={{ duration: 2.0, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute w-56 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_20px_#00e5ff]"
+                  />
+                </div>
+
+                {/* Bottom Corner Brackets */}
                 <div className="w-full flex justify-between">
-                  <div className="w-8 h-8 border-b-2 border-l-2 border-accent rounded-bl-lg" />
-                  <div className="w-8 h-8 border-b-2 border-r-2 border-accent rounded-br-lg" />
+                  <div className="w-8 h-8 border-b-4 border-l-4 border-cyan-400 rounded-bl-xl shadow-[0_0_15px_#00e5ff]" />
+                  <div className="w-8 h-8 border-b-4 border-r-4 border-cyan-400 rounded-br-xl shadow-[0_0_15px_#00e5ff]" />
+                </div>
+
+                {/* HUD Live Status Pill */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-darkNavy/90 border border-cyan-500/40 text-[10px] font-mono text-cyan-300 font-bold tracking-widest flex items-center space-x-1.5 shadow-lg">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                  <span>ALIGN QR WITH RETICLE</span>
                 </div>
               </div>
             )}
           </>
         ) : (
-          /* Upload Viewport */
+          /* Upload Viewport with Drag & Drop */
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="w-full h-full p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-white/[0.02] transition-colors border-2 border-dashed border-primary/30 rounded-2xl"
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragOver(true);
+            }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragOver(false);
+              const file = e.dataTransfer.files?.[0];
+              if (file) handleFileUpload(file);
+            }}
+            className={`w-full h-full p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all border-2 border-dashed rounded-3xl ${
+              isDragOver
+                ? "bg-accent/10 border-accent scale-95"
+                : "border-primary/40 hover:bg-white/[0.03] hover:border-accent/60"
+            }`}
           >
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={handleFileUpload}
+              capture="environment"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFileUpload(file);
+              }}
               className="hidden"
             />
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center text-accent mb-4 group-hover:scale-110 transition-transform">
-              <Upload className="w-8 h-8 animate-bounce" />
+            <div className="w-20 h-20 rounded-3xl bg-primary/15 border-2 border-primary/40 flex items-center justify-center text-accent mb-4 shadow-neon group-hover:scale-110 transition-transform">
+              <Upload className="w-9 h-9 animate-bounce text-accent" />
             </div>
-            <h4 className="text-white font-bold font-orbitron text-sm mb-1">
-              Select or Drop QR Code Photo
+            <h4 className="text-white font-bold font-orbitron text-base mb-1">
+              Drop or Select QR Image
             </h4>
-            <p className="text-gray-400 text-xs font-mono max-w-[200px]">
-              Upload a snapshot of a digital or physical TechXpo ID badge
+            <p className="text-gray-400 text-xs font-mono max-w-[220px]">
+              Tap to browse photos or snap an image of the delegate ID card
             </p>
 
             {isProcessingFile && (
-              <div className="mt-4 flex items-center space-x-2 text-accent text-xs font-mono font-bold animate-pulse">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                <span>Decoding QR Code...</span>
+              <div className="mt-4 flex items-center space-x-2 text-accent text-xs font-mono font-bold animate-pulse px-3 py-1.5 rounded-full bg-primary/20 border border-accent/40">
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span>Decoding Cryptographic Signature...</span>
               </div>
             )}
           </div>
         )}
 
-        {/* Scan Success Overlay */}
-        {detectedId && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="absolute inset-0 bg-darkNavy/95 flex flex-col items-center justify-center p-6 text-center space-y-3 z-20"
-          >
-            <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-              <CheckCircle2 className="w-10 h-10 animate-pulse" />
-            </div>
-            <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold block">
-                CREDENTIAL VALIDATED
-              </span>
-              <div className="text-2xl font-black font-orbitron text-white mt-1">
-                {detectedId}
+        {/* Scan Success Confirmation Overlay */}
+        <AnimatePresence>
+          {detectedId && (
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              className="absolute inset-0 bg-darkNavy/95 flex flex-col items-center justify-center p-6 text-center space-y-3.5 z-20"
+            >
+              <div className="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-emerald-400 shadow-[0_0_40px_rgba(16,185,129,0.6)]">
+                <CheckCircle2 className="w-12 h-12 animate-pulse" />
               </div>
-            </div>
-            <p className="text-gray-300 text-xs font-mono">
-              Opening official dossier...
-            </p>
-          </motion.div>
-        )}
+              <div className="space-y-1">
+                <span className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 font-bold block">
+                  QR CODE AUTHENTICATED
+                </span>
+                <div className="text-2xl sm:text-3xl font-black font-orbitron text-white">
+                  {detectedId}
+                </div>
+              </div>
+              <p className="text-gray-300 text-xs font-mono">
+                Loading official dossier...
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
+      {/* Camera Live Controls Toolbar (when scanning is active) */}
+      {activeMode === "camera" && isScanning && (
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+          {cameras.length > 1 && (
+            <button
+              type="button"
+              onClick={handleFlipCamera}
+              className="py-2 px-3.5 rounded-xl bg-darkNavy border border-primary/30 text-gray-300 hover:text-white text-xs font-mono font-bold flex items-center space-x-2 transition-all hover:bg-white/5 active:scale-95"
+              title="Flip to next camera device"
+            >
+              <SwitchCamera className="w-4 h-4 text-accent" />
+              <span>Flip Camera ({selectedCameraIndex + 1}/{cameras.length})</span>
+            </button>
+          )}
+
+          {torchAvailable && (
+            <button
+              type="button"
+              onClick={handleToggleTorch}
+              className={`py-2 px-3.5 rounded-xl border text-xs font-mono font-bold flex items-center space-x-2 transition-all active:scale-95 ${
+                torchOn
+                  ? "bg-amber-500/20 border-amber-500 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+                  : "bg-darkNavy border-primary/30 text-gray-300 hover:text-white"
+              }`}
+              title="Toggle flashlight"
+            >
+              <Flashlight className={`w-4 h-4 ${torchOn ? "text-amber-400" : "text-gray-400"}`} />
+              <span>{torchOn ? "Flashlight On" : "Flashlight Off"}</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={stopCamera}
+            className="py-2 px-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20 text-xs font-mono font-bold flex items-center space-x-2 transition-all active:scale-95"
+            title="Stop live camera scanner"
+          >
+            <Square className="w-3.5 h-3.5" />
+            <span>Stop Camera</span>
+          </button>
+        </div>
+      )}
 
       {/* Hidden dummy node for file scanning */}
       <div id="embedded-file-reader-dummy" className="hidden" />
 
-      {/* Error Notice & Instructions to Unblock */}
+      {/* Error Notice & Instructions */}
       {scannerError && (
-        <div className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs leading-relaxed max-w-md mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs leading-relaxed max-w-lg mx-auto shadow-lg"
+        >
           <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400 mt-0.5" />
           <div className="flex-1 space-y-2">
             <p className="font-semibold text-white">{scannerError}</p>
@@ -467,9 +597,9 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
               <button
                 type="button"
                 onClick={handleStartCameraClick}
-                className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-white font-mono text-[11px] font-bold transition-all flex items-center space-x-1"
+                className="px-3.5 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-white font-mono text-[11px] font-bold transition-all flex items-center space-x-1.5"
               >
-                <RefreshCw className="w-3 h-3" />
+                <RefreshCw className="w-3.5 h-3.5" />
                 <span>Retry Camera Permission</span>
               </button>
               <button
@@ -478,20 +608,20 @@ export default function EmbeddedQrScanner({ onScanSuccess }) {
                   setActiveMode("upload");
                   setScannerError("");
                 }}
-                className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-accent font-mono text-[11px] transition-all"
+                className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-accent font-mono text-[11px] font-bold transition-all"
               >
-                Use Photo Upload Instead &rarr;
+                Upload Photo Instead &rarr;
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* Instructions */}
-      <div className="text-center space-y-1">
+      {/* Footer Instructions */}
+      <div className="text-center pt-1">
         <p className="text-xs text-gray-400 font-mono flex items-center justify-center space-x-1.5">
           <Sparkles className="w-3.5 h-3.5 text-accent" />
-          <span>Point your device camera at the blue QR code stamped on the ID card</span>
+          <span>Point device camera or upload image of the official blue TechXpo QR code</span>
         </p>
       </div>
     </div>

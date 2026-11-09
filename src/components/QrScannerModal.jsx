@@ -18,34 +18,74 @@ import { Html5Qrcode } from "html5-qrcode";
 
 /**
  * Smart parsing of scanned QR code content.
- * Extracts TechXpo member ID whether raw (TX2-XX-XXXX) or inside a URL.
+ * Extracts TechXpo member ID while strictly preserving rich URL query parameters
+ * (name, role, department, photo CDN URL) for instantaneous cross-device authentication.
  */
 export function parseScannedQrCode(decodedText = "") {
   if (!decodedText) return null;
   const text = String(decodedText).trim();
 
-  // 1. Direct TechXpo ID pattern (TX2-FC-8492, TX2-EX-7264, TX2-CT-5819, TX2-PT-1234, TX2-VL-5678)
-  const idMatch = text.match(/TX2-[A-Z]{2}-[0-9A-Z]+/i);
-  if (idMatch) {
-    return idMatch[0].toUpperCase();
-  }
+  let id = "";
+  let search = "";
 
-  // 2. Check URL structure (e.g. https://circuitron2-0.vercel.app/verify/TX2-EX-9531)
+  // 1. Check if it's a URL (e.g. https://circuitron2-0.vercel.app/verify/TX2-EX-7264?n=...&img=...)
   try {
     const url = new URL(text);
     const pathParts = url.pathname.split("/").filter(Boolean);
     const verifyIdx = pathParts.findIndex((p) => p.toLowerCase() === "verify");
+
     if (verifyIdx !== -1 && pathParts[verifyIdx + 1]) {
-      return pathParts[verifyIdx + 1].toUpperCase();
+      id = pathParts[verifyIdx + 1].trim().toUpperCase();
+    } else if (url.searchParams.get("id")) {
+      id = url.searchParams.get("id").trim().toUpperCase();
+    } else {
+      const match = text.match(/TX2-[A-Z]{2}-[0-9A-Z]+/i);
+      if (match) id = match[0].toUpperCase();
     }
-    const queryId = url.searchParams.get("id");
-    if (queryId) return queryId.trim().toUpperCase();
+
+    search = url.search || "";
   } catch (err) {
-    // Not a valid URL, continue
+    // Not a full URL
   }
 
-  // 3. Fallback to clean trimmed uppercase string
-  return text.toUpperCase();
+  // 2. Check for query parameters in non-URL string e.g. "TX2-EX-7264?n=..."
+  if (!id) {
+    const qIdx = text.indexOf("?");
+    if (qIdx !== -1) {
+      const beforeQ = text.slice(0, qIdx);
+      const afterQ = text.slice(qIdx);
+      const match = beforeQ.match(/TX2-[A-Z]{2}-[0-9A-Z]+/i);
+      if (match) {
+        id = match[0].toUpperCase();
+        search = afterQ;
+      }
+    }
+  }
+
+  // 3. Direct TechXpo ID pattern match
+  if (!id) {
+    const idMatch = text.match(/TX2-[A-Z]{2}-[0-9A-Z]+/i);
+    if (idMatch) {
+      id = idMatch[0].toUpperCase();
+    }
+  }
+
+  // 4. Fallback to clean trimmed uppercase alphanumeric string
+  if (!id) {
+    id = text.replace(/[^A-Za-z0-9_-]/g, "").toUpperCase();
+  }
+
+  if (!id) return null;
+
+  return {
+    id,
+    path: `/verify/${id}${search}`,
+    search,
+    fullUrl: text,
+    toString() {
+      return this.id;
+    },
+  };
 }
 
 /**
@@ -272,17 +312,17 @@ export default function QrScannerModal({ isOpen, onClose, onScanSuccess }) {
   };
 
   const handleSuccessfulDecode = (decodedText) => {
-    const parsedId = parseScannedQrCode(decodedText);
-    if (!parsedId) return;
+    const result = parseScannedQrCode(decodedText);
+    if (!result) return;
 
     playScanBeep();
-    setLastScannedResult(parsedId);
+    setLastScannedResult(result.id);
 
     // Stop camera and trigger callback with slight delay for visual feedback
     stopCamera();
 
     setTimeout(() => {
-      onScanSuccess(parsedId);
+      onScanSuccess(result);
       onClose();
     }, 700);
   };
@@ -340,6 +380,31 @@ export default function QrScannerModal({ isOpen, onClose, onScanSuccess }) {
           transition={{ type: "spring", stiffness: 350, damping: 28 }}
           className="relative w-full max-w-lg glass-card rounded-3xl border-2 border-primary/40 p-6 sm:p-8 bg-darkNavy/95 shadow-[0_0_60px_rgba(0,229,255,0.25)] z-10 space-y-6"
         >
+          <style>{`
+            #${readerElementId} {
+              width: 100% !important;
+              height: 100% !important;
+              position: relative !important;
+              border: none !important;
+              overflow: hidden !important;
+              border-radius: 1rem !important;
+            }
+            #${readerElementId} video {
+              width: 100% !important;
+              height: 100% !important;
+              object-fit: cover !important;
+              border-radius: 1rem !important;
+            }
+            #${readerElementId} img {
+              display: none !important;
+            }
+            #${readerElementId}__scan_region {
+              background: transparent !important;
+            }
+            #${readerElementId}__dashboard {
+              display: none !important;
+            }
+          `}</style>
           {/* Header */}
           <div className="flex items-start justify-between pb-4 border-b border-primary/20">
             <div className="flex items-center space-x-3">
