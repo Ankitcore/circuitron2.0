@@ -32,6 +32,9 @@ import {
   Copy,
   X,
   Home,
+  Pencil,
+  UserCog,
+  Edit3,
 } from "lucide-react";
 import {
   getAllMembers,
@@ -42,6 +45,7 @@ import {
   facultyCoordinators,
   addMember,
   addMembersBulk,
+  updateMember,
   deleteMember,
   resetCustomMembers,
   saveCustomMembers,
@@ -123,6 +127,20 @@ export default function AdminPortal() {
   // Cloud Registry Synchronization State
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
   const [cloudSyncMessage, setCloudSyncMessage] = useState("");
+
+  // Edit Custom Member State
+  const [editSelectedId, setEditSelectedId] = useState("");
+  const [editTier, setEditTier] = useState("participant");
+  const [editName, setEditName] = useState("");
+  const [editRole, setEditRole] = useState("");
+  const [editDept, setEditDept] = useState("RVSCET Jamshedpur");
+  const [editTeamName, setEditTeamName] = useState("");
+  const [editImage, setEditImage] = useState("");
+  const [editImagePreview, setEditImagePreview] = useState("");
+  const [isUploadingEditPhoto, setIsUploadingEditPhoto] = useState(false);
+  const [editShowOnWebsite, setEditShowOnWebsite] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [editSuccessMessage, setEditSuccessMessage] = useState("");
 
   // Auto-generate ID & default visibility preview when formTier changes
   useEffect(() => {
@@ -436,6 +454,110 @@ export default function AdminPortal() {
       alert("Failed to enroll member: " + err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  // Start editing a specific custom member
+  const handleStartEditMember = (member) => {
+    if (!member) return;
+    setEditSelectedId(member.id);
+    setEditName(member.name || "");
+    const tKey = normalizeTierKey(member.tierKey || member.tier || member.category, member.id);
+    setEditTier(tKey);
+    setEditRole(member.role || member.position || "");
+    setEditDept(member.department || "RVSCET Jamshedpur");
+    setEditTeamName(member.teamName || "");
+    setEditImage(member.img || "");
+    setEditImagePreview(member.img || "");
+    setEditShowOnWebsite(isMemberVisibleOnWebsite(member));
+    setEditSuccessMessage("");
+    setActiveTab("edit");
+  };
+
+  // Change member to edit via dropdown selector
+  const handleSelectMemberToEdit = (id) => {
+    if (!id) {
+      setEditSelectedId("");
+      return;
+    }
+    const customList = getCustomMembers();
+    const found = customList.find((m) => m.id?.toUpperCase() === id?.toUpperCase());
+    if (found) {
+      handleStartEditMember(found);
+    }
+  };
+
+  // Auto-select first custom member when entering edit tab if none selected
+  useEffect(() => {
+    if (activeTab === "edit" && !editSelectedId) {
+      const custom = getCustomMembers();
+      if (custom.length > 0 && custom[0]) {
+        handleStartEditMember(custom[0]);
+      }
+    }
+  }, [activeTab, editSelectedId]);
+
+  // Handle Edit Member Photo Upload
+  const handleEditPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingEditPhoto(true);
+    try {
+      const compressedDataUrl = await compressAvatarImage(file, 380, 0.82);
+      setEditImage(compressedDataUrl);
+      setEditImagePreview(compressedDataUrl);
+
+      const cdnUrl = await uploadAvatarToCloud(compressedDataUrl);
+      if (cdnUrl && (cdnUrl.startsWith("http://") || cdnUrl.startsWith("https://"))) {
+        setEditImage(cdnUrl);
+      }
+    } catch (err) {
+      console.warn("Avatar processing error during edit:", err);
+    } finally {
+      setIsUploadingEditPhoto(false);
+    }
+  };
+
+  // Handle Edit Member Form Submit
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!editSelectedId) {
+      alert("Please select a custom member to edit.");
+      return;
+    }
+    if (!editName.trim()) {
+      alert("Please enter the person's full name.");
+      return;
+    }
+
+    setIsSavingEdit(true);
+    try {
+      const updated = updateMember(editSelectedId, {
+        name: editName.trim(),
+        role: editRole.trim() || (editTier === "participant" ? "Competitor" : TIER_CONFIG[editTier]?.label),
+        tier: editTier,
+        tierKey: editTier,
+        category: TIER_CONFIG[editTier]?.label,
+        department: editDept.trim() || "RVSCET Jamshedpur",
+        teamName: editTier === "participant" ? editTeamName.trim() : "",
+        img: editImage || "",
+        showOnWebsite: editShowOnWebsite,
+      });
+
+      if (updated) {
+        setMemberWebsiteVisibility(editSelectedId, editShowOnWebsite);
+        setRegistryVersion((v) => v + 1);
+        setEditSuccessMessage(`Changes saved successfully for ${updated.name} (${updated.id})!`);
+        setTimeout(() => setEditSuccessMessage(""), 5000);
+      } else {
+        alert("Could not find the custom member to update.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update member: " + err.message);
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -886,6 +1008,18 @@ export default function AdminPortal() {
           </button>
 
           <button
+            onClick={() => setActiveTab("edit")}
+            className={`flex items-center space-x-2 py-3 px-4 sm:px-6 rounded-2xl text-xs sm:text-sm font-orbitron font-bold transition-all whitespace-nowrap ${
+              activeTab === "edit"
+                ? "bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-neon"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <UserCog className="w-4 h-4 text-amber-400" />
+            <span>Edit Custom Person {stats.customCount > 0 ? `(${stats.customCount})` : ""}</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab("bulk")}
             className={`flex items-center space-x-2 py-3 px-4 sm:px-6 rounded-2xl text-xs sm:text-sm font-orbitron font-bold transition-all whitespace-nowrap ${
               activeTab === "bulk"
@@ -1145,6 +1279,17 @@ export default function AdminPortal() {
                               >
                                 <ExternalLink className="w-3.5 h-3.5" />
                               </Link>
+
+                              {m.isCustom && (
+                                <button
+                                  onClick={() => handleStartEditMember(m)}
+                                  className="p-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 inline-flex items-center space-x-1 text-xs font-semibold transition-all"
+                                  title="Edit this Custom Member"
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                  <span className="hidden sm:inline">Edit</span>
+                                </button>
+                              )}
 
                               {m.isCustom && (
                                 <button
@@ -1511,6 +1656,442 @@ export default function AdminPortal() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ================================================================== */}
+        {/* TAB 2.5: EDIT CUSTOM PERSON SECTION                                */}
+        {/* ================================================================== */}
+        {activeTab === "edit" && (
+          <div className="space-y-6">
+            {/* Top Selector Card */}
+            <div className="glass-card p-6 sm:p-8 rounded-3xl border border-amber-500/30 space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono font-bold">
+                    <UserCog className="w-3.5 h-3.5" />
+                    <span>DELEGATE MANAGEMENT &bull; EDIT CUSTOM PERSON</span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-black font-orbitron text-white mt-1.5">
+                    Edit Custom Member
+                  </h2>
+                  <p className="text-gray-300 text-xs sm:text-sm mt-1">
+                    Select any custom enrolled person to modify their credentials, tier, role, department, portrait, or public website visibility.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("roster")}
+                    className="btn-secondary py-2.5 px-4 text-xs font-mono font-bold flex items-center space-x-1.5"
+                  >
+                    <span>&larr; View All Roster</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("add")}
+                    className="btn-primary py-2.5 px-4 text-xs font-mono font-bold flex items-center space-x-1.5"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>+ Add New Person</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Custom Delegate Selector Dropdown */}
+              <div className="pt-2">
+                <label className="block text-xs font-mono text-amber-300 mb-1.5 uppercase tracking-wider font-bold">
+                  Choose Custom Person to Edit:
+                </label>
+                {allMembers.filter((m) => m.isCustom).length === 0 ? (
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-gray-400 text-xs">
+                    No custom members added yet. Use{" "}
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab("add")}
+                      className="text-accent underline font-bold"
+                    >
+                      Add Individual Person
+                    </button>{" "}
+                    to enroll someone first.
+                  </div>
+                ) : (
+                  <select
+                    value={editSelectedId}
+                    onChange={(e) => handleSelectMemberToEdit(e.target.value)}
+                    className="w-full px-4 py-3.5 bg-darkNavy border-2 border-amber-500/40 rounded-xl text-white font-mono text-sm font-bold focus:outline-none focus:border-amber-400 shadow-neon cursor-pointer"
+                  >
+                    {allMembers
+                      .filter((m) => m.isCustom)
+                      .map((m) => {
+                        const tCfg =
+                          TIER_CONFIG[
+                            normalizeTierKey(m.tierKey || m.tier || m.category, m.id)
+                          ] || TIER_CONFIG.participant;
+                        return (
+                          <option key={m.id} value={m.id} className="bg-darkNavy text-white">
+                            {m.name} ({m.id}) — {tCfg.label}
+                            {m.teamName ? ` [Team: ${m.teamName}]` : ""}
+                          </option>
+                        );
+                      })}
+                  </select>
+                )}
+              </div>
+            </div>
+
+            {/* Edit Form & Live Preview Grid */}
+            {editSelectedId && (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Form Column (7 cols) */}
+                <div className="lg:col-span-7 glass-card p-6 sm:p-8 rounded-3xl border border-primary/30 space-y-6">
+                  {editSuccessMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs flex items-center space-x-2"
+                    >
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                      <span>{editSuccessMessage}</span>
+                    </motion.div>
+                  )}
+
+                  <form onSubmit={handleEditSubmit} className="space-y-5">
+                    {/* Credential ID Banner (Read-only) */}
+                    <div className="p-4 rounded-xl bg-darkNavy/90 border border-primary/30 flex items-center justify-between">
+                      <div>
+                        <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest block">
+                          PERMANENT MINTED CREDENTIAL ID
+                        </span>
+                        <span className="text-xl font-bold font-orbitron text-accent tracking-wider">
+                          {editSelectedId}
+                        </span>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent text-[11px] font-mono font-bold">
+                        VERIFIED SECURE
+                      </span>
+                    </div>
+
+                    {/* 1. Delegate Tier Selector */}
+                    <div>
+                      <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider font-semibold">
+                        1. Delegate Tier &amp; Category *
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                        {[
+                          { id: "executive", label: "Executive Team", color: "#A855F7" },
+                          { id: "core", label: "Core Team", color: "#00E5FF" },
+                          { id: "participant", label: "Participant", color: "#10B981" },
+                          { id: "volunteer", label: "Volunteer", color: "#F59E0B" },
+                          { id: "faculty", label: "Faculty", color: "#38BDF8" },
+                        ].map((t) => (
+                          <button
+                            type="button"
+                            key={t.id}
+                            onClick={() => setEditTier(t.id)}
+                            className={`p-3 rounded-xl border text-center transition-all ${
+                              editTier === t.id
+                                ? "bg-darkNavy border-2 text-white shadow-neon"
+                                : "bg-darkNavy/50 border-white/10 text-gray-400 hover:text-white"
+                            }`}
+                            style={{
+                              borderColor: editTier === t.id ? t.color : undefined,
+                            }}
+                          >
+                            <span
+                              className="block text-xs font-bold font-orbitron"
+                              style={{ color: t.color }}
+                            >
+                              {t.label}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* 2. Full Name */}
+                    <div>
+                      <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider font-semibold">
+                        2. Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="e.g. Rahul Verma"
+                        className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    {/* 3. Role / Designation */}
+                    <div>
+                      <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider font-semibold">
+                        3. Role / Designation *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={editRole}
+                        onChange={(e) => setEditRole(e.target.value)}
+                        placeholder={
+                          editTier === "participant"
+                            ? "e.g. Project Exhibitor, RoboWar Driver"
+                            : "e.g. Event Lead, Media Specialist"
+                        }
+                        className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    {/* 4. Department / Organization */}
+                    <div>
+                      <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider font-semibold">
+                        4. College Department or Organization
+                      </label>
+                      <input
+                        type="text"
+                        value={editDept}
+                        onChange={(e) => setEditDept(e.target.value)}
+                        placeholder="e.g. Dept. of ECE, RVSCET Jamshedpur"
+                        className="w-full px-4 py-3 bg-darkNavy/90 border border-primary/20 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    {/* 5. Team / Group Name */}
+                    <div>
+                      <label className="block text-xs font-mono text-amber-300 mb-1.5 uppercase tracking-wider font-semibold">
+                        5. Group / Project / Robot Team Name (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={editTeamName}
+                        onChange={(e) => setEditTeamName(e.target.value)}
+                        placeholder="e.g. RoboKnights, Circuitron Core, Innovators"
+                        className="w-full px-4 py-3 bg-darkNavy/90 border border-amber-500/30 rounded-xl text-white placeholder-gray-500 text-sm focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    {/* 6. Profile Portrait */}
+                    <div>
+                      <label className="block text-xs font-mono text-gray-300 mb-1.5 uppercase tracking-wider font-semibold">
+                        6. Profile Portrait
+                      </label>
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-darkNavy border-2 border-primary/30 flex items-center justify-center flex-shrink-0 relative">
+                          {editImagePreview ? (
+                            <img
+                              src={editImagePreview}
+                              alt="Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="w-6 h-6 text-gray-500" />
+                          )}
+                          {isUploadingEditPhoto && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                              <RefreshCw className="w-5 h-5 text-accent animate-spin" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleEditPhotoUpload}
+                            className="block w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/20 file:text-accent hover:file:bg-primary/30 cursor-pointer"
+                          />
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-gray-400 font-mono">OR URL:</span>
+                            <input
+                              type="url"
+                              value={editImage && editImage.startsWith("http") ? editImage : ""}
+                              onChange={(e) => {
+                                setEditImage(e.target.value);
+                                setEditImagePreview(e.target.value);
+                              }}
+                              placeholder="Paste image link (https://...)"
+                              className="flex-1 px-2.5 py-1 bg-darkNavy border border-primary/20 rounded-lg text-white text-[11px] focus:outline-none focus:border-accent"
+                            />
+                          </div>
+                          <span className="text-[10px] text-gray-500 block">
+                            {isUploadingEditPhoto ? (
+                              <span className="text-accent flex items-center gap-1 font-mono">
+                                <RefreshCw className="w-3 h-3 animate-spin" />
+                                Uploading image...
+                              </span>
+                            ) : (
+                              "Square image recommended. Stored cross-device."
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 7. Website Visibility Toggle */}
+                    <div className="flex items-center justify-between p-4 rounded-xl bg-darkNavy/80 border border-primary/20">
+                      <div className="space-y-0.5 pr-4">
+                        <div className="flex items-center space-x-2">
+                          <Eye className="w-4 h-4 text-cyan-400" />
+                          <span className="text-xs font-mono text-white uppercase tracking-wider font-bold">
+                            Feature on Website Team Section (/team)
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-400">
+                          {editShowOnWebsite
+                            ? "Published: This person appears publicly in the website Team section."
+                            : "Hidden: This person is issued credentials & ID badge, but is not listed on /team."}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setEditShowOnWebsite(!editShowOnWebsite)}
+                        className={`w-12 h-6 rounded-full transition-colors relative p-0.5 flex-shrink-0 ${
+                          editShowOnWebsite ? "bg-cyan-500" : "bg-gray-700"
+                        }`}
+                      >
+                        <div
+                          className={`w-5 h-5 rounded-full bg-white transition-transform ${
+                            editShowOnWebsite ? "translate-x-6" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Buttons: Save Changes, Preview Badge, Delete */}
+                    <div className="pt-2 flex flex-wrap items-center gap-3">
+                      <button
+                        type="submit"
+                        disabled={isSavingEdit}
+                        className="flex-1 btn-primary py-3.5 text-xs font-bold shadow-neon flex items-center justify-center space-x-2"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span>{isSavingEdit ? "Saving..." : "Save Member Changes"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const m = getCustomMembers().find(
+                            (x) => x.id?.toUpperCase() === editSelectedId?.toUpperCase()
+                          );
+                          if (m) handleOpenCardModal(m);
+                        }}
+                        className="btn-secondary py-3.5 px-5 text-xs font-bold flex items-center space-x-1.5"
+                        title="Preview & Issue ID Badge"
+                      >
+                        <QrCode className="w-4 h-4 text-accent" />
+                        <span>ID Badge</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const m = getCustomMembers().find(
+                            (x) => x.id?.toUpperCase() === editSelectedId?.toUpperCase()
+                          );
+                          if (m) handleDeleteMember(m);
+                        }}
+                        className="px-4 py-3.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold flex items-center space-x-1"
+                        title="Delete this custom member"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Live Preview Column (5 cols) */}
+                <div className="lg:col-span-5 glass-card p-6 sm:p-7 rounded-3xl border border-primary/20 space-y-4 text-center">
+                  <span className="text-xs font-mono uppercase tracking-widest text-accent font-bold block">
+                    LIVE UPDATED CARD PREVIEW
+                  </span>
+                  <div className="relative rounded-2xl overflow-hidden border border-primary/30 bg-darkNavy shadow-2xl p-4 flex flex-col items-center">
+                    <div
+                      className="w-full max-w-[280px] rounded-xl overflow-hidden shadow-2xl border relative text-center p-5 space-y-4"
+                      style={{
+                        backgroundColor: "#0A1A36",
+                        borderColor: TIER_CONFIG[editTier]?.color || "#00E5FF",
+                      }}
+                    >
+                      {/* Category Ribbon Indicator */}
+                      <div
+                        className="text-[10px] font-mono font-bold uppercase tracking-widest py-1 px-3 rounded-full inline-block"
+                        style={{
+                          backgroundColor: `${TIER_CONFIG[editTier]?.color}20`,
+                          color: TIER_CONFIG[editTier]?.color,
+                          border: `1px solid ${TIER_CONFIG[editTier]?.color}40`,
+                        }}
+                      >
+                        {TIER_CONFIG[editTier]?.badgeLabel}
+                      </div>
+
+                      {/* Avatar Circle */}
+                      <div className="relative w-28 h-28 mx-auto">
+                        <div
+                          className="w-full h-full rounded-full overflow-hidden border-2 shadow-neon flex items-center justify-center bg-darkNavy/80"
+                          style={{
+                            borderColor: TIER_CONFIG[editTier]?.color || "#00E5FF",
+                          }}
+                        >
+                          {editImagePreview ? (
+                            <img
+                              src={editImagePreview}
+                              alt="Avatar Preview"
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ImageIcon className="w-10 h-10 text-gray-500" />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Name & Role */}
+                      <div className="space-y-1">
+                        <h3 className="font-orbitron font-black text-white text-base truncate">
+                          {editName || "DELEGATE NAME"}
+                        </h3>
+                        <p
+                          className="font-bold text-xs uppercase tracking-wider"
+                          style={{ color: TIER_CONFIG[editTier]?.color }}
+                        >
+                          {editRole || TIER_CONFIG[editTier]?.label}
+                        </p>
+                      </div>
+
+                      {/* Dept & Group */}
+                      <div className="pt-2 border-t border-white/10 space-y-1">
+                        <span className="text-[11px] font-mono text-gray-300 block">
+                          {editDept || "RVSCET Jamshedpur"}
+                        </span>
+                        {editTeamName && (
+                          <span className="text-[11px] font-mono text-amber-300 block font-bold">
+                            Team: {editTeamName}
+                          </span>
+                        )}
+                        <span className="text-[10px] font-mono text-gray-400 block pt-1">
+                          ID: {editSelectedId}
+                        </span>
+                      </div>
+
+                      {/* Website status badge */}
+                      <div className="pt-1">
+                        <span
+                          className={`text-[10px] font-mono px-2 py-0.5 rounded-full inline-block ${
+                            editShowOnWebsite
+                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                              : "bg-gray-500/20 text-gray-400 border border-gray-500/30"
+                          }`}
+                        >
+                          {editShowOnWebsite ? "Will feature on /team" : "Hidden from /team"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

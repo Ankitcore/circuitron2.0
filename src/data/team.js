@@ -591,7 +591,38 @@ export function updateMember(id, updatedFields) {
   if (index === -1) return null;
 
   const existing = current[index];
-  const merged = { ...existing, ...updatedFields, updatedAt: new Date().toISOString() };
+  let tierKey = existing.tierKey;
+  let category = existing.category;
+  let tier = existing.tier;
+  let idCard = existing.idCard;
+  let idCardHd = existing.idCardHd;
+
+  if (updatedFields.tier || updatedFields.category || updatedFields.tierKey) {
+    tierKey = normalizeTierKey(updatedFields.tierKey || updatedFields.tier || updatedFields.category, normId);
+    const cfg = TIER_CONFIG[tierKey] || TIER_CONFIG.participant;
+    category = cfg.label;
+    tier = cfg.badgeLabel;
+    if (!existing.idCard || existing.idCard.includes("TEMPLATE") || existing.idCard.includes("BLANK")) {
+      idCard = cfg.stdTemplate;
+      idCardHd = cfg.blankTemplate;
+    }
+  }
+
+  const role = updatedFields.role !== undefined ? updatedFields.role : existing.role;
+
+  const merged = {
+    ...existing,
+    ...updatedFields,
+    role,
+    position: role,
+    tierKey,
+    category,
+    tier,
+    idCard,
+    idCardHd,
+    updatedAt: new Date().toISOString(),
+  };
+
   current[index] = merged;
   saveCustomMembers([...current]);
   syncMemberToCloud(merged);
