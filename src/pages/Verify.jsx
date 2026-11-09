@@ -10,7 +10,6 @@ import {
   Building,
   UserCheck,
   Download,
-  Share2,
   Search,
   ExternalLink,
   QrCode,
@@ -112,7 +111,6 @@ export default function Verify() {
   const targetId = hasTargetId ? rawId.trim().toUpperCase() : "";
 
   const [inputSearchId, setInputSearchId] = useState(targetId);
-  const [copied, setCopied] = useState(false);
   const [showIdCardModal, setShowIdCardModal] = useState(false);
   const [showScannerModal, setShowScannerModal] = useState(false);
   const [customCardImage, setCustomCardImage] = useState(null);
@@ -310,15 +308,6 @@ export default function Verify() {
     }
   };
 
-  const handleShare = () => {
-    const url = member ? getMemberVerificationUrl(member) : window.location.href;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    }
-  };
-
   const handleValidateCredential = () => {
     setIsValidating(true);
     setTimeout(() => {
@@ -377,26 +366,6 @@ export default function Verify() {
               ? "Official cryptographic validation and credential dossier for TechXpo 2.O leaders, coordinators, and delegates at RVSCET Jamshedpur."
               : "Scan official TechXpo 2.O badge QR code with your camera or enter Delegate ID to verify authenticity, active credentials, and access clearance."}
           </p>
-
-          {hasTargetId && (
-            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setShowScannerModal(true)}
-                className="py-2.5 px-5 rounded-2xl bg-gradient-to-r from-cyan-500 via-primary to-accent text-darkNavy font-orbitron font-extrabold text-xs sm:text-sm flex items-center space-x-2.5 shadow-[0_0_30px_rgba(0,229,255,0.4)] hover:shadow-[0_0_40px_rgba(0,229,255,0.6)] hover:scale-105 transition-all duration-300 group"
-              >
-                <Camera className="w-4 h-4 text-darkNavy group-hover:rotate-12 transition-transform" />
-                <span>Scan Another Member QR</span>
-              </button>
-              <Link
-                to="/verify"
-                className="py-2.5 px-5 rounded-2xl bg-darkNavy/90 border border-primary/30 text-gray-300 hover:text-white text-xs font-orbitron font-bold flex items-center space-x-2 transition-all hover:bg-white/5 shadow-md"
-              >
-                <Search className="w-4 h-4 text-accent" />
-                <span>Lookup by ID</span>
-              </Link>
-            </div>
-          )}
         </div>
 
         {/* ================= CONDITION 1: BARE /verify DESK (NO ID) ================= */}
@@ -707,34 +676,6 @@ export default function Verify() {
                     <span>{isValidating ? "Validating..." : "Validate Credential"}</span>
                   </button>
                 )}
-
-                {/* Share Credential Option */}
-                <button
-                  onClick={handleShare}
-                  className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-2"
-                >
-                  <Share2 className="w-4 h-4" />
-                  <span>{copied ? "Link Copied!" : "Share Credential"}</span>
-                </button>
-
-                {/* Scan Another Member QR Option */}
-                <button
-                  type="button"
-                  onClick={() => setShowScannerModal(true)}
-                  className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-2 border-primary/40 text-accent hover:border-accent"
-                >
-                  <Camera className="w-4 h-4" />
-                  <span>Scan Next QR</span>
-                </button>
-
-                {/* Lookup Another ID Option */}
-                <Link
-                  to="/verify"
-                  className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-2"
-                >
-                  <Search className="w-4 h-4" />
-                  <span>Lookup ID</span>
-                </Link>
 
                 {/* Admin Status Pill / Login Trigger */}
                 {isAdmin ? (
