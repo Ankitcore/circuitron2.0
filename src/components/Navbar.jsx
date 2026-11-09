@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight, Sparkles, ShieldCheck } from "lucide-react";
+import { Menu, X, ArrowUpRight, Sparkles, ShieldCheck, QrCode } from "lucide-react";
 
 const navItems = [
   { name: "Home", path: "/" },
@@ -107,6 +107,13 @@ export default function Navbar() {
           {/* Right Action: Register Now & Admin Access */}
           <div className="hidden sm:flex items-center space-x-2.5">
             <Link
+              to="/verify"
+              title="Member Verification & QR Scanner"
+              className="p-2 rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-400 hover:text-accent hover:border-accent/40 transition-all flex items-center justify-center"
+            >
+              <QrCode className="w-4 h-4" />
+            </Link>
+            <Link
               to="/admin"
               title="Secretariat Admin Portal"
               className="p-2 rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-400 hover:text-accent hover:border-accent/40 transition-all flex items-center justify-center"
@@ -187,6 +194,14 @@ export default function Navbar() {
                   <span>Register for TechXpo 2.O</span>
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
+                <Link
+                  to="/verify"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full py-2.5 px-3 rounded-xl bg-darkNavy/80 border border-primary/20 text-xs font-mono text-gray-300 hover:text-accent flex items-center justify-center space-x-1.5"
+                >
+                  <QrCode className="w-4 h-4 text-accent" />
+                  <span>Verify &amp; Scan Member QR</span>
+                </Link>
                 <Link
                   to="/admin"
                   onClick={() => setIsOpen(false)}
