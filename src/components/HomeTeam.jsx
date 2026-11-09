@@ -6,32 +6,11 @@ import { Users, ArrowRight, Sparkles, Shield } from "lucide-react";
 
 function HomeAvatar({ src, name }) {
   const [hasError, setHasError] = useState(false);
-  const initials = name
-    ? name
-        .split(" ")
-        .filter(Boolean)
-        .map((p) => p[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "CT";
-
-  if (hasError || !src) {
-    return (
-      <div className="w-full h-full bg-gradient-to-tr from-darkNavy via-primary/20 to-accent/20 flex flex-col items-center justify-center text-center p-3">
-        <span className="font-orbitron font-extrabold text-2xl text-accent tracking-wider">
-          {initials}
-        </span>
-        <span className="text-[10px] text-gray-400 font-mono mt-1 line-clamp-1 max-w-[100px]">
-          {name}
-        </span>
-      </div>
-    );
-  }
+  const avatarSrc = (src && !hasError) ? src : "/assets/default-avatar.jpg";
 
   return (
     <img
-      src={src}
+      src={avatarSrc}
       alt={name}
       onError={() => setHasError(true)}
       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

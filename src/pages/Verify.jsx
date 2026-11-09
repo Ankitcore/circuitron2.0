@@ -511,24 +511,15 @@ export default function Verify() {
                 <div className="relative w-44 h-44 sm:w-52 sm:h-52">
                   <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-emerald-500 to-accent blur-md opacity-50 animate-pulse" />
                   <div className="relative w-full h-full rounded-3xl overflow-hidden border-2 border-emerald-400/50 bg-darkNavy shadow-2xl flex items-center justify-center">
-                    {member.img ? (
-                      <img
-                        src={member.img}
-                        alt={member.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                          const fallback = e.currentTarget.nextElementSibling;
-                          if (fallback) fallback.style.display = "flex";
-                        }}
-                      />
-                    ) : null}
-                    <div
-                      style={{ display: member.img ? "none" : "flex" }}
-                      className="w-full h-full bg-gradient-to-tr from-darkNavy to-primary/30 items-center justify-center font-orbitron font-extrabold text-4xl text-accent"
-                    >
-                      {member.name.slice(0, 2).toUpperCase()}
-                    </div>
+                    <img
+                      src={member.img || "/assets/default-avatar.jpg"}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = "/assets/default-avatar.jpg";
+                      }}
+                    />
                   </div>
                   
                   {/* Hexagon Official Stamp */}

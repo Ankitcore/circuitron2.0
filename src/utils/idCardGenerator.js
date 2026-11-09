@@ -209,9 +209,10 @@ export async function generateMemberIdCard(member) {
   const r = 218;
 
   let memberImg = null;
-  if (member.img && typeof member.img === "string") {
-    memberImg = await loadImage(member.img);
-  }
+  const avatarSrc = (member.img && typeof member.img === "string" && member.img.trim())
+    ? member.img.trim()
+    : "/assets/default-avatar.jpg";
+  memberImg = await loadImage(avatarSrc);
 
   ctx.save();
   ctx.beginPath();

@@ -211,6 +211,7 @@ export const coreTeam = [
 // Dynamic Registry Engine (localStorage-backed with event broadcasting)
 // ============================================================================
 export const CUSTOM_MEMBERS_KEY = "tx2_custom_members";
+export const DEFAULT_MEMBER_AVATAR = "/assets/default-avatar.jpg";
 
 export const initialCustomMembers = [];
 
@@ -492,7 +493,7 @@ export function addMember(data) {
     tierKey,
     department: (data.department || "RVSCET Jamshedpur").trim(),
     teamName: (data.teamName || "").trim(),
-    img: data.img || "",
+    img: (data.img && typeof data.img === "string" && data.img.trim()) ? data.img.trim() : DEFAULT_MEMBER_AVATAR,
     tagline: data.tagline || (tierKey === "participant" ? "Official Symposium Competitor" : "TechXpo 2.O Contributor"),
     description: data.description || `Verified ${cfg.label} for TechXpo 2.O`,
     isCustom: true,
@@ -549,7 +550,7 @@ export function addMembersBulk(membersList, defaultTier = "participant", options
       tierKey,
       department: (item.department || "RVSCET Jamshedpur").trim(),
       teamName: (item.teamName || "").trim(),
-      img: item.img || "",
+      img: (item.img && typeof item.img === "string" && item.img.trim()) ? item.img.trim() : DEFAULT_MEMBER_AVATAR,
       tagline: item.tagline || `${cfg.label} Delegate`,
       description: item.description || `Registered ${cfg.label}`,
       isCustom: true,
@@ -595,10 +596,17 @@ export function updateMember(id, updatedFields) {
   }
 
   const role = updatedFields.role !== undefined ? updatedFields.role : existing.role;
+  let img = existing.img || DEFAULT_MEMBER_AVATAR;
+  if (updatedFields.img !== undefined) {
+    img = (updatedFields.img && typeof updatedFields.img === "string" && updatedFields.img.trim())
+      ? updatedFields.img.trim()
+      : DEFAULT_MEMBER_AVATAR;
+  }
 
   const merged = {
     ...existing,
     ...updatedFields,
+    img,
     role,
     position: role,
     tierKey,

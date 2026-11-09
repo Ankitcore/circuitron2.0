@@ -494,7 +494,7 @@ export default function AdminPortal() {
         category: TIER_CONFIG[formTier]?.label,
         department: formDept.trim() || "RVSCET Jamshedpur",
         teamName: formTier === "participant" ? formTeamName.trim() : "",
-        img: formImage || "",
+        img: formImage || "/assets/default-avatar.jpg",
         showOnWebsite: formShowOnWebsite,
       });
 
@@ -602,7 +602,7 @@ export default function AdminPortal() {
         category: TIER_CONFIG[editTier]?.label,
         department: editDept.trim() || "RVSCET Jamshedpur",
         teamName: editTier === "participant" ? editTeamName.trim() : "",
-        img: editImage || "",
+        img: editImage || "/assets/default-avatar.jpg",
         showOnWebsite: editShowOnWebsite,
       });
 
@@ -1217,13 +1217,15 @@ export default function AdminPortal() {
                             <td className="py-3 px-4">
                               <div className="flex items-center space-x-3">
                                 <div className="w-9 h-9 rounded-full overflow-hidden bg-darkNavy border border-primary/30 flex-shrink-0 flex items-center justify-center font-bold text-accent">
-                                  {m.img ? (
-                                    <img src={m.img} alt={m.name} className="w-full h-full object-cover" />
-                                  ) : (
-                                    <span className="text-[11px] font-orbitron">
-                                      {m.name.slice(0, 2).toUpperCase()}
-                                    </span>
-                                  )}
+                                  <img
+                                    src={m.img || "/assets/default-avatar.jpg"}
+                                    alt={m.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.src = "/assets/default-avatar.jpg";
+                                    }}
+                                  />
                                 </div>
                                 <div>
                                   <div className="font-bold text-white text-sm group-hover:text-accent transition-colors">
@@ -1527,7 +1529,7 @@ export default function AdminPortal() {
                       {formImagePreview ? (
                         <img src={formImagePreview} alt="Preview" className="w-full h-full object-cover" />
                       ) : (
-                        <ImageIcon className="w-6 h-6 text-gray-500" />
+                        <img src="/assets/default-avatar.jpg" alt="Default Avatar" className="w-full h-full object-cover opacity-85" />
                       )}
                       {isUploadingPhoto && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -1923,14 +1925,18 @@ export default function AdminPortal() {
                       </label>
                       <div className="flex items-center space-x-4">
                         <div className="w-16 h-16 rounded-full overflow-hidden bg-darkNavy border-2 border-primary/30 flex items-center justify-center flex-shrink-0 relative">
-                          {editImagePreview ? (
+                          {editImagePreview || editImage ? (
                             <img
-                              src={editImagePreview}
+                              src={editImagePreview || editImage}
                               alt="Preview"
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <ImageIcon className="w-6 h-6 text-gray-500" />
+                            <img
+                              src="/assets/default-avatar.jpg"
+                              alt="Default Avatar"
+                              className="w-full h-full object-cover opacity-85"
+                            />
                           )}
                           {isUploadingEditPhoto && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
