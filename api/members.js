@@ -96,8 +96,31 @@ export default async function handler(req, res) {
   loadFromFile();
   const kv = await getKvStore();
 
-  // 1. GET: Fetch member by ID or list all
+  // 1. GET: Fetch member by ID, stream avatar, or list all
   if (req.method === "GET") {
+    // Direct avatar image request: /api/members?avatar=TX2-XX-XXXX
+    const avatarTargetId = (req.query.avatar || "").trim().toUpperCase();
+    if (avatarTargetId) {
+      let member = memoryStore.get(avatarTargetId);
+      if (!member && kv) {
+        member = await fetchFromKv(kv, `member:${avatarTargetId}`);
+      }
+      if (member && member.img) {
+        if (member.img.startsWith("http://") || member.img.startsWith("https://")) {
+          return res.redirect(302, member.img);
+        }
+        const matches = member.img.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (matches && matches.length === 3) {
+          const mime = matches[1];
+          const buffer = Buffer.from(matches[2], "base64");
+          res.setHeader("Content-Type", mime);
+          res.setHeader("Cache-Control", "public, max-age=86400, immutable");
+          return res.status(200).send(buffer);
+        }
+      }
+      return res.status(404).send("Avatar not found");
+    }
+
     const targetId = (req.query.id || "").trim().toUpperCase();
 
     if (targetId) {

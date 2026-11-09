@@ -56,6 +56,7 @@ import {
   syncAllMembersToCloud,
 } from "../data/team";
 import { generateMemberIdCard, generateQrCodeDataUrl, downloadDataUrl, getMemberVerificationUrl } from "../utils/idCardGenerator";
+import { compressAvatarImage, uploadAvatarToCloud } from "../utils/imageCompressor";
 import {
   verifyAdminPasskey,
   isAdminAuthenticated,
@@ -89,6 +90,7 @@ export default function AdminPortal() {
   const [formCustomId, setFormCustomId] = useState("");
   const [formImage, setFormImage] = useState("");
   const [formImagePreview, setFormImagePreview] = useState("");
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [formShowOnWebsite, setFormShowOnWebsite] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSuccessMessage, setFormSuccessMessage] = useState("");
@@ -132,11 +134,39 @@ export default function AdminPortal() {
   const [isCloudSyncing, setIsCloudSyncing] = useState(false);
   const [cloudSyncMessage, setCloudSyncMessage] = useState("");
 
+  const autoUpgradeLocalImages = async () => {
+    const custom = getCustomMembers();
+    let updated = false;
+    const modified = [];
+
+    for (const m of custom) {
+      if (m.img && typeof m.img === "string" && m.img.startsWith("data:image")) {
+        try {
+          const cdnUrl = await uploadAvatarToCloud(m.img);
+          if (cdnUrl && cdnUrl.startsWith("http")) {
+            modified.push({ ...m, img: cdnUrl });
+            updated = true;
+            continue;
+          }
+        } catch (e) {
+          console.warn("Failed upgrading member avatar:", m.id, e);
+        }
+      }
+      modified.push(m);
+    }
+
+    if (updated) {
+      saveCustomMembers(modified);
+      setRegistryVersion((v) => v + 1);
+    }
+  };
+
   const handleCloudSync = async () => {
     setIsCloudSyncing(true);
     setCloudSyncMessage("");
     try {
       const count = await fetchMembersFromCloud();
+      await autoUpgradeLocalImages();
       await syncAllMembersToCloud();
       setRegistryVersion((v) => v + 1);
       setCloudSyncMessage(`Cloud Registry Synced (${count} records)`);
@@ -250,22 +280,33 @@ export default function AdminPortal() {
     }
   };
 
-  // Handle Photo File Upload
-  const handlePhotoUpload = (e) => {
+  // Handle Photo File Upload with Auto-Compression & Cloud CDN Hosting
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Please select an image smaller than 5MB.");
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Please select an image smaller than 15MB.");
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setFormImage(reader.result);
-      setFormImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    setIsUploadingPhoto(true);
+    try {
+      // 1. Immediately compress the avatar locally (instant preview & tiny ~20KB payload)
+      const compressedDataUrl = await compressAvatarImage(file, 380, 0.82);
+      setFormImage(compressedDataUrl);
+      setFormImagePreview(compressedDataUrl);
+
+      // 2. Upload to permanent CDN to obtain cross-device public HTTPS URL
+      const cdnUrl = await uploadAvatarToCloud(compressedDataUrl);
+      if (cdnUrl && (cdnUrl.startsWith("http://") || cdnUrl.startsWith("https://"))) {
+        setFormImage(cdnUrl);
+      }
+    } catch (err) {
+      console.warn("Avatar processing error:", err);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
   };
 
   // Handle Single Member Submit
@@ -1196,22 +1237,52 @@ export default function AdminPortal() {
                     Profile Portrait (Optional)
                   </label>
                   <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-darkNavy border-2 border-primary/30 flex items-center justify-center flex-shrink-0">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-darkNavy border-2 border-primary/30 flex items-center justify-center flex-shrink-0 relative">
                       {formImagePreview ? (
                         <img src={formImagePreview} alt="Preview" className="w-full h-full object-cover" />
                       ) : (
                         <ImageIcon className="w-6 h-6 text-gray-500" />
                       )}
+                      {isUploadingPhoto && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <RefreshCw className="w-5 h-5 text-accent animate-spin" />
+                        </div>
+                      )}
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 space-y-2">
                       <input
                         type="file"
                         accept="image/*"
                         onChange={handlePhotoUpload}
                         className="block w-full text-xs text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/20 file:text-accent hover:file:bg-primary/30 cursor-pointer"
                       />
-                      <span className="text-[10px] text-gray-500 block mt-1">
-                        Square photo recommended. If omitted, a clean cyber emblem will be generated.
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-gray-400 font-mono">OR URL:</span>
+                        <input
+                          type="url"
+                          value={formImage && formImage.startsWith("http") ? formImage : ""}
+                          onChange={(e) => {
+                            setFormImage(e.target.value);
+                            setFormImagePreview(e.target.value);
+                          }}
+                          placeholder="Paste image link (https://...)"
+                          className="flex-1 px-2.5 py-1 bg-darkNavy border border-primary/20 rounded-lg text-white text-[11px] focus:outline-none focus:border-accent"
+                        />
+                      </div>
+                      <span className="text-[10px] text-gray-500 block">
+                        {isUploadingPhoto ? (
+                          <span className="text-accent flex items-center gap-1 font-mono">
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                            Optimizing and uploading to cloud CDN...
+                          </span>
+                        ) : formImage && formImage.startsWith("http") ? (
+                          <span className="text-emerald-400 flex items-center gap-1 font-mono">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Cloud CDN Ready: Image will load on any device!
+                          </span>
+                        ) : (
+                          "Square photo recommended. Auto-compressed & hosted across all devices."
+                        )}
                       </span>
                     </div>
                   </div>

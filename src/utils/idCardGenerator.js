@@ -31,8 +31,13 @@ export function getMemberVerificationUrl(memberOrId) {
   if (rawTier) params.set("t", normalizeTierKey(rawTier, id));
   if (member.department) params.set("d", member.department.trim());
   if (member.teamName) params.set("g", member.teamName.trim());
-  if (member.img && typeof member.img === "string" && member.img.startsWith("http")) {
-    params.set("img", member.img.trim());
+  if (member.img && typeof member.img === "string") {
+    const trimmed = member.img.trim();
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      params.set("img", trimmed);
+    } else if (trimmed.startsWith("data:image")) {
+      params.set("img", `https://circuitron2-0.vercel.app/api/members?avatar=${id}`);
+    }
   }
 
   const qs = params.toString();
@@ -125,7 +130,12 @@ function loadImage(src) {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => resolve(img);
-    img.onerror = () => resolve(null);
+    img.onerror = () => {
+      const retry = new Image();
+      retry.onload = () => resolve(retry);
+      retry.onerror = () => resolve(null);
+      retry.src = src;
+    };
     img.src = src;
   });
 }

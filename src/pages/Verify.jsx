@@ -85,10 +85,34 @@ export default function Verify() {
       return;
     }
 
-    // If member already exists in local storage, use it directly
+    // If member already exists in local storage
     const foundLocal = getMemberById(targetId);
     if (foundLocal) {
-      setCloudMember(null);
+      const qImg = searchParams.get("img");
+      if (qImg && !foundLocal.img) {
+        const enriched = { ...foundLocal, img: qImg.trim() };
+        try {
+          addMember(enriched);
+        } catch (e) {}
+        setCloudMember(enriched);
+      } else if (!foundLocal.img) {
+        // Query cloud in background to see if an image was synced
+        fetch(`/api/members?id=${encodeURIComponent(targetId)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.success && data.member?.img) {
+              const enriched = { ...foundLocal, img: data.member.img };
+              try {
+                addMember(enriched);
+              } catch (e) {}
+              setCloudMember(enriched);
+            }
+          })
+          .catch(() => {});
+        setCloudMember(foundLocal);
+      } else {
+        setCloudMember(null);
+      }
       setIsQueryingCloud(false);
       return;
     }
@@ -112,7 +136,7 @@ export default function Verify() {
         tier: qTier ? qTier.toUpperCase() : "Participant",
         department: qDept ? qDept.trim() : "TechXpo Delegate",
         teamName: qGroup ? qGroup.trim() : "",
-        img: qImg || "",
+        img: qImg ? qImg.trim() : "",
         isCustom: true,
       };
 
@@ -123,6 +147,23 @@ export default function Verify() {
       }
       setCloudMember(reconstructed);
       setIsQueryingCloud(false);
+
+      // If reconstructed has no photo, query the cloud in background
+      if (!reconstructed.img) {
+        fetch(`/api/members?id=${encodeURIComponent(targetId)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.success && data.member?.img) {
+              const enriched = { ...reconstructed, img: data.member.img };
+              try {
+                addMember(enriched);
+              } catch (e) {}
+              setCloudMember(enriched);
+            }
+          })
+          .catch(() => {});
+      }
+
       return;
     }
 
@@ -400,12 +441,19 @@ export default function Verify() {
                         src={member.img}
                         alt={member.name}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const fallback = e.currentTarget.nextElementSibling;
+                          if (fallback) fallback.style.display = "flex";
+                        }}
                       />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-tr from-darkNavy to-primary/30 flex items-center justify-center font-orbitron font-extrabold text-4xl text-accent">
-                        {member.name.slice(0, 2).toUpperCase()}
-                      </div>
-                    )}
+                    ) : null}
+                    <div
+                      style={{ display: member.img ? "none" : "flex" }}
+                      className="w-full h-full bg-gradient-to-tr from-darkNavy to-primary/30 items-center justify-center font-orbitron font-extrabold text-4xl text-accent"
+                    >
+                      {member.name.slice(0, 2).toUpperCase()}
+                    </div>
                   </div>
                   
                   {/* Hexagon Official Stamp */}
