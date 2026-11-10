@@ -1,6 +1,7 @@
 // Vercel Serverless Function: /api/admin-session
 // Enforces Single-Device Active Session for the Admin Portal.
 // When an administrator signs in on Device B, any existing session on Device A is automatically superseded and logged out.
+// High-concurrency optimized with Upstash Redis REST fallback and timeout protection.
 
 import fs from "fs";
 import path from "path";
@@ -52,39 +53,55 @@ function saveSessionToFile(session) {
   }
 }
 
-async function getKvStore() {
+function getKvConfig() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
-  return { url, token };
+  return { url: url.replace(/\/+$/, ""), token };
 }
 
 async function fetchFromKv(kv, key) {
+  if (!kv) return null;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2000);
+
   try {
     const res = await fetch(`${kv.url}/get/${encodeURIComponent(key)}`, {
       headers: { Authorization: `Bearer ${kv.token}` },
+      signal: controller.signal,
     });
+    clearTimeout(timer);
     if (!res.ok) return null;
     const json = await res.json();
-    return json.result ? JSON.parse(json.result) : null;
+    if (!json || json.result === undefined || json.result === null) return null;
+    return typeof json.result === "string" ? JSON.parse(json.result) : json.result;
   } catch (e) {
-    console.error("KV session read error:", e);
+    clearTimeout(timer);
+    console.warn(`KV session read error for [${key}]:`, e.name === "AbortError" ? "Timeout (2s)" : e.message);
     return null;
   }
 }
 
-async function saveToKv(kv, key, value) {
+async function saveToKv(kv, key, value, ttlSeconds = 86400) {
+  if (!kv) return;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2500);
+
   try {
-    await fetch(`${kv.url}/set/${encodeURIComponent(key)}`, {
+    const payload = typeof value === "string" ? value : JSON.stringify(value);
+    await fetch(`${kv.url}/set/${encodeURIComponent(key)}?ex=${ttlSeconds}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${kv.token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(typeof value === "string" ? value : JSON.stringify(value)),
+      body: JSON.stringify(payload),
+      signal: controller.signal,
     });
+    clearTimeout(timer);
   } catch (e) {
-    console.error("KV session save error:", e);
+    clearTimeout(timer);
+    console.warn(`KV session save error for [${key}]:`, e.message);
   }
 }
 
@@ -104,21 +121,35 @@ function sanitizeText(str = "", maxLen = 150) {
     .slice(0, maxLen);
 }
 
+const ALLOWED_ORIGINS = new Set([
+  "https://circuitron.in",
+  "https://www.circuitron.in",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
 export default async function handler(req, res) {
   // CORS Headers
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "https://www.circuitron.in");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
     "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, x-admin-auth, x-admin-session-id"
   );
+  // Strict non-cacheable header for session security
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  const kv = await getKvStore();
+  const kv = getKvConfig();
   let currentSession = loadSessionFromFile();
 
   if (!currentSession && kv) {
@@ -228,7 +259,7 @@ export default async function handler(req, res) {
       saveSessionToFile(newSession);
 
       if (kv) {
-        await saveToKv(kv, "active_admin_session", newSession);
+        await saveToKv(kv, "active_admin_session", newSession, 86400); // 24hr TTL
       }
 
       return res.status(200).json({
@@ -258,7 +289,14 @@ export default async function handler(req, res) {
     if (currentSession && (!clientSessionId || currentSession.sessionId === clientSessionId)) {
       saveSessionToFile(null);
       if (kv) {
-        await saveToKv(kv, "active_admin_session", null);
+        try {
+          await fetch(`${kv.url}/del/active_admin_session`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${kv.token}` },
+          });
+        } catch (e) {
+          // ignore
+        }
       }
     }
 

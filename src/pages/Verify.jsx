@@ -21,9 +21,16 @@ import {
   Camera,
 } from "lucide-react";
 import { getMemberById, addMember, normalizeTierKey } from "../data/team";
-import { generateMemberIdCard, downloadDataUrl, getMemberVerificationUrl } from "../utils/idCardGenerator";
-import MemberQrScanner from "../components/MemberQrScanner";
-import QrScannerModal from "../components/QrScannerModal";
+
+// Lazy-load heavy scanner components to keep initial Verify chunk well below 100 KB
+const MemberQrScanner = React.lazy(() => import("../components/MemberQrScanner"));
+const QrScannerModal = React.lazy(() => import("../components/QrScannerModal"));
+
+function getMemberVerificationUrl(memberOrId) {
+  if (!memberOrId) return "https://circuitron.in/verify";
+  const cleanId = (typeof memberOrId === "object" ? memberOrId.id : memberOrId || "").trim().toUpperCase();
+  return cleanId ? `https://circuitron.in/verify/${cleanId}` : "https://circuitron.in/verify";
+}
 
 /**
  * Determine official security access clearance level based on member tier:
@@ -287,11 +294,12 @@ export default function Verify() {
     };
   }, [targetId, hasTargetId, searchParams]);
 
-  // Handle generating card for custom members when modal is requested
+  // Handle generating card for custom members when modal is requested (dynamic import)
   useEffect(() => {
     if (showIdCardModal && member?.isCustom && !customCardImage && !isRenderingCard) {
       setIsRenderingCard(true);
-      generateMemberIdCard(member)
+      import("../utils/idCardGenerator")
+        .then(({ generateMemberIdCard }) => generateMemberIdCard(member))
         .then((card) => {
           setCustomCardImage(card);
         })
@@ -394,7 +402,16 @@ export default function Verify() {
         {!hasTargetId ? (
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Live Camera & Badge Photo QR Scanner */}
-            <MemberQrScanner onScanSuccess={handleScanSuccess} autoStart={true} />
+            <React.Suspense
+              fallback={
+                <div className="glass-card p-8 rounded-3xl border border-primary/30 flex flex-col items-center justify-center min-h-[280px] text-gray-400 space-y-3">
+                  <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs font-mono">Initializing Camera Scanner Engine...</span>
+                </div>
+              }
+            >
+              <MemberQrScanner onScanSuccess={handleScanSuccess} autoStart={true} />
+            </React.Suspense>
 
             {/* Manual Typing Authentication Card */}
             <div className="glass-card p-6 sm:p-8 rounded-3xl border-2 border-primary/30 space-y-5 bg-darkNavy/90 shadow-[0_0_50px_rgba(0,229,255,0.15)]">
@@ -992,11 +1009,15 @@ export default function Verify() {
       )}
 
       {/* ================= MODAL: LIVE QR AUTHENTICATOR SCANNER ================= */}
-      <QrScannerModal
-        isOpen={showScannerModal}
-        onClose={() => setShowScannerModal(false)}
-        onScanSuccess={handleScanSuccess}
-      />
+      {showScannerModal && (
+        <React.Suspense fallback={null}>
+          <QrScannerModal
+            isOpen={showScannerModal}
+            onClose={() => setShowScannerModal(false)}
+            onScanSuccess={handleScanSuccess}
+          />
+        </React.Suspense>
+      )}
     </motion.div>
   );
 }

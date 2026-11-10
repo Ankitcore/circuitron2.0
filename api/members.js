@@ -1,6 +1,6 @@
 // Vercel Serverless Function: /api/members
 // Centralized Cloud Registry for TechXpo 2.O custom enrolled members
-// Enables multi-device verification across mobile, desktop, and scanner devices
+// High-concurrency optimized with Upstash Redis REST + Edge CDN caching + in-flight coalescing
 
 import fs from "fs";
 import path from "path";
@@ -11,8 +11,12 @@ import crypto from "crypto";
 const AUTHORIZED_PASSKEY_HASHES = new Set([
   "b284b7a6daa1835eaedeb129fb9b756a9b22db51cba64f70aebe58b5ec4de5f5", // primary admin passkey hash
   "47cf068a4e03e066ee6cfcc19fdee108f9b140e05752063c233d9bc5f5cd5278", // admin passkey hash
-  ...(process.env.ADMIN_PASSKEY_HASHES ? process.env.ADMIN_PASSKEY_HASHES.split(",").map((h) => h.trim().toLowerCase()) : []),
-  ...(process.env.ADMIN_PASSKEY ? [crypto.createHash("sha256").update(process.env.ADMIN_PASSKEY.trim().toLowerCase()).digest("hex")] : []),
+  ...(process.env.ADMIN_PASSKEY_HASHES
+    ? process.env.ADMIN_PASSKEY_HASHES.split(",").map((h) => h.trim().toLowerCase())
+    : []),
+  ...(process.env.ADMIN_PASSKEY
+    ? [crypto.createHash("sha256").update(process.env.ADMIN_PASSKEY.trim().toLowerCase()).digest("hex")]
+    : []),
 ]);
 
 function isAuthorizedAdmin(req) {
@@ -31,15 +35,26 @@ function sanitizeText(str = "", maxLen = 200) {
     .slice(0, maxLen);
 }
 
+// Strip personal contact details for unauthenticated public requests
+function sanitizeForPublic(member) {
+  if (!member || typeof member !== "object") return null;
+  const { phone, email, ...publicData } = member;
+  return publicData;
+}
+
 // In-memory global store to survive warm lambdas and local dev sessions
 if (!globalThis.__circuitron_members_store) {
   globalThis.__circuitron_members_store = new Map();
 }
 const memoryStore = globalThis.__circuitron_members_store;
 
-const TMP_FILE = path.join(os.tmpdir(), "circuitron_members.json");
+// In-flight promise map to coalesce simultaneous reads and prevent cache stampedes
+if (!globalThis.__circuitron_in_flight) {
+  globalThis.__circuitron_in_flight = new Map();
+}
+const inFlightMap = globalThis.__circuitron_in_flight;
 
-const INITIAL_MEMBERS = [];
+const TMP_FILE = path.join(os.tmpdir(), "circuitron_members.json");
 
 // Helper to load file backup if memoryStore is empty
 function loadFromFile() {
@@ -92,47 +107,102 @@ function saveToFile() {
   }
 }
 
-// Upstash / Vercel KV adapter if environment variables are set
-async function getKvStore() {
+// Upstash Redis / Vercel KV adapter
+function getKvConfig() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return null;
-  return { url, token };
+  return { url: url.replace(/\/+$/, ""), token };
 }
 
+// Robust KV fetch with timeout and stampede coalescing
 async function fetchFromKv(kv, key) {
-  try {
-    const res = await fetch(`${kv.url}/get/${encodeURIComponent(key)}`, {
-      headers: { Authorization: `Bearer ${kv.token}` },
-    });
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.result ? JSON.parse(json.result) : null;
-  } catch (e) {
-    console.error("KV read error:", e);
-    return null;
+  if (!kv) return null;
+
+  if (inFlightMap.has(key)) {
+    return inFlightMap.get(key);
   }
+
+  const queryPromise = (async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500); // 2.5s safe timeout
+
+    try {
+      const res = await fetch(`${kv.url}/get/${encodeURIComponent(key)}`, {
+        headers: { Authorization: `Bearer ${kv.token}` },
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (!res.ok) return null;
+      const json = await res.json();
+      if (!json || json.result === undefined || json.result === null) return null;
+      return typeof json.result === "string" ? JSON.parse(json.result) : json.result;
+    } catch (e) {
+      clearTimeout(timer);
+      console.warn(`KV read error for key [${key}]:`, e.name === "AbortError" ? "Timeout (2.5s)" : e.message);
+      return null;
+    } finally {
+      inFlightMap.delete(key);
+    }
+  })();
+
+  inFlightMap.set(key, queryPromise);
+  return queryPromise;
 }
 
-async function saveToKv(kv, key, value) {
+// Save with 7-day TTL to Upstash Redis
+async function saveToKv(kv, key, value, ttlSeconds = 604800) {
+  if (!kv) return;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 3000);
+
   try {
-    await fetch(`${kv.url}/set/${encodeURIComponent(key)}`, {
+    const payload = typeof value === "string" ? value : JSON.stringify(value);
+    await fetch(`${kv.url}/set/${encodeURIComponent(key)}?ex=${ttlSeconds}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${kv.token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(typeof value === "string" ? value : JSON.stringify(value)),
+      body: JSON.stringify(payload),
+      signal: controller.signal,
     });
+    clearTimeout(timer);
   } catch (e) {
-    console.error("KV save error:", e);
+    clearTimeout(timer);
+    console.warn(`KV write error for key [${key}]:`, e.message);
   }
 }
 
+// Delete key from Upstash Redis
+async function deleteFromKv(kv, key) {
+  if (!kv) return;
+  try {
+    await fetch(`${kv.url}/del/${encodeURIComponent(key)}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${kv.token}` },
+    });
+  } catch (e) {
+    console.warn(`KV delete error for key [${key}]:`, e.message);
+  }
+}
+
+const ALLOWED_ORIGINS = new Set([
+  "https://circuitron.in",
+  "https://www.circuitron.in",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
 export default async function handler(req, res) {
   // CORS Headers
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
@@ -144,16 +214,19 @@ export default async function handler(req, res) {
   }
 
   loadFromFile();
-  const kv = await getKvStore();
+  const kv = getKvConfig();
+  const isAdmin = isAuthorizedAdmin(req);
 
   // 1. GET: Fetch member by ID, stream avatar, or list all
   if (req.method === "GET") {
-    // Direct avatar image request: /api/members?avatar=TX2-XX-XXXX
+    // 1.A. Avatar Image Request: /api/members?avatar=TX2-XX-XXXX
     const avatarTargetId = (req.query.avatar || "").trim().toUpperCase();
     if (avatarTargetId) {
+      res.setHeader("Cache-Control", "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800, immutable");
       let member = memoryStore.get(avatarTargetId);
       if (!member && kv) {
         member = await fetchFromKv(kv, `member:${avatarTargetId}`);
+        if (member) memoryStore.set(avatarTargetId, member);
       }
       if (member && member.img) {
         if (member.img.startsWith("http://") || member.img.startsWith("https://")) {
@@ -164,40 +237,60 @@ export default async function handler(req, res) {
           const mime = matches[1];
           const buffer = Buffer.from(matches[2], "base64");
           res.setHeader("Content-Type", mime);
-          res.setHeader("Cache-Control", "public, max-age=86400, immutable");
           return res.status(200).send(buffer);
         }
       }
       return res.status(404).send("Avatar not found");
     }
 
+    // 1.B. Single Member Lookup: /api/members?id=TX2-XX-XXXX
     const targetId = (req.query.id || "").trim().toUpperCase();
-
     if (targetId) {
-      // Check memory store
+      if (isAdmin) {
+        res.setHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+      } else {
+        res.setHeader("Cache-Control", "public, s-maxage=30, stale-while-revalidate=120");
+      }
+
+      let cacheStatus = "MISS";
       let member = memoryStore.get(targetId);
 
-      // Check external KV if not in memory
-      if (!member && kv) {
+      if (member) {
+        cacheStatus = "MEMORY_HIT";
+      } else if (kv) {
         member = await fetchFromKv(kv, `member:${targetId}`);
         if (member) {
+          cacheStatus = "KV_HIT";
           memoryStore.set(targetId, member);
         }
       }
 
+      res.setHeader("X-Cache-Status", cacheStatus);
+
       if (member) {
-        return res.status(200).json({ success: true, member });
+        const returnedMember = isAdmin ? member : sanitizeForPublic(member);
+        return res.status(200).json({ success: true, member: returnedMember });
       }
       return res.status(404).json({ success: false, error: "Member not found" });
     }
 
-    // Return all custom members (excluding any legacy mock records)
+    // 1.C. All Members Listing: /api/members
+    if (isAdmin) {
+      res.setHeader("Cache-Control", "private, no-cache, no-store, must-revalidate");
+    } else {
+      res.setHeader("Cache-Control", "public, s-maxage=10, stale-while-revalidate=60");
+    }
+
+    let cacheStatus = "MEMORY_HIT";
     let all = Array.from(memoryStore.values()).filter(
       (m) => m && m.id?.toUpperCase() !== "TX2-PT-9295" && m.name?.trim().toLowerCase() !== "rahul verma"
     );
+
+    // If local memory is empty and Redis is available, sync from Redis
     if (all.length === 0 && kv) {
       const fromKv = await fetchFromKv(kv, "all_custom_members");
       if (Array.isArray(fromKv)) {
+        cacheStatus = "KV_HIT";
         fromKv.forEach((m) => {
           if (
             m &&
@@ -212,12 +305,15 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true, members: all, count: all.length });
+    res.setHeader("X-Cache-Status", cacheStatus);
+
+    const publicList = isAdmin ? all : all.map(sanitizeForPublic);
+    return res.status(200).json({ success: true, members: publicList, count: publicList.length });
   }
 
   // 2. POST: Upsert member or batch of members (Requires Administrator Authorization)
   if (req.method === "POST") {
-    if (!isAuthorizedAdmin(req)) {
+    if (!isAdmin) {
       return res.status(401).json({
         success: false,
         error: "Unauthorized: Valid administrator authorization required to update member registry.",
@@ -271,14 +367,15 @@ export default async function handler(req, res) {
 
       saveToFile();
 
-      // Persist to KV if configured
+      // Invalidate & persist to Redis KV
       if (kv && validItems.length > 0) {
-        for (const m of validItems) {
-          await saveToKv(kv, `member:${m.id}`, m);
-        }
-        await saveToKv(kv, "all_custom_members", Array.from(memoryStore.values()));
+        await Promise.all([
+          ...validItems.map((m) => saveToKv(kv, `member:${m.id}`, m)),
+          saveToKv(kv, "all_custom_members", Array.from(memoryStore.values())),
+        ]);
       }
 
+      res.setHeader("Cache-Control", "no-store");
       return res.status(200).json({
         success: true,
         message: `Successfully synced ${validItems.length} member(s) to cloud registry.`,
@@ -295,7 +392,7 @@ export default async function handler(req, res) {
 
   // 3. DELETE: Remove member (Requires Administrator Authorization)
   if (req.method === "DELETE") {
-    if (!isAuthorizedAdmin(req)) {
+    if (!isAdmin) {
       return res.status(401).json({
         success: false,
         error: "Unauthorized: Valid administrator authorization required to delete member records.",
@@ -312,10 +409,13 @@ export default async function handler(req, res) {
       saveToFile();
 
       if (kv) {
-        await saveToKv(kv, `member:${targetId}`, null);
-        await saveToKv(kv, "all_custom_members", Array.from(memoryStore.values()));
+        await Promise.all([
+          deleteFromKv(kv, `member:${targetId}`),
+          saveToKv(kv, "all_custom_members", Array.from(memoryStore.values())),
+        ]);
       }
 
+      res.setHeader("Cache-Control", "no-store");
       return res.status(200).json({ success: true, message: `Removed member ${targetId}` });
     } catch (err) {
       console.error("DELETE /api/members error:", err);

@@ -8,6 +8,9 @@ import ScrollToTop from "./components/ScrollToTop";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import RobotMascotBackground from "./components/RobotMascotBackground";
 import PageLoader from "./components/PageLoader";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
+import { shouldReduceMotion, isLowEndDevice } from "./utils/performance";
 
 // Direct Home page import for instantaneous 0ms landing load
 import Home from "./pages/Home";
@@ -160,6 +163,10 @@ function RouteMetadataUpdater() {
 
 export default function App() {
   const location = useLocation();
+  const [allowParticles] = React.useState(() => {
+    if (typeof window === "undefined") return false;
+    return !shouldReduceMotion() && !isLowEndDevice();
+  });
 
   return (
     <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy overflow-x-hidden w-full max-w-full">
@@ -168,9 +175,11 @@ export default function App() {
       <Suspense fallback={null}>
         <InteractiveCyberGrid />
       </Suspense>
-      <Suspense fallback={null}>
-        <ParticlesBackground />
-      </Suspense>
+      {allowParticles && (
+        <Suspense fallback={null}>
+          <ParticlesBackground />
+        </Suspense>
+      )}
       <RobotMascotBackground />
       <div
         className="fixed inset-0 circuit-bg opacity-30 pointer-events-none"
@@ -203,6 +212,8 @@ export default function App() {
       </main>
       <Footer />
       <ScrollToTop />
+      <SpeedInsights />
+      <Analytics />
     </div>
   );
 }

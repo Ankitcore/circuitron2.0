@@ -71,8 +71,11 @@ export default function HomeGallery() {
               <img
                 src={img.src}
                 alt={img.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                width="600"
+                height="450"
                 loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
 
               {/* Gradient Scrim */}

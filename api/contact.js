@@ -1,7 +1,24 @@
-﻿// Vercel Serverless Function: /api/contact
+// Vercel Serverless Function: /api/contact
 // Handles contact inquiries and sends emails via Resend (https://resend.com)
 
 const rateLimitMap = new Map();
+
+const ALLOWED_ORIGINS = new Set([
+  "https://circuitron.in",
+  "https://www.circuitron.in",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
+
+// Helper: Escape HTML entities to prevent HTML injection in emails
+function escapeHtml(str = "") {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 // Helper: Sanitize inputs against HTML/XSS injection
 function sanitize(str = "", maxLen = 1000) {
@@ -14,9 +31,14 @@ function sanitize(str = "", maxLen = 1000) {
 }
 
 export default async function handler(req, res) {
-  // CORS Headers (allow requests from the frontend)
+  // CORS Headers (allow authorized Circuitron origins)
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "https://www.circuitron.in");
+  }
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "https://circuitron.in");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
@@ -137,13 +159,13 @@ export default async function handler(req, res) {
 
             <div class="meta-box">
               <div class="meta-item">
-                <span class="meta-label">Sender Name:</span> <strong style="color: #ffffff;">${cleanName}</strong>
+                <span class="meta-label">Sender Name:</span> <strong style="color: #ffffff;">${escapeHtml(cleanName)}</strong>
               </div>
               <div class="meta-item">
-                <span class="meta-label">Reply Email:</span> <a href="mailto:${cleanEmail}" style="color: #00f0ff; text-decoration: none;">${cleanEmail}</a>
+                <span class="meta-label">Reply Email:</span> <a href="mailto:${encodeURIComponent(cleanEmail)}" style="color: #00f0ff; text-decoration: none;">${escapeHtml(cleanEmail)}</a>
               </div>
               <div class="meta-item">
-                <span class="meta-label">Subject:</span> <span style="color: #ffffff;">${cleanSubject}</span>
+                <span class="meta-label">Subject:</span> <span style="color: #ffffff;">${escapeHtml(cleanSubject)}</span>
               </div>
               <div class="meta-item" style="margin-bottom: 0;">
                 <span class="meta-label">Timestamp:</span> <span style="color: #9ca3af;">${new Date().toUTCString()}</span>
@@ -152,7 +174,7 @@ export default async function handler(req, res) {
 
             <div class="message-box">
               <div class="message-title">Message Contents</div>
-              <div class="message-text">${cleanMessage}</div>
+              <div class="message-text">${escapeHtml(cleanMessage)}</div>
             </div>
 
             <div style="margin-top: 24px; text-align: center;">
@@ -189,9 +211,9 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error("Resend API error:", data);
-      return res.status(response.status).json({
+      return res.status(response.status >= 500 ? 502 : 400).json({
         success: false,
-        error: data.message || "Failed to transmit message via email provider.",
+        error: "Failed to transmit message via email service. Please try again later.",
       });
     }
 

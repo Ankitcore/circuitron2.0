@@ -213,7 +213,7 @@ export const coreTeam = [
 // Dynamic Registry Engine (localStorage-backed with event broadcasting)
 // ============================================================================
 export const CUSTOM_MEMBERS_KEY = "tx2_custom_members";
-export const DEFAULT_MEMBER_AVATAR = "/assets/default-avatar.jpg";
+export const DEFAULT_MEMBER_AVATAR = "/assets/default-avatar.webp";
 
 export const initialCustomMembers = [];
 

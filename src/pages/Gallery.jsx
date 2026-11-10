@@ -111,8 +111,11 @@ export default function Gallery() {
                 <img
                   src={img.src}
                   alt={img.alt}
+                  width="600"
+                  height="450"
+                  loading={index < 3 ? "eager" : "lazy"}
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
                 />
 
                 {/* Scrim Overlay */}
