@@ -203,13 +203,6 @@ export default function App() {
       </main>
       <Footer />
       <ScrollToTop />
-      {/* Ambient Creator Signature Watermark: Subtle & Non-Intrusive across Mobile & Desktop */}
-      <div
-        className="fixed bottom-2 left-3 sm:bottom-3 sm:left-6 z-30 pointer-events-none select-none text-[8px] sm:text-[9px] font-mono tracking-widest text-cyan-400/20 sm:text-accent/25 uppercase"
-        aria-hidden="true"
-      >
-        [CREATED::ANKIT::327]
-      </div>
     </div>
   );
 }

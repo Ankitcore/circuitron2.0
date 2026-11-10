@@ -202,11 +202,6 @@ export default function Navbar() {
                   <ShieldCheck className="w-4 h-4 text-accent" />
                   <span>Admin Portal</span>
                 </Link>
-                <div className="pt-2 text-center select-none pointer-events-none">
-                  <span className="text-[9px] font-mono text-cyan-400/25 tracking-widest uppercase">
-                    [CREATED::ANKIT::327]
-                  </span>
-                </div>
               </div>
             </div>
           </motion.div>
