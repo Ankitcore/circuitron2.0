@@ -129,21 +129,31 @@ export default function InteractiveCyberGrid() {
       </svg>
 
       {/* 3. Floating Microchip Telemetry Glyphs (Pure CSS translate3d, 0 JS thread burden) */}
-      {!reduceMotion && (
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/3 left-10 text-[10px] font-mono text-cyan-400 tracking-widest hidden md:block opacity-25 telemetry-float-1">
-            [FREQ::2.4GHz_IoT_NODE]
-          </div>
-
-          <div className="absolute top-2/3 right-14 text-[10px] font-mono text-cyberPurple tracking-widest hidden md:block opacity-20 telemetry-float-2">
-            [MCU::STM32_ONLINE]
-          </div>
-
-          <div className="absolute bottom-16 sm:bottom-24 left-4 sm:left-1/4 text-[8px] sm:text-[9px] font-mono text-accent tracking-wider block opacity-25 telemetry-float-3">
-            {"[CREATED::ANKIT::327 ]"}
-          </div>
+      <div className="absolute inset-0 pointer-events-none">
+        <div
+          className={`absolute top-1/3 left-10 text-[10px] font-mono text-cyan-400 tracking-widest hidden md:block opacity-25 ${
+            reduceMotion ? "" : "telemetry-float-1"
+          }`}
+        >
+          [FREQ::2.4GHz_IoT_NODE]
         </div>
-      )}
+
+        <div
+          className={`absolute top-2/3 right-14 text-[10px] font-mono text-cyberPurple tracking-widest hidden md:block opacity-20 ${
+            reduceMotion ? "" : "telemetry-float-2"
+          }`}
+        >
+          [MCU::STM32_ONLINE]
+        </div>
+
+        <div
+          className={`absolute bottom-16 sm:bottom-24 left-4 sm:left-1/4 text-[8px] sm:text-[9px] font-mono text-accent tracking-wider block opacity-20 sm:opacity-25 ${
+            reduceMotion ? "" : "telemetry-float-3"
+          }`}
+        >
+          {"[CREATED::ANKIT::327]"}
+        </div>
+      </div>
     </div>
   );
 }

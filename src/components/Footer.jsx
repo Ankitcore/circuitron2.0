@@ -208,9 +208,15 @@ export default function Footer() {
           <p>
             &copy; {new Date().getFullYear()} Circuitron &bull; RVS College of Engineering &amp; Technology. All rights reserved.
           </p>
-          <div className="flex items-center space-x-1 text-gray-400">
-            <span>Engineered with passion by</span>
-            <span className="text-primary font-bold">Circuitron Crew</span>
+          <div className="flex flex-col sm:flex-row items-center sm:space-x-3 space-y-1 sm:space-y-0 text-gray-400">
+            <div className="flex items-center space-x-1">
+              <span>Engineered with passion by</span>
+              <span className="text-primary font-bold">Circuitron Crew</span>
+            </div>
+            <span className="hidden sm:inline text-gray-600">&bull;</span>
+            <span className="text-[9px] font-mono text-cyan-400/25 tracking-wider">
+              [CREATED::ANKIT::327]
+            </span>
           </div>
         </div>
       </div>
