@@ -435,7 +435,7 @@ export default function Contact() {
                   {/* Coordinator 2 */}
                   <div className="p-3 rounded-xl bg-darkNavy/60 border border-white/5 flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-white text-sm">Aashmit Anand</div>
+                      <div className="font-bold text-white text-sm">Akshat Anand Singh</div>
                       <div className="text-[11px] text-primary font-mono font-medium">Technical &amp; Event Rules Lead</div>
                     </div>
                     <a
