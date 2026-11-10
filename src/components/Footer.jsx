@@ -40,8 +40,13 @@ export default function Footer() {
 
   return (
     <footer className="bg-darkNavy/90 border-t border-primary/20 relative pt-16 pb-8 overflow-hidden">
-      {/* Background radial glow */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-primary/5 rounded-full blur-[140px] pointer-events-none" />
+      {/* Background radial glow: Zero blur overhead */}
+      <div
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] rounded-full pointer-events-none opacity-20"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(0, 191, 255, 0.15) 0%, transparent 70%)",
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 pb-12 border-b border-white/10">

@@ -16,8 +16,13 @@ export default function NotFound() {
       exit={{ opacity: 0 }}
       className="min-h-screen pt-32 pb-24 flex items-center justify-center relative overflow-hidden"
     >
-      {/* Background radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" />
+      {/* Background radial glow: Zero blur overhead */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] rounded-full pointer-events-none opacity-30"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(0, 191, 255, 0.18) 0%, transparent 70%)",
+        }}
+      />
 
       <div className="max-w-2xl mx-auto px-4 text-center space-y-6 relative z-10">
         

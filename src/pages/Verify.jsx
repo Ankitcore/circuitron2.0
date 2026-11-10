@@ -365,7 +365,12 @@ export default function Verify() {
     >
       {/* Background Ambience */}
       <div className="absolute inset-0 circuit-bg opacity-30 pointer-events-none" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-primary/10 rounded-full blur-[140px] pointer-events-none" />
+      <div
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full pointer-events-none opacity-30"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(0, 191, 255, 0.18) 0%, transparent 70%)",
+        }}
+      />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         

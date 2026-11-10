@@ -174,11 +174,11 @@ export default function App() {
       <RobotMascotBackground />
       <div
         className="fixed inset-0 circuit-bg opacity-30 pointer-events-none"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 0, willChange: "transform", transform: "translateZ(0)" }}
       />
       <div
         className="fixed inset-0 circuit-bg-glow pointer-events-none"
-        style={{ zIndex: 0 }}
+        style={{ zIndex: 0, willChange: "transform", transform: "translateZ(0)" }}
       />
       <Navbar />
       <main className="relative z-10">

@@ -13,14 +13,14 @@ export default function Home() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4 }}
     >
       <Hero />
-      <Stats />
-      <FeaturedEvents />
-      <HomeGallery />
-      <HomeTeam />
-      <HomeContact />
+      <div className="perf-section"><Stats /></div>
+      <div className="perf-section"><FeaturedEvents /></div>
+      <div className="perf-section"><HomeGallery /></div>
+      <div className="perf-section"><HomeTeam /></div>
+      <div className="perf-section"><HomeContact /></div>
     </motion.div>
   );
 }
