@@ -20,6 +20,10 @@ import {
   Navigation,
   Compass,
   ShieldCheck,
+  Moon,
+  Sun,
+  Copy,
+  Check,
 } from "lucide-react";
 
 const inquiryCategories = [
@@ -72,6 +76,17 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [openFaq, setOpenFaq] = useState(0);
+  const [mapTheme, setMapTheme] = useState("dark"); // "dark" (default) or "standard"
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [copiedCoords, setCopiedCoords] = useState(false);
+
+  const handleCopyCoords = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText("22.805307, 86.271230");
+      setCopiedCoords(true);
+      setTimeout(() => setCopiedCoords(false), 2200);
+    }
+  };
 
   // Security: Clean and sanitize inputs against XSS and pseudo-protocol injections
   const sanitizeInput = (val, maxLen = 300) => {
@@ -784,32 +799,142 @@ export default function Contact() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             
-            {/* Interactive Embedded Google Map (7 cols) */}
-            <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-primary/30 shadow-2xl bg-darkNavy relative min-h-[360px] flex flex-col">
-              <iframe
-                title="RVSCET Jamshedpur Campus Map"
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.368545802167!2d86.27123017582524!3d22.80530667932822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f5e30ff76d3319%3A0x4986ace5ea086802!2sRVS%20College%20of%20Engineering%20and%20Technology!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                className="w-full h-full min-h-[360px] border-0 filter contrast-125"
-                loading="lazy"
-                allowFullScreen
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-              <div className="p-3 bg-darkNavy/90 border-t border-primary/20 flex flex-wrap items-center justify-between gap-2 text-xs font-mono text-gray-300">
-                <span className="flex items-center space-x-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-accent" />
-                  <span>Edalbera, Bhilai Pahari, Jamshedpur &bull; NH-33</span>
+            {/* Interactive Embedded Google Map with Dark Mode (7 cols) */}
+            <div className="lg:col-span-7 rounded-2xl overflow-hidden border border-primary/30 shadow-2xl bg-[#040716] relative min-h-[420px] sm:min-h-[480px] flex flex-col justify-between">
+              
+              {/* Map HUD Cyber Header */}
+              <div className="px-3.5 py-2.5 bg-darkNavy/95 border-b border-primary/20 flex items-center justify-between gap-2 text-xs font-mono z-10">
+                <div className="flex items-center space-x-2">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
+                  <span className="font-bold text-white tracking-wider text-[11px] sm:text-xs">
+                    CAMPUS RADAR &bull; NH-33
+                  </span>
+                  <span className="hidden sm:inline-block px-1.5 py-0.5 rounded bg-primary/10 border border-primary/20 text-[10px] text-cyan-300 font-mono">
+                    22.8053° N, 86.2712° E
+                  </span>
+                </div>
+
+                {/* Dark / Standard View Toggle */}
+                <div className="flex items-center space-x-1 bg-black/50 p-0.5 rounded-lg border border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setMapTheme("dark")}
+                    className={`flex items-center space-x-1 px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
+                      mapTheme === "dark"
+                        ? "bg-primary/20 text-cyan-300 border border-primary/40 shadow-[0_0_10px_rgba(0,243,255,0.2)]"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                    title="Switch to Cyber Dark Mode"
+                  >
+                    <Moon className="w-3 h-3 text-cyan-400" />
+                    <span>Dark</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapTheme("standard")}
+                    className={`flex items-center space-x-1 px-2.5 py-1 rounded text-[10px] font-bold transition-all ${
+                      mapTheme === "standard"
+                        ? "bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-[0_0_10px_rgba(251,191,36,0.2)]"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                    title="Switch to Standard Daylight View"
+                  >
+                    <Sun className="w-3 h-3 text-amber-400" />
+                    <span>Standard</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Map Iframe & Loading Radar Area */}
+              <div className="relative flex-1 w-full min-h-[340px] sm:min-h-[400px] bg-[#040716] overflow-hidden">
+                {/* Dark Radar Skeleton / Preloader */}
+                {!mapLoaded && (
+                  <div className="absolute inset-0 z-[5] bg-[#040716] flex flex-col items-center justify-center p-6 text-center space-y-3">
+                    <div className="relative w-16 h-16 flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full border border-primary/20 animate-ping" />
+                      <div className="absolute inset-1.5 rounded-full border border-dashed border-cyan-400/60 animate-spin" style={{ animationDuration: "5s" }} />
+                      <div className="w-9 h-9 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-primary shadow-[0_0_15px_rgba(0,243,255,0.3)]">
+                        <Compass className="w-4 h-4 text-cyan-400 animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-xs font-mono font-bold text-white tracking-widest flex items-center justify-center space-x-1.5">
+                        <span>CONNECTING TO SATELLITE RADAR</span>
+                      </div>
+                      <div className="text-[11px] text-gray-400 font-mono">
+                        RVSCET Campus &bull; NH-33, Bhilai Pahari, Jamshedpur
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <iframe
+                  title="RVSCET Jamshedpur Campus Map"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.368545802167!2d86.27123017582524!3d22.80530667932822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f5e30ff76d3319%3A0x4986ace5ea086802!2sRVS%20College%20of%20Engineering%20and%20Technology!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  onLoad={() => setMapLoaded(true)}
+                  className="w-full h-full min-h-[340px] sm:min-h-[400px] border-0 transition-all duration-300"
+                  style={{
+                    filter:
+                      mapTheme === "dark"
+                        ? "invert(90%) hue-rotate(180deg) contrast(115%) brightness(95%) saturate(110%)"
+                        : "contrast(102%)",
+                    backgroundColor: "#040716",
+                  }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+
+              {/* Map Footer Bar with Location & Quick Navigation Actions */}
+              <div className="p-3 bg-darkNavy/95 border-t border-primary/20 flex flex-wrap items-center justify-between gap-2.5 text-xs font-mono text-gray-300 z-10">
+                <span className="flex items-center space-x-1.5 min-w-0">
+                  <MapPin className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                  <span className="truncate text-[11px] sm:text-xs">Edalbera, Bhilai Pahari, Jamshedpur &bull; NH-33</span>
                 </span>
-                <a
-                  href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-accent hover:underline flex items-center space-x-1 font-bold"
-                >
-                  <span>Open Full Screen</span>
-                  <ExternalLink className="w-3 h-3" />
-                </a>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={handleCopyCoords}
+                    className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white flex items-center space-x-1 text-[11px] transition-colors"
+                    title="Copy GPS Coordinates to Clipboard"
+                  >
+                    {copiedCoords ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-400 font-bold">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3 text-cyan-400" />
+                        <span>Copy GPS</span>
+                      </>
+                    )}
+                  </button>
+                  <a
+                    href="https://www.google.com/maps/dir/?api=1&destination=22.80530667932822,86.27123017582524"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-1 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/40 text-cyan-300 hover:text-white flex items-center space-x-1 text-[11px] font-bold transition-colors"
+                  >
+                    <Navigation className="w-3 h-3 text-cyan-400" />
+                    <span>Directions</span>
+                  </a>
+                  <a
+                    href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2.5 py-1 rounded-lg bg-accent/20 hover:bg-accent/30 border border-accent/40 text-accent hover:text-white flex items-center space-x-1 text-[11px] font-bold transition-colors"
+                  >
+                    <span>Full Map</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
               </div>
             </div>
 
