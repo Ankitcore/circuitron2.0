@@ -1,4 +1,4 @@
-// Vercel Serverless Function: /api/members
+﻿// Vercel Serverless Function: /api/members
 // Centralized Cloud Registry for TechXpo 2.O custom enrolled members
 // Enables multi-device verification across mobile, desktop, and scanner devices
 
@@ -123,7 +123,7 @@ async function saveToKv(kv, key, value) {
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "https://circuitron.in");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",

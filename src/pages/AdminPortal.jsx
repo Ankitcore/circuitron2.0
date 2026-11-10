@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+﻿import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -218,7 +218,7 @@ export default function AdminPortal() {
       try {
         const custom = getCustomMembers();
         const token = encodeMembersForSync(custom);
-        const origin = typeof window !== "undefined" ? window.location.origin : "https://circuitron2-0.vercel.app";
+        const origin = typeof window !== "undefined" ? window.location.origin : "https://circuitron.in";
         const shareUrl = `${origin}/admin?sync=${encodeURIComponent(token)}`;
         setDeviceSyncShareUrl(shareUrl);
 

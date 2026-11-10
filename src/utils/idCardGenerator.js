@@ -1,4 +1,4 @@
-import QRCode from "qrcode";
+﻿import QRCode from "qrcode";
 import { TIER_CONFIG, normalizeTierKey, getMemberById } from "../data/team";
 import { TECHXPO_QR_LOGO_SRC } from "./techxpoLogoBase64";
 
@@ -7,7 +7,7 @@ import { TECHXPO_QR_LOGO_SRC } from "./techxpoLogoBase64";
  * Guarantees standard clean URL matching official TechXpo badges (Version 6 QR matrix).
  */
 export function getMemberVerificationUrl(memberOrId) {
-  if (!memberOrId) return "https://circuitron2-0.vercel.app/verify";
+  if (!memberOrId) return "https://circuitron.in/verify";
 
   let cleanId = "";
   if (typeof memberOrId === "object") {
@@ -17,15 +17,15 @@ export function getMemberVerificationUrl(memberOrId) {
   }
 
   return cleanId
-    ? `https://circuitron2-0.vercel.app/verify/${cleanId}`
-    : "https://circuitron2-0.vercel.app/verify";
+    ? `https://circuitron.in/verify/${cleanId}`
+    : "https://circuitron.in/verify";
 }
 
 /**
  * Optional self-contained verification URL carrying member credentials for manual link sharing.
  */
 export function getSelfContainedVerificationUrl(memberOrId) {
-  if (!memberOrId) return "https://circuitron2-0.vercel.app/verify";
+  if (!memberOrId) return "https://circuitron.in/verify";
 
   let member = memberOrId;
   if (typeof memberOrId === "string") {
@@ -34,12 +34,12 @@ export function getSelfContainedVerificationUrl(memberOrId) {
       member = found;
     } else {
       const cleanId = memberOrId.trim().toUpperCase();
-      return `https://circuitron2-0.vercel.app/verify/${cleanId}`;
+      return `https://circuitron.in/verify/${cleanId}`;
     }
   }
 
   const id = (member.id || "").trim().toUpperCase();
-  const baseUrl = `https://circuitron2-0.vercel.app/verify/${id}`;
+  const baseUrl = `https://circuitron.in/verify/${id}`;
   const params = new URLSearchParams();
 
   if (member.name) params.set("n", member.name.trim());
@@ -54,7 +54,7 @@ export function getSelfContainedVerificationUrl(memberOrId) {
     if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
       params.set("img", trimmed);
     } else if (trimmed.startsWith("data:image")) {
-      params.set("img", `https://circuitron2-0.vercel.app/api/members?avatar=${id}`);
+      params.set("img", `https://circuitron.in/api/members?avatar=${id}`);
     }
   }
 
@@ -130,14 +130,14 @@ async function drawTechXpoMark(ctx, size) {
 export async function generateQrCodeDataUrl(memberOrId, size = 600) {
   let url;
   if (!memberOrId) {
-    url = "https://circuitron2-0.vercel.app/verify";
+    url = "https://circuitron.in/verify";
   } else if (typeof memberOrId === "object") {
     url = getMemberVerificationUrl(memberOrId);
   } else {
     const found = getMemberById(memberOrId);
     url = found
       ? getMemberVerificationUrl(found)
-      : `https://circuitron2-0.vercel.app/verify/${memberOrId.trim().toUpperCase()}`;
+      : `https://circuitron.in/verify/${memberOrId.trim().toUpperCase()}`;
   }
   const canvas = document.createElement("canvas");
   canvas.width = size;

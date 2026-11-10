@@ -1,4 +1,4 @@
-// Vercel Serverless Function: /api/upload
+﻿// Vercel Serverless Function: /api/upload
 // Secure, high-speed image upload endpoint for TechXpo 2.O delegate avatar photos.
 // Proxies images to Catbox CDN to produce permanent, public HTTPS URLs that
 // load instantaneously across all devices, mobile scanners, and print ID badges.
@@ -23,7 +23,7 @@ export const config = {
 export default async function handler(req, res) {
   // CORS Headers
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "https://circuitron.in");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",

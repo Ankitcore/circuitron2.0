@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Camera,
@@ -31,7 +31,7 @@ export function parseScannedQrCode(decodedText = "") {
   let id = "";
   let search = "";
 
-  // 1. Check if it's a full URL (e.g. https://circuitron2-0.vercel.app/verify/TX2-EX-7264?n=...&img=...)
+  // 1. Check if it's a full URL (e.g. https://circuitron.in/verify/TX2-EX-7264?n=...&img=...)
   try {
     const url = new URL(text);
     const pathParts = url.pathname.split("/").filter(Boolean);

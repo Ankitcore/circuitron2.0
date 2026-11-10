@@ -1,4 +1,4 @@
-// Vercel Serverless Function: /api/contact
+﻿// Vercel Serverless Function: /api/contact
 // Handles contact inquiries and sends emails via Resend (https://resend.com)
 
 const rateLimitMap = new Map();
@@ -16,7 +16,7 @@ function sanitize(str = "", maxLen = 1000) {
 export default async function handler(req, res) {
   // CORS Headers (allow requests from the frontend)
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Origin", "https://circuitron.in");
   res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
