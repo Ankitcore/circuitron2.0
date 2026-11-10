@@ -12,6 +12,8 @@ import {
   ChevronDown,
   AlertCircle,
   Clock,
+  Calendar,
+  Zap,
   Train,
   Bus,
   Car,
@@ -467,24 +469,84 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Secretariat Working Hours */}
-              <div className="glass-panel p-5 rounded-2xl border border-primary/20 space-y-3">
-                <div className="flex items-center space-x-2 text-xs font-mono text-gray-400 uppercase tracking-wider">
-                  <Clock className="w-3.5 h-3.5 text-accent" />
-                  <span>Support Schedule &amp; Desk Timings</span>
+              {/* Secretariat Working Hours & Support Schedule */}
+              <div className="glass-panel p-4 sm:p-5 rounded-2xl border border-primary/20 space-y-3.5">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
+                  <div className="flex items-center space-x-2 text-xs font-mono text-gray-300 uppercase tracking-wider">
+                    <Clock className="w-3.5 h-3.5 text-accent flex-shrink-0" />
+                    <span className="font-bold text-white">Support Schedule &amp; Desk Timings</span>
+                  </div>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5" />
+                    LIVE DESK
+                  </span>
                 </div>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-white/5 text-gray-300">
-                    <span>Monday &ndash; Saturday</span>
-                    <span className="font-mono font-bold text-white">09:00 AM &ndash; 07:00 PM IST</span>
+
+                <div className="space-y-2.5">
+                  {/* Slot 1: Monday - Saturday */}
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-darkNavy/70 border border-primary/15 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Calendar className="w-3 h-3 text-primary" />
+                      </div>
+                      <div>
+                        <div className="text-white text-xs font-bold leading-tight">
+                          Monday &ndash; Saturday
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono">
+                          Regular Secretariat Hours
+                        </div>
+                      </div>
+                    </div>
+                    <div className="self-start sm:self-auto pl-8 sm:pl-0">
+                      <span className="inline-block px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/25 font-mono font-bold text-[11px] text-primary whitespace-nowrap">
+                        09:00 AM &ndash; 07:00 PM IST
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-white/5 text-gray-300">
-                    <span>Sunday &amp; General Holidays</span>
-                    <span className="font-mono font-bold text-emerald-400">WhatsApp Desk Only</span>
+
+                  {/* Slot 2: Sunday & General Holidays */}
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-darkNavy/70 border border-emerald-500/15 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                        <MessageSquare className="w-3 h-3 text-emerald-400" />
+                      </div>
+                      <div>
+                        <div className="text-white text-xs font-bold leading-tight">
+                          Sunday &amp; General Holidays
+                        </div>
+                        <div className="text-[10px] text-gray-400 font-mono">
+                          Digital Ticketing &amp; Queries
+                        </div>
+                      </div>
+                    </div>
+                    <div className="self-start sm:self-auto pl-8 sm:pl-0">
+                      <span className="inline-block px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 font-mono font-bold text-[11px] text-emerald-300 whitespace-nowrap">
+                        WhatsApp Desk Only
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between py-1 text-gray-300">
-                    <span>TechXpo 2.O Event Days</span>
-                    <span className="font-mono font-bold text-accent">24-Hour Arena Operations</span>
+
+                  {/* Slot 3: Event Days */}
+                  <div className="p-2.5 sm:p-3 rounded-xl bg-darkNavy/70 border border-accent/20 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2">
+                    <div className="flex items-center space-x-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center flex-shrink-0">
+                        <Zap className="w-3 h-3 text-accent" />
+                      </div>
+                      <div>
+                        <div className="text-white text-xs font-bold leading-tight">
+                          TechXpo 2.O Event Days
+                        </div>
+                        <div className="text-[10px] text-accent/80 font-mono">
+                          30 Nov 2026 &bull; All Arenas
+                        </div>
+                      </div>
+                    </div>
+                    <div className="self-start sm:self-auto pl-8 sm:pl-0">
+                      <span className="inline-block px-2.5 py-1 rounded-lg bg-accent/15 border border-accent/40 font-mono font-bold text-[11px] text-accent whitespace-nowrap shadow-sm">
+                        24-Hour Arena Operations
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
