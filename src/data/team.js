@@ -286,9 +286,17 @@ export function getCustomMembers() {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
 
-    // Purge Rahul Verma / TX2-PT-9295 if present from legacy sessions
+    // Purge Rahul Verma / TX2-PT-9295 and any accidental custom shadows of built-in faculty
     const cleaned = parsed.filter(
-      (m) => m && m.id?.toUpperCase() !== "TX2-PT-9295" && m.name?.trim().toLowerCase() !== "rahul verma"
+      (m) =>
+        m &&
+        m.id?.toUpperCase() !== "TX2-PT-9295" &&
+        m.name?.trim().toLowerCase() !== "rahul verma" &&
+        m.id?.toUpperCase() !== "TX2-FC-8492" &&
+        m.id?.toUpperCase() !== "TX2-FC-3925" &&
+        !m.id?.toUpperCase().startsWith("TX2-FC") &&
+        !m.name?.toLowerCase().includes("sushanta mahanty") &&
+        !m.name?.toLowerCase().includes("vikash kumar")
     );
     if (cleaned.length !== parsed.length) {
       localStorage.setItem(CUSTOM_MEMBERS_KEY, JSON.stringify(cleaned));
@@ -436,12 +444,12 @@ export async function fetchMembersFromCloud() {
  * Safely checks both tier string and optional ID prefix (e.g. TX2-FC-)
  */
 export function normalizeTierKey(tierInput = "", id = "") {
-  const idStr = String(id || "").trim().toUpperCase();
-  if (idStr.startsWith("TX2-FC") || idStr.includes("-FC-")) return "faculty";
-  if (idStr.startsWith("TX2-EX") || idStr.includes("-EX-")) return "executive";
-  if (idStr.startsWith("TX2-CT") || idStr.includes("-CT-")) return "core";
-  if (idStr.startsWith("TX2-PT") || idStr.includes("-PT-")) return "participant";
-  if (idStr.startsWith("TX2-VL") || idStr.includes("-VL-")) return "volunteer";
+  const combined = `${String(tierInput || "")} ${String(id || "")}`.toUpperCase();
+  if (combined.includes("TX2-FC") || combined.includes("-FC-")) return "faculty";
+  if (combined.includes("TX2-EX") || combined.includes("-EX-")) return "executive";
+  if (combined.includes("TX2-CT") || combined.includes("-CT-")) return "core";
+  if (combined.includes("TX2-PT") || combined.includes("-PT-")) return "participant";
+  if (combined.includes("TX2-VL") || combined.includes("-VL-")) return "volunteer";
 
   const t = String(tierInput || "").trim().toLowerCase();
   if (t.includes("exec")) return "executive";
@@ -453,7 +461,10 @@ export function normalizeTierKey(tierInput = "", id = "") {
     t.includes("acad") ||
     t.includes("advis") ||
     t.includes("mentor") ||
-    t.includes("coord")
+    t.includes("coord") ||
+    t.includes("pi") ||
+    t.includes("sushanta") ||
+    t.includes("vikash")
   ) {
     return "faculty";
   }
@@ -768,7 +779,7 @@ export function setTeamWebsiteVisibility(teamNameOrTier, isVisible) {
 
   all.forEach((m) => {
     const matchTeam = m.teamName && m.teamName.trim().toLowerCase() === target;
-    const tKey = normalizeTierKey(m.tierKey || m.tier || m.category);
+    const tKey = normalizeTierKey(m.tierKey || m.tier || m.category, m.id);
     const matchTier = tKey === target || (m.category && m.category.toLowerCase() === target);
 
     if (matchTeam || matchTier) {
@@ -786,7 +797,7 @@ export function setTeamWebsiteVisibility(teamNameOrTier, isVisible) {
   const custom = getCustomMembers();
   const updated = custom.map((m) => {
     const matchTeam = m.teamName && m.teamName.trim().toLowerCase() === target;
-    const tKey = normalizeTierKey(m.tierKey || m.tier || m.category);
+    const tKey = normalizeTierKey(m.tierKey || m.tier || m.category, m.id);
     const matchTier = tKey === target || (m.category && m.category.toLowerCase() === target);
     if (matchTeam || matchTier) {
       return { ...m, showOnWebsite: Boolean(isVisible) };

@@ -1,9 +1,14 @@
-﻿User-agent: *
+User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /private
 Disallow: /api/
-Disallow: /*.json$
 Disallow: /*.log$
+
+# Allow search engines to access static branding, assets, and webmanifest
+Allow: /site.webmanifest
+Allow: /assets/
+Allow: /og-image.jpg
+Allow: /logo.png
 
 Sitemap: https://circuitron.in/sitemap.xml

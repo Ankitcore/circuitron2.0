@@ -27,57 +27,129 @@ const Verify = lazy(() => import("./pages/Verify"));
 const AdminPortal = lazy(() => import("./pages/AdminPortal"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// Dynamic SEO page title and meta description router hook
+// Dynamic SEO page title, metadata, canonical URL, and Open Graph router hook
 function RouteMetadataUpdater() {
   const { pathname } = useLocation();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
 
-    const titles = {
-      "/": "TechXpo 2.O | Circuitron RVSCET Jamshedpur",
-      "/about": "About Us & Vision | Circuitron RVSCET",
-      "/events": "Competitions & Arenas | TechXpo 2.O",
-      "/team": "Official Roster & Committee | TechXpo 2.O",
-      "/gallery": "Photo Archive & Moments | TechXpo 2.O",
-      "/schedule": "Timeline Schedule & Rounds | TechXpo 2.O",
-      "/contact": "Support & Help Desk | TechXpo 2.O",
-      "/verify": "Credential Verification | TechXpo 2.O",
-      "/admin": "Admin Portal | TechXpo 2.O",
+    const baseUrl = "https://circuitron.in";
+    const canonicalUrl = `${baseUrl}${pathname === "/" ? "" : pathname}`;
+
+    const seoConfig = {
+      "/": {
+        title: "TechXpo 2.O | Circuitron RVSCET Jamshedpur - Technical Symposium & Robotics Fest",
+        description: "TechXpo 2.O - Eastern India's Flagship Technical Symposium by Circuitron at RVSCET Jamshedpur. ₹1,00,000 Grand Prize Pool with 100% Free Registration. Compete in Robo War, Robo Race, Line Follower, and Project Exhibition.",
+        keywords: "TechXpo 2.0, Circuitron, RVSCET Jamshedpur, robotics competition, Robo War, Robo Race, Line Follower Robot, Project Exhibition, tech fest Jharkhand, engineering symposium India",
+      },
+      "/events": {
+        title: "Events & Competitions | TechXpo 2.O - Circuitron RVSCET",
+        description: "Explore high-stakes robotics competitions and hardware exhibits: Robo War, Robo Race, Line Follower Robot, Circuit Craze, and Code Hunt with ₹1,00,000 in grand cash prizes.",
+        keywords: "Robo War Jamshedpur, Robo Race competition, Line Follower challenge, Project Exhibition RVSCET, Circuit Craze, Code Hunt, robotics tournament prizes",
+      },
+      "/about": {
+        title: "About Us & Vision | Circuitron - IoT & Embedded Systems Club RVSCET",
+        description: "Discover Circuitron, the official IoT & Embedded Systems Club of RVSCET Jamshedpur. Empowering future engineers through robotics, hardware innovation, and practical workshops.",
+        keywords: "About Circuitron, RVSCET robotics club, IoT club Jamshedpur, embedded systems club Jharkhand, engineering innovation RVSCET",
+      },
+      "/team": {
+        title: "Official Roster & Committee | TechXpo 2.O - Circuitron RVSCET",
+        description: "Meet the visionary faculty coordinators, executive leadership team, and operational heads steering TechXpo 2.O at RVSCET Jamshedpur.",
+        keywords: "TechXpo team, Circuitron coordinators, Dr Sushanta Mahanty, Dr Vikash Kumar, student committee RVSCET, executive leaders",
+      },
+      "/schedule": {
+        title: "Event Schedule & Timeline | TechXpo 2.O - RVSCET Jamshedpur",
+        description: "Comprehensive day-wise timeline, reporting times, arena testing slots, knockout rounds, and grand felicitation ceremonies for TechXpo 2.O.",
+        keywords: "TechXpo schedule, robotics event timing, RoboWar schedule, RVSCET event timeline, technical symposium rounds",
+      },
+      "/gallery": {
+        title: "Moments & Gallery Archive | TechXpo 2.O - Circuitron RVSCET",
+        description: "Explore photos, arena battle highlights, winning robot prototypes, and grand championship celebrations from TechXpo.",
+        keywords: "TechXpo photos, robotics battle images, RVSCET tech fest gallery, Circuitron event moments, championship highlights",
+      },
+      "/contact": {
+        title: "Contact & Venue Support | TechXpo 2.O - RVSCET Jamshedpur",
+        description: "Get in touch with the TechXpo 2.O Secretariat for registration inquiries, travel directions, accommodation assistance, and technical guidance at RVSCET Jamshedpur.",
+        keywords: "TechXpo contact, RVSCET Jamshedpur address, how to reach RVSCET, Circuitron email, event support desk",
+      },
+      "/verify": {
+        title: "Official Credential Verification | TechXpo 2.O - Circuitron",
+        description: "Public authentication portal to verify official digital ID cards and credentials issued to TechXpo 2.O delegates, committee members, and executives.",
+        keywords: "Verify TechXpo badge, credential verification, ID card QR check, Circuitron certificate verification",
+      },
+      "/admin": {
+        title: "Secretariat Admin Portal | TechXpo 2.O",
+        description: "Authorized clearance required to manage delegates, volunteers, executive rosters, and issue official ID cards.",
+        keywords: "TechXpo admin",
+        noindex: true,
+      },
     };
 
-    const descriptions = {
-      "/": "TechXpo 2.O - The Flagship Technical Symposium by Circuitron, IoT & Embedded System Club at RVSCET Jamshedpur. ₹1,00,000 Grand Prize Pool with 100% Free Registration.",
-      "/about": "Discover Circuitron, the official IoT & Embedded Systems Club of RVSCET Jamshedpur. Fostering innovation, robotics, and hardware engineering.",
-      "/events": "Explore the three competition arenas: Eklavya, Lakshya, and Arjuna. Win up to ₹1,00,000 in cash prizes and trophies.",
-      "/team": "Meet the visionary faculty coordinators, executive leaders, and student operational heads powering TechXpo 2.O.",
-      "/gallery": "Browse highlights, robot arena battles, project showcases, and championship moments from previous editions.",
-      "/schedule": "Check the official event timeline, check-in schedules, arena testing windows, and closing ceremonies.",
-      "/contact": "Contact the TechXpo 2.O team for queries, partnerships, accommodation assistance, and technical guidance.",
-      "/verify": "Official digital credential verification portal for TechXpo 2.O delegates, committee members, and executives.",
-      "/admin": "Official Admin Portal for managing rosters, adding delegates, and issuing high-definition ID badges.",
-    };
-
-    if (pathname.startsWith("/verify/")) {
-      document.title = "Verify Credential | TechXpo 2.O";
-    } else {
-      document.title = titles[pathname] || "TechXpo 2.O | Circuitron RVSCET";
+    let current = seoConfig[pathname];
+    if (!current) {
+      if (pathname.startsWith("/verify/")) {
+        const memberId = pathname.replace("/verify/", "").toUpperCase();
+        current = {
+          title: `Verify Credential ${memberId} | TechXpo 2.O`,
+          description: `Official verification dossier for credential ${memberId} at TechXpo 2.O, Circuitron RVSCET Jamshedpur.`,
+          keywords: `TechXpo ID ${memberId}, credential verification, RVSCET badge`,
+        };
+      } else {
+        current = {
+          title: "TechXpo 2.O | Circuitron RVSCET Jamshedpur",
+          description: "TechXpo 2.O - The Flagship Technical Symposium by Circuitron at RVSCET Jamshedpur. ₹1,00,000 Grand Prize Pool with 100% Free Registration.",
+          keywords: "TechXpo 2.0, Circuitron, RVSCET, Robotics, Technical Symposium",
+        };
+      }
     }
 
-    const descMeta = document.querySelector('meta[name="description"]');
-    if (descMeta) {
-      descMeta.setAttribute(
+    // 1. Document Title
+    document.title = current.title;
+
+    // Helper to safely set meta attributes
+    const setMeta = (selector, attr, value) => {
+      const tag = document.querySelector(selector);
+      if (tag && value) {
+        tag.setAttribute(attr, value);
+      }
+    };
+
+    setMeta('meta[name="title"]', "content", current.title);
+    setMeta('meta[name="description"]', "content", current.description);
+    if (current.keywords) {
+      setMeta('meta[name="keywords"]', "content", current.keywords);
+    }
+
+    // 2. Canonical URL
+    setMeta('link[rel="canonical"]', "href", canonicalUrl);
+
+    // 3. Open Graph
+    setMeta('meta[property="og:title"]', "content", current.title);
+    setMeta('meta[property="og:description"]', "content", current.description);
+    setMeta('meta[property="og:url"]', "content", canonicalUrl);
+
+    // 4. Twitter
+    setMeta('meta[name="twitter:title"]', "content", current.title);
+    setMeta('meta[name="twitter:description"]', "content", current.description);
+    setMeta('meta[name="twitter:url"]', "content", canonicalUrl);
+
+    // 5. Robots indexing control (noindex for /admin)
+    const robotsTag = document.querySelector('meta[name="robots"]');
+    if (robotsTag) {
+      robotsTag.setAttribute(
         "content",
-        descriptions[pathname] ||
-          "TechXpo 2.O - The Flagship Technical Symposium by Circuitron at RVSCET Jamshedpur."
+        current.noindex
+          ? "noindex, nofollow"
+          : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
       );
     }
 
-    // Google Analytics 4 SPA Route Tracking
+    // 6. Google Analytics 4 SPA Route Tracking
     if (typeof window !== "undefined" && typeof window.gtag === "function") {
       window.gtag("event", "page_view", {
         page_path: pathname,
-        page_title: document.title,
+        page_title: current.title,
         page_location: window.location.href,
       });
     }

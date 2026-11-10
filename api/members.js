@@ -1,4 +1,4 @@
-﻿// Vercel Serverless Function: /api/members
+// Vercel Serverless Function: /api/members
 // Centralized Cloud Registry for TechXpo 2.O custom enrolled members
 // Enables multi-device verification across mobile, desktop, and scanner devices
 
@@ -54,7 +54,10 @@ function loadFromFile() {
               m &&
               m.id &&
               m.id.trim().toUpperCase() !== "TX2-PT-9295" &&
-              m.name?.trim().toLowerCase() !== "rahul verma"
+              m.name?.trim().toLowerCase() !== "rahul verma" &&
+              m.id.trim().toUpperCase() !== "TX2-FC-8492" &&
+              m.id.trim().toUpperCase() !== "TX2-FC-3925" &&
+              !m.id.trim().toUpperCase().startsWith("TX2-FC")
             ) {
               memoryStore.set(m.id.trim().toUpperCase(), m);
             }
@@ -66,9 +69,15 @@ function loadFromFile() {
     }
   }
 
-  // Ensure legacy mock participant is purged
-  if (memoryStore.has("TX2-PT-9295")) {
-    memoryStore.delete("TX2-PT-9295");
+  // Ensure legacy mock participant and built-in faculty are purged
+  let touched = false;
+  ["TX2-PT-9295", "TX2-FC-8492", "TX2-FC-3925"].forEach((id) => {
+    if (memoryStore.has(id)) {
+      memoryStore.delete(id);
+      touched = true;
+    }
+  });
+  if (touched) {
     saveToFile();
   }
 }

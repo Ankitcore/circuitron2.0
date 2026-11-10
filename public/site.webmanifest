@@ -1,0 +1,32 @@
+{
+  "name": "TechXpo 2.O | Circuitron RVSCET Jamshedpur",
+  "short_name": "TechXpo 2.O",
+  "description": "TechXpo 2.O - The Flagship Technical Symposium and Robotics Championship by Circuitron, IoT & Embedded Systems Club at RVSCET Jamshedpur. ₹1,00,000 Grand Prize Pool with 100% Free Registration.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050816",
+  "theme_color": "#050816",
+  "lang": "en",
+  "categories": ["education", "events", "technology"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
