@@ -67,28 +67,39 @@
     radial-gradient(circle at 20% 70%, rgba(0, 255, 255, 0.1), transparent 50%);
 }
 
-/* Glassmorphism Classes */
+/* Glassmorphism Classes (Hardware Optimized) */
 .glass-panel {
-  background: rgba(11, 16, 46, 0.65);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(11, 16, 46, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 191, 255, 0.15);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.4);
 }
 
 .glass-card {
-  background: linear-gradient(135deg, rgba(14, 21, 60, 0.7) 0%, rgba(7, 11, 34, 0.8) 100%);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, rgba(14, 21, 60, 0.75) 0%, rgba(7, 11, 34, 0.85) 100%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(0, 191, 255, 0.18);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  will-change: transform;
+}
+
+/* Zero GPU Blur fallback for low-spec laptops & mobile to guarantee locked 60 FPS */
+.low-spec-device .glass-panel,
+.low-spec-device .glass-card,
+.is-mobile .glass-card,
+.is-mobile .glass-panel {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #090e28 !important;
 }
 
 /* Subtle glow enhancement on hover */
 .glass-card:hover {
   border-color: rgba(0, 255, 255, 0.45);
-  box-shadow: 0 20px 40px -15px rgba(0, 191, 255, 0.25), 0 0 25px rgba(0, 191, 255, 0.15);
+  box-shadow: 0 16px 32px -12px rgba(0, 191, 255, 0.25);
 }
 
 /* Interactive cards that lift smoothly on hover (avoids jumping in modals/static containers) */
@@ -96,7 +107,7 @@
 .glass-card.card-hover:hover,
 a.glass-card:hover,
 button.glass-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 
 /* Glowing Border Effect */
@@ -280,3 +291,133 @@ input:focus, textarea:focus, select:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: #00ffff;
 }
+
+/* ============================================================================ */
+/* GPU-Accelerated Animations on Browser Compositor Thread (0% JS Main Thread)   */
+/* ============================================================================ */
+
+/* Circuit Traces */
+.circuit-pulse-1 {
+  stroke-dashoffset: 460;
+  animation: circuitPulse1 7s linear infinite;
+  will-change: stroke-dashoffset;
+}
+@keyframes circuitPulse1 {
+  from { stroke-dashoffset: 460; }
+  to { stroke-dashoffset: 0; }
+}
+
+.circuit-pulse-2 {
+  stroke-dashoffset: 0;
+  animation: circuitPulse2 6s linear infinite 1s;
+  will-change: stroke-dashoffset;
+}
+@keyframes circuitPulse2 {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: 400; }
+}
+
+.circuit-pulse-3 {
+  stroke-dashoffset: 520;
+  animation: circuitPulse3 8s linear infinite 2.5s;
+  will-change: stroke-dashoffset;
+}
+@keyframes circuitPulse3 {
+  from { stroke-dashoffset: 520; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Robot Mascots */
+.robot-swing-anim {
+  animation: robotSwing 6s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+@keyframes robotSwing {
+  0%, 100% { transform: rotate(-3deg) translate3d(-2px, 0, 0); }
+  50% { transform: rotate(5deg) translate3d(4px, 8px, 0); }
+}
+
+.robot-float-anim {
+  animation: robotFloat 5s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
+}
+@keyframes robotFloat {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(0, -10px, 0) rotate(1deg); }
+}
+
+/* Telemetry Texts */
+.telemetry-float-1 {
+  animation: telemetryFloat1 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes telemetryFloat1 {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.15; }
+  50% { transform: translate3d(0, -12px, 0); opacity: 0.3; }
+}
+
+.telemetry-float-2 {
+  animation: telemetryFloat2 8.5s ease-in-out infinite 1s;
+  will-change: transform, opacity;
+}
+@keyframes telemetryFloat2 {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.12; }
+  50% { transform: translate3d(0, 14px, 0); opacity: 0.28; }
+}
+
+.telemetry-float-3 {
+  animation: telemetryFloat3 6.5s ease-in-out infinite 2s;
+  will-change: transform, opacity;
+}
+@keyframes telemetryFloat3 {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.18; }
+  50% { transform: translate3d(0, -8px, 0); opacity: 0.35; }
+}
+
+.telemetry-badge-float-1 {
+  animation: badgeFloat1 4s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes badgeFloat1 {
+  0%, 100% { transform: translateZ(45px) translateY(0); }
+  50% { transform: translateZ(45px) translateY(-5px); }
+}
+
+.telemetry-badge-float-2 {
+  animation: badgeFloat2 4.5s ease-in-out infinite 1s;
+  will-change: transform;
+}
+@keyframes badgeFloat2 {
+  0%, 100% { transform: translateZ(40px) translateY(0); }
+  50% { transform: translateZ(40px) translateY(5px); }
+}
+
+/* Progress Bar Shimmer */
+.cyber-shimmer-beam {
+  animation: shimmerSweep 3.5s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes shimmerSweep {
+  0% { transform: translate3d(-100%, 0, 0); opacity: 0; }
+  15% { opacity: 1; }
+  35% { transform: translate3d(300%, 0, 0); opacity: 0; }
+  100% { transform: translate3d(300%, 0, 0); opacity: 0; }
+}
+
+/* Reduced Motion Mode */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Off-screen Content Visibility optimization */
+.perf-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 600px;
+}
+

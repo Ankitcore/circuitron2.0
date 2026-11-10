@@ -7,8 +7,13 @@ import CyberProgressBar from "./CyberProgressBar";
 export default function Stats() {
   return (
     <section className="py-24 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[160px] pointer-events-none" />
+      {/* Background glow: Zero blur overhead */}
+      <div
+        className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] rounded-full pointer-events-none opacity-25"
+        style={{
+          background: "radial-gradient(circle, rgba(0, 191, 255, 0.2) 0%, transparent 70%)",
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -54,7 +59,12 @@ export default function Stats() {
             viewport={{ once: true }}
             className="md:col-span-2 glass-card p-8 rounded-2xl border border-primary/25 relative overflow-hidden group flex flex-col justify-between"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none group-hover:bg-primary/20 transition-all duration-500" />
+            <div
+              className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none opacity-30 group-hover:opacity-60 transition-opacity duration-500"
+              style={{
+                background: "radial-gradient(circle, rgba(0, 191, 255, 0.25) 0%, transparent 70%)",
+              }}
+            />
             <div className="space-y-4 relative z-10">
               <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center text-primary">
                 <Zap className="w-6 h-6" />

@@ -8,10 +8,20 @@ import CyberProgressBar from "./CyberProgressBar";
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-12 sm:pt-28 sm:pb-16 lg:pt-32 lg:pb-24">
-      {/* Background radial glow spots */}
+      {/* Background radial glow spots: Zero blur multi-pass overhead */}
       <div className="absolute inset-0 pointer-events-none circuit-bg opacity-30" />
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-primary/10 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-cyberPurple/15 rounded-full blur-[90px] sm:blur-[120px] pointer-events-none" />
+      <div
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[350px] sm:w-[550px] h-[350px] sm:h-[550px] rounded-full pointer-events-none opacity-40"
+        style={{
+          background: "radial-gradient(circle, rgba(0, 191, 255, 0.16) 0%, transparent 70%)",
+        }}
+      />
+      <div
+        className="absolute bottom-10 right-10 w-[250px] sm:w-[380px] h-[250px] sm:h-[380px] rounded-full pointer-events-none opacity-35"
+        style={{
+          background: "radial-gradient(circle, rgba(139, 92, 246, 0.16) 0%, transparent 70%)",
+        }}
+      />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">

@@ -160,6 +160,7 @@ export const ADMIN_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes auto-logout
 export const ADMIN_STORAGE_KEY = "tx2_admin_authenticated";
 export const ADMIN_LAST_ACTIVE_KEY = "tx2_admin_last_active";
 export const ADMIN_TOKEN_KEY = "tx2_admin_token";
+export const ADMIN_SESSION_ID_KEY = "tx2_admin_session_id";
 
 /**
  * Retrieve the current active administrator authorization token (SHA-256 hash).
@@ -171,6 +172,96 @@ export function getAdminAuthToken() {
     return localStorage.getItem(ADMIN_TOKEN_KEY) || "";
   } catch (e) {
     return "";
+  }
+}
+
+/**
+ * Generate a cryptographically random session identifier for this device.
+ * @returns {string}
+ */
+export function generateAdminSessionId() {
+  return "tx2_sess_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+}
+
+/**
+ * Retrieve the active session ID bound to this local browser/device.
+ * @returns {string}
+ */
+export function getAdminSessionId() {
+  if (typeof window === "undefined") return "";
+  try {
+    let sid = localStorage.getItem(ADMIN_SESSION_ID_KEY);
+    if (!sid && isAdminAuthenticated()) {
+      sid = generateAdminSessionId();
+      localStorage.setItem(ADMIN_SESSION_ID_KEY, sid);
+    }
+    return sid || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+/**
+ * Registers this device's session on the central server.
+ * Any preexisting session from another device will be invalidated and logged out.
+ */
+export async function registerAdminSessionOnServer(sessionId, token) {
+  if (!sessionId || typeof window === "undefined") return false;
+  try {
+    const authToken = token || getAdminAuthToken();
+    const res = await fetch("/api/admin-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`,
+        "x-admin-session-id": sessionId,
+      },
+      body: JSON.stringify({
+        sessionId,
+        deviceName: typeof navigator !== "undefined" ? navigator.userAgent.slice(0, 100) : "Web Browser",
+      }),
+      keepalive: true,
+    });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Heartbeat check: queries central server to verify this device's session remains the sole active session.
+ * If another device has signed in, returns active: false.
+ */
+export async function checkServerSessionActive(sessionId) {
+  const sid = sessionId || getAdminSessionId();
+  if (!sid || typeof window === "undefined") return { active: false, reason: "no_session" };
+
+  try {
+    const res = await fetch(`/api/admin-session?sessionId=${encodeURIComponent(sid)}`, {
+      method: "GET",
+      headers: {
+        "x-admin-session-id": sid,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) return { active: true }; // Fail soft on temporary server issues
+
+    const data = await res.json();
+    if (data && data.isActive === false) {
+      return {
+        active: false,
+        reason: data.reason || "superseded_by_other_device",
+        message:
+          data.message ||
+          "Session Terminated: Another administrator signed in from a different device. Only 1 active session is permitted.",
+      };
+    }
+
+    return { active: true };
+  } catch (e) {
+    // Fail soft on network disconnect so transient wifi drops don't kick user
+    return { active: true };
   }
 }
 
@@ -245,22 +336,39 @@ export function isAdminAuthenticated() {
 
 /**
  * Persists administrator session in storage and stamps current time.
+ * Automatically claims the active single-device session on the central server.
  * @param {string} [passkey] - The validated passkey string to derive bearer token from
+ * @returns {string} The newly minted session ID
  */
 export function setAdminSession(passkey = "") {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return "";
   try {
+    const sessionId = generateAdminSessionId();
     localStorage.setItem(ADMIN_STORAGE_KEY, "true");
     localStorage.setItem(ADMIN_LAST_ACTIVE_KEY, Date.now().toString());
+    localStorage.setItem(ADMIN_SESSION_ID_KEY, sessionId);
+
+    let token = "";
     if (passkey) {
-      localStorage.setItem(ADMIN_TOKEN_KEY, sha256(passkey.trim().toLowerCase()));
-    } else if (!localStorage.getItem(ADMIN_TOKEN_KEY)) {
-      // Default to primary hash if not explicitly provided
-      localStorage.setItem(ADMIN_TOKEN_KEY, AUTHORIZED_PASSKEY_HASHES[0]);
+      token = sha256(passkey.trim().toLowerCase());
+      localStorage.setItem(ADMIN_TOKEN_KEY, token);
+    } else {
+      token = localStorage.getItem(ADMIN_TOKEN_KEY) || AUTHORIZED_PASSKEY_HASHES[0];
+      localStorage.setItem(ADMIN_TOKEN_KEY, token);
     }
-    window.dispatchEvent(new CustomEvent("tx2_admin_auth_changed", { detail: { authenticated: true } }));
+
+    // Register active session on the central cloud server
+    registerAdminSessionOnServer(sessionId, token).catch(() => {});
+
+    window.dispatchEvent(
+      new CustomEvent("tx2_admin_auth_changed", {
+        detail: { authenticated: true, sessionId },
+      })
+    );
+    return sessionId;
   } catch (e) {
     console.error("Failed to save admin session:", e);
+    return "";
   }
 }
 
@@ -270,9 +378,18 @@ export function setAdminSession(passkey = "") {
 export function clearAdminSession() {
   if (typeof window === "undefined") return;
   try {
+    const sid = localStorage.getItem(ADMIN_SESSION_ID_KEY);
+    if (sid) {
+      fetch(`/api/admin-session?sessionId=${encodeURIComponent(sid)}`, {
+        method: "DELETE",
+        keepalive: true,
+      }).catch(() => {});
+    }
+
     localStorage.removeItem(ADMIN_STORAGE_KEY);
     localStorage.removeItem(ADMIN_LAST_ACTIVE_KEY);
     localStorage.removeItem(ADMIN_TOKEN_KEY);
+    localStorage.removeItem(ADMIN_SESSION_ID_KEY);
     window.dispatchEvent(new CustomEvent("tx2_admin_auth_changed", { detail: { authenticated: false } }));
   } catch (e) {
     console.error("Failed to remove admin session:", e);

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -72,6 +72,9 @@ import {
   clearAdminSession,
   touchAdminActivity,
   ADMIN_STORAGE_KEY,
+  ADMIN_SESSION_ID_KEY,
+  getAdminSessionId,
+  checkServerSessionActive,
 } from "../utils/adminAuth";
 
 export default function AdminPortal() {
@@ -315,12 +318,33 @@ export default function AdminPortal() {
     const events = ["mousedown", "mousemove", "keydown", "scroll", "touchstart", "click"];
     events.forEach((evt) => window.addEventListener(evt, handleUserActivity, { passive: true }));
 
-    // Periodic check every 5 seconds to verify if 30 minutes have elapsed
-    const checkTimeout = () => {
+    // Periodic check every 5 seconds to verify inactivity AND enforce single active device
+    let isVerifyingSession = false;
+    const checkTimeout = async () => {
       if (!isAdminAuthenticated()) {
         clearAdminSession();
         setIsAuthenticated(false);
         setAuthError("Session expired due to 30 minutes of inactivity. Please re-authenticate.");
+        return;
+      }
+
+      // Check single active device session from central cloud server
+      const currentSid = getAdminSessionId();
+      if (currentSid && !isVerifyingSession) {
+        isVerifyingSession = true;
+        try {
+          const sessionCheck = await checkServerSessionActive(currentSid);
+          if (sessionCheck && sessionCheck.active === false) {
+            clearAdminSession();
+            setIsAuthenticated(false);
+            setAuthError(
+              sessionCheck.message ||
+                "Session Terminated: You were logged out because an administrator signed in from another device. TechXpo 2.O enforces single-device administrative access for security."
+            );
+          }
+        } finally {
+          isVerifyingSession = false;
+        }
       }
     };
 
@@ -339,6 +363,9 @@ export default function AdminPortal() {
     const handleStorageChange = (e) => {
       if (e.key === ADMIN_STORAGE_KEY && e.newValue !== "true") {
         setIsAuthenticated(false);
+      }
+      if (e.key === ADMIN_SESSION_ID_KEY && e.newValue && e.newValue !== getAdminSessionId()) {
+        checkTimeout();
       }
     };
     window.addEventListener("storage", handleStorageChange);
@@ -920,7 +947,7 @@ export default function AdminPortal() {
           <div className="space-y-2 relative z-10">
             <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono font-bold">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>ADMIN CLEARANCE &bull; ACTIVE &bull; 30M IDLE AUTO-LOCK</span>
+              <span>ADMIN CLEARANCE &bull; ACTIVE &bull; SINGLE-DEVICE SESSION LOCKED</span>
             </div>
             <h1 className="text-3xl sm:text-4xl font-black font-orbitron gradient-text">
               TechXpo 2.O Admin Portal

@@ -4,7 +4,7 @@
 // Registered Participants, and Event Volunteers with Dynamic Admin Storage.
 // ============================================================================
 
-import { getAdminAuthToken } from "../utils/adminAuth";
+import { getAdminAuthToken, getAdminSessionId } from "../utils/adminAuth";
 
 export const facultyCoordinators = [
   {
@@ -365,11 +365,13 @@ export async function syncMemberToCloud(member) {
   if (!member || typeof window === "undefined") return;
   try {
     const token = getAdminAuthToken();
+    const sid = getAdminSessionId();
     await fetch("/api/members", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(sid ? { "x-admin-session-id": sid } : {}),
       },
       body: JSON.stringify({ member }),
       keepalive: true,
@@ -388,11 +390,13 @@ export async function syncAllMembersToCloud() {
     const custom = getCustomMembers();
     if (custom.length === 0) return;
     const token = getAdminAuthToken();
+    const sid = getAdminSessionId();
     await fetch("/api/members", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(sid ? { "x-admin-session-id": sid } : {}),
       },
       body: JSON.stringify({ members: custom }),
       keepalive: true,
@@ -656,10 +660,12 @@ export function deleteMember(id) {
     if (typeof window !== "undefined") {
       localStorage.setItem(`tx2_deleted_${normId}`, "1");
       const token = getAdminAuthToken();
+      const sid = getAdminSessionId();
       fetch(`/api/members?id=${encodeURIComponent(normId)}`, {
         method: "DELETE",
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(sid ? { "x-admin-session-id": sid } : {}),
         },
       }).catch(() => {});
     }
