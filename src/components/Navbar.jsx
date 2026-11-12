@@ -33,10 +33,18 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile drawer when route changes
+  // Close mobile drawer when route changes or Escape key pressed
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <motion.header
@@ -149,6 +157,7 @@ export default function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               className="p-1.5 sm:p-2.5 min-w-[34px] min-h-[34px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center rounded-xl bg-darkNavy/80 border border-primary/20 text-gray-300 hover:text-white focus:outline-none flex-shrink-0"
               aria-label="Toggle menu"
+              aria-expanded={isOpen}
             >
               {isOpen ? <X className="w-4 h-4 sm:w-5 sm:h-5" /> : <Menu className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
@@ -156,55 +165,74 @@ export default function Navbar() {
         </nav>
       </div>
 
-      {/* Mobile Drawer Dropdown */}
+      {/* Mobile Drawer Dropdown & Backdrop */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="lg:hidden max-w-7xl mx-auto px-4 mt-2"
-          >
-            <div className="bg-darkNavy/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-primary/30 space-y-2 shadow-2xl">
-              {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    onClick={() => setIsOpen(false)}
-                    className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all min-h-[44px] flex items-center ${
-                      isActive
-                        ? "bg-gradient-to-r from-primary/30 to-accent/30 text-white border border-primary/40 font-bold"
-                        : "text-gray-300 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    {item.name}
-                  </Link>
-                );
-              })}
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[-1]"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="lg:hidden max-w-7xl mx-auto px-4 mt-2"
+            >
+              <div className="bg-darkNavy/95 backdrop-blur-xl p-4 sm:p-5 rounded-2xl border border-primary/30 space-y-2 shadow-2xl">
+                {navItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.path}
+                      onClick={() => setIsOpen(false)}
+                      className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-all min-h-[44px] flex items-center ${
+                        isActive
+                          ? "bg-gradient-to-r from-primary/30 to-accent/30 text-white border border-primary/40 font-bold"
+                          : "text-gray-300 hover:text-white hover:bg-white/5"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  );
+                })}
 
-              <div className="pt-2 space-y-2">
-                <a
-                  href="https://forms.gle/mNU3damnJBMfnmSU7"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full btn-primary py-3 text-xs font-bold flex items-center justify-center space-x-1.5 min-h-[44px]"
-                >
-                  <span>Register for TechXpo 2.O</span>
-                  <ArrowUpRight className="w-4 h-4" />
-                </a>
-                <Link
-                  to="/admin"
-                  onClick={() => setIsOpen(false)}
-                  className="w-full py-2.5 px-3 rounded-xl bg-darkNavy/80 border border-primary/20 text-xs font-mono text-gray-300 hover:text-accent flex items-center justify-center space-x-1.5"
-                >
-                  <ShieldCheck className="w-4 h-4 text-accent" />
-                  <span>Admin Portal</span>
-                </Link>
+                <div className="pt-2 space-y-2">
+                  <Link
+                    to="/verify"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-darkNavy/80 border border-primary/20 text-xs font-mono text-gray-300 hover:text-primary flex items-center justify-center space-x-1.5"
+                  >
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span>Verify Credentials &amp; Badges</span>
+                  </Link>
+
+                  <a
+                    href="https://forms.gle/mNU3damnJBMfnmSU7"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full btn-primary py-3 text-xs font-bold flex items-center justify-center space-x-1.5 min-h-[44px]"
+                  >
+                    <span>Register for TechXpo 2.O</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </a>
+
+                  <Link
+                    to="/admin"
+                    onClick={() => setIsOpen(false)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-darkNavy/80 border border-primary/20 text-xs font-mono text-gray-300 hover:text-accent flex items-center justify-center space-x-1.5"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-accent" />
+                    <span>Admin Portal</span>
+                  </Link>
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </motion.header>

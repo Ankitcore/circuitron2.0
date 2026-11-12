@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, MapPin, ArrowUpRight, Heart, Sparkles } from "lucide-react";
+import { Mail, Phone, MessageSquare, MapPin, ArrowUpRight, Heart, Sparkles } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -146,18 +146,24 @@ export default function Footer() {
 
           {/* Campus Coordinates (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="flex items-center space-x-2.5">
-              <div className="w-8 h-8 rounded-lg p-0.5 bg-darkNavy border border-primary/30 flex items-center justify-center overflow-hidden">
+            <a
+              href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2.5 group transition-colors"
+              title="Open RVSCET on Google Maps"
+            >
+              <div className="w-8 h-8 rounded-lg p-0.5 bg-darkNavy border border-primary/30 group-hover:border-accent flex items-center justify-center overflow-hidden transition-colors">
                 <img
                   src="/assets/rvscet-logo.webp"
                   alt="RVSCET"
                   className="w-full h-full object-contain"
                 />
               </div>
-              <h4 className="text-sm font-bold font-orbitron text-white uppercase tracking-wider">
+              <h4 className="text-sm font-bold font-orbitron text-white group-hover:text-accent uppercase tracking-wider transition-colors">
                 Host Institute
               </h4>
-            </div>
+            </a>
             <div className="space-y-3 text-sm text-gray-300">
               <a
                 href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
@@ -181,9 +187,40 @@ export default function Footer() {
                 <Mail className="w-4 h-4 text-accent flex-shrink-0" />
                 <a
                   href="mailto:circuitronrvscet@gmail.com"
-                  className="text-primary hover:underline text-xs font-mono"
+                  className="text-primary hover:text-accent hover:underline text-xs font-mono transition-colors"
                 >
                   circuitronrvscet@gmail.com
+                </a>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <Phone className="w-4 h-4 text-accent flex-shrink-0" />
+                <div className="flex flex-wrap gap-x-2 text-xs font-mono">
+                  <a
+                    href="tel:+919631535834"
+                    className="text-primary hover:text-accent hover:underline transition-colors"
+                  >
+                    +91 96315 35834
+                  </a>
+                  <span className="text-gray-500">&bull;</span>
+                  <a
+                    href="tel:+918709658260"
+                    className="text-primary hover:text-accent hover:underline transition-colors"
+                  >
+                    +91 87096 58260
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-3">
+                <MessageSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <a
+                  href="https://wa.me/919631535834?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-emerald-400 hover:text-emerald-300 hover:underline text-xs font-mono font-semibold transition-colors"
+                >
+                  WhatsApp Helpdesk
                 </a>
               </div>
             </div>

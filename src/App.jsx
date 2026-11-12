@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import FloatingWhatsApp from "./components/FloatingWhatsApp";
 import ScrollProgressBar from "./components/ScrollProgressBar";
 import RobotMascotBackground from "./components/RobotMascotBackground";
 import PageLoader from "./components/PageLoader";
@@ -212,6 +213,7 @@ export default function App() {
       </main>
       <Footer />
       <ScrollToTop />
+      <FloatingWhatsApp />
       <SpeedInsights />
       <Analytics />
     </div>

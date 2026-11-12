@@ -609,13 +609,11 @@ export default function Events() {
                       href={event.registrationLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1"
+                      className="flex-1 btn-primary py-2.5 text-xs font-bold text-center flex items-center justify-center space-x-1.5"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <button className="w-full btn-primary py-2.5 text-xs font-bold">
-                        <span>Register Now</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </button>
+                      <span>Register Now</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   ) : null}
                   <button

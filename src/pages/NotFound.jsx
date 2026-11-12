@@ -26,10 +26,19 @@ export default function NotFound() {
 
       <div className="max-w-2xl mx-auto px-4 text-center space-y-6 relative z-10">
         
+        {/* Clickable Logo */}
+        <Link to="/" className="inline-block group" title="Return to Home">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto rounded-2xl p-1.5 bg-darkNavy border-2 border-primary/40 group-hover:border-accent transition-all duration-300 shadow-neon flex items-center justify-center overflow-hidden">
+            <img src="/logo.png" alt="Circuitron Logo" className="w-full h-full object-contain group-hover:scale-105 transition-transform" />
+          </div>
+        </Link>
+
         {/* Error Badge */}
-        <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-xs font-mono font-bold text-red-400">
-          <AlertTriangle className="w-3.5 h-3.5" />
-          <span>HTTP ERROR 404 &bull; SUBSPACE ANOMALY</span>
+        <div>
+          <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-xs font-mono font-bold text-red-400">
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>HTTP ERROR 404 &bull; SUBSPACE ANOMALY</span>
+          </div>
         </div>
 
         {/* 404 Neon Glitch Text */}

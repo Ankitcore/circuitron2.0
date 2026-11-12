@@ -285,8 +285,22 @@ export default function Contact() {
                   </p>
                 </div>
                 <div className="pt-1 space-y-1 font-mono text-xs">
-                  <div className="text-emerald-400 font-bold block">+91 96315 35834</div>
-                  <div className="text-emerald-400 font-bold block">+91 87096 58260</div>
+                  <a
+                    href="https://wa.me/919631535834?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:text-emerald-300 font-bold block transition-colors"
+                  >
+                    +91 96315 35834
+                  </a>
+                  <a
+                    href="https://wa.me/918709658260?text=Hello%20Circuitron%20RVSCET,%20I%20have%20an%20inquiry%20regarding%20TechXpo%202.O"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:text-emerald-300 font-bold block transition-colors"
+                  >
+                    +91 87096 58260
+                  </a>
                 </div>
               </div>
 
