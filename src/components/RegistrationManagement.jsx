@@ -38,6 +38,7 @@ import {
   triggerManualSync,
   submitRegistrationBatch,
   downloadRegistrationsCsv,
+  syncGoogleSheetsDirect,
 } from "../utils/registrationService";
 
 export default function RegistrationManagement() {
@@ -82,6 +83,19 @@ export default function RegistrationManagement() {
   const [isPinging, setIsPinging] = useState(false);
   const [pingResult, setPingResult] = useState(null);
   const [copiedAppsScript, setCopiedAppsScript] = useState(false);
+
+  // Google Sheets Direct Sync state
+  const [showSheetsModal, setShowSheetsModal] = useState(false);
+  const [sheetExhibitionUrl, setSheetExhibitionUrl] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("circuitron_sheet_exhibition") || "";
+    return "";
+  });
+  const [sheetRoboticsUrl, setSheetRoboticsUrl] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("circuitron_sheet_robotics") || "";
+    return "";
+  });
+  const [isSyncingSheets, setIsSyncingSheets] = useState(false);
+  const [sheetsSyncResult, setSheetsSyncResult] = useState(null);
 
   // Load registrations from backend API
   const loadData = useCallback(async (isSilent = false) => {
@@ -337,6 +351,45 @@ export default function RegistrationManagement() {
       });
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  // Direct Google Sheets Synchronizer
+  const handleSyncSheetsDirect = async () => {
+    setIsSyncingSheets(true);
+    setSheetsSyncResult(null);
+    try {
+      if (typeof window !== "undefined") {
+        if (sheetExhibitionUrl) localStorage.setItem("circuitron_sheet_exhibition", sheetExhibitionUrl);
+        if (sheetRoboticsUrl) localStorage.setItem("circuitron_sheet_robotics", sheetRoboticsUrl);
+      }
+
+      const sheets = [];
+      if (sheetExhibitionUrl.trim()) {
+        sheets.push({ url: sheetExhibitionUrl.trim(), event_id: "project-exhibition" });
+      }
+      if (sheetRoboticsUrl.trim()) {
+        sheets.push({ url: sheetRoboticsUrl.trim(), event_id: "robo-war" });
+      }
+
+      if (sheets.length === 0) {
+        throw new Error("Please enter at least one Google Sheet URL or Spreadsheet ID.");
+      }
+
+      const res = await syncGoogleSheetsDirect(sheets);
+      setSheetsSyncResult({
+        success: true,
+        message: `Successfully synchronized ${res.processed || 0} registration(s) directly from Google Sheets!`,
+      });
+      setSuccessToast(`Synchronized ${res.processed || 0} registration(s)!`);
+      await loadData();
+    } catch (err) {
+      setSheetsSyncResult({
+        success: false,
+        message: err.message || "Failed to sync Google Sheets.",
+      });
+    } finally {
+      setIsSyncingSheets(false);
     }
   };
 
@@ -655,6 +708,15 @@ function syncAllHistoricalRows() {
 
         {/* Top Action Buttons */}
         <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setShowSheetsModal(true)}
+            className="btn-secondary py-2 px-3 text-xs font-bold flex items-center space-x-1.5 border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20"
+            title="Connect & directly sync Google Sheets response spreadsheets"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Connect Sheets</span>
+          </button>
+
           <button
             onClick={() => downloadRegistrationsCsv(selectedEvent)}
             className="btn-secondary py-2 px-3 text-xs font-bold flex items-center space-x-1.5 hover:border-emerald-500/40 hover:text-emerald-300"
@@ -1506,6 +1568,129 @@ function syncAllHistoricalRows() {
                 >
                   <Upload className={`w-3.5 h-3.5 ${isImporting ? "animate-spin" : ""}`} />
                   <span>{isImporting ? "Importing Data..." : "Execute Import"}</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ========================================================================= */}
+      {/* 9. CONNECT GOOGLE SHEETS MODAL (DIRECT LIVE SYNC)                        */}
+      {/* ========================================================================= */}
+      <AnimatePresence>
+        {showSheetsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            onClick={() => setShowSheetsModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="glass-card max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-emerald-500/40 space-y-6 shadow-2xl relative my-8 bg-darkNavy text-white"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between border-b border-white/10 pb-4">
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400 font-bold">
+                      DIRECT SPREADSHEET SYNCHRONIZATION
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-black font-orbitron text-white">
+                    Connect Google Sheets
+                  </h3>
+                  <p className="text-xs text-gray-400 font-mono">
+                    Paste your Google Form response spreadsheet links to synchronize all registrations directly into the Admin Dashboard.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowSheetsModal(false)}
+                  className="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                >
+                  &times;
+                </button>
+              </div>
+
+              {/* Instructions Tip */}
+              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono text-emerald-200 space-y-1">
+                <div className="flex items-center space-x-1.5 font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>How to get the Google Sheet link:</span>
+                </div>
+                <p className="text-[11px] text-gray-300 leading-relaxed">
+                  In your Google Form, open the <strong>Responses</strong> tab and click the green <strong>Link to Sheets</strong> icon. In the opened spreadsheet, click <strong>Share</strong> &gt; set General access to <strong>"Anyone with the link can view"</strong>, then copy and paste the link below.
+                </p>
+              </div>
+
+              {/* Input: Project Exhibition */}
+              <div className="space-y-2">
+                <label className="text-xs font-mono text-gray-200 font-bold flex items-center justify-between">
+                  <span>Project Exhibition Google Sheet URL or ID:</span>
+                  <span className="text-[10px] text-emerald-400">Eklavya, Lakshya, Arjuna</span>
+                </label>
+                <input
+                  type="text"
+                  value={sheetExhibitionUrl}
+                  onChange={(e) => setSheetExhibitionUrl(e.target.value)}
+                  placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5.../edit"
+                  className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-xs font-mono text-white placeholder-gray-600 focus:border-emerald-400 focus:outline-none"
+                />
+              </div>
+
+              {/* Input: Robotics Competitions */}
+              <div className="space-y-2">
+                <label className="text-xs font-mono text-gray-200 font-bold flex items-center justify-between">
+                  <span>Robotics Competitions Google Sheet URL or ID:</span>
+                  <span className="text-[10px] text-rose-400">Robo War & Robo Race</span>
+                </label>
+                <input
+                  type="text"
+                  value={sheetRoboticsUrl}
+                  onChange={(e) => setSheetRoboticsUrl(e.target.value)}
+                  placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5.../edit"
+                  className="w-full p-3 rounded-2xl bg-black/40 border border-white/10 text-xs font-mono text-white placeholder-gray-600 focus:border-rose-400 focus:outline-none"
+                />
+              </div>
+
+              {/* Result feedback */}
+              {sheetsSyncResult && (
+                <div
+                  className={`p-3 rounded-xl border text-xs font-mono flex items-center space-x-2 ${
+                    sheetsSyncResult.success
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                      : "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                  }`}
+                >
+                  {sheetsSyncResult.success ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <AlertTriangle className="w-4 h-4 flex-shrink-0" />}
+                  <span>{sheetsSyncResult.message}</span>
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="flex items-center justify-end space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSheetsModal(false)}
+                  className="btn-secondary py-2.5 px-4 text-xs font-bold"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSyncSheetsDirect}
+                  disabled={isSyncingSheets || (!sheetExhibitionUrl.trim() && !sheetRoboticsUrl.trim())}
+                  className="btn-primary py-2.5 px-6 text-xs font-bold flex items-center space-x-1.5 shadow-neon disabled:opacity-40 bg-gradient-to-r from-emerald-500 to-teal-500 border-emerald-400 text-black font-bold"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncingSheets ? "animate-spin" : ""}`} />
+                  <span>{isSyncingSheets ? "Syncing Google Sheets..." : "Sync Google Sheets Now"}</span>
                 </button>
               </div>
             </motion.div>

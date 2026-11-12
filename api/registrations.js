@@ -446,6 +446,90 @@ function createSubmissionFingerprint(eventId, email, phoneOrTimestamp) {
   return crypto.createHash("sha256").update(`${normEvent}::${normEmail}::${normKey}`).digest("hex").slice(0, 16);
 }
 
+function parseCsv(text) {
+  const clean = text.replace(/^\uFEFF/, "");
+  const rows = [];
+  let currentRow = [];
+  let currentField = "";
+  let inQuotes = false;
+  for (let i = 0; i < clean.length; i++) {
+    const c = clean[i];
+    const next = clean[i + 1];
+    if (c === '"') {
+      if (inQuotes && next === '"') {
+        currentField += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === "," && !inQuotes) {
+      currentRow.push(currentField.trim());
+      currentField = "";
+    } else if ((c === "\r" || c === "\n") && !inQuotes) {
+      if (c === "\r" && next === "\n") i++;
+      currentRow.push(currentField.trim());
+      if (currentRow.some((f) => f.length > 0)) rows.push(currentRow);
+      currentRow = [];
+      currentField = "";
+    } else {
+      currentField += c;
+    }
+  }
+  if (currentField || currentRow.length > 0) {
+    currentRow.push(currentField.trim());
+    if (currentRow.some((f) => f.length > 0)) rows.push(currentRow);
+  }
+  return rows;
+}
+
+function extractSpreadsheetId(input = "") {
+  if (!input) return "";
+  const match = input.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (match) return match[1];
+  if (/^[a-zA-Z0-9-_]{20,60}$/.test(input.trim())) return input.trim();
+  return "";
+}
+
+async function fetchGoogleSheetRows(sheetIdOrUrl, defaultEventId = "project-exhibition") {
+  const sheetId = extractSpreadsheetId(sheetIdOrUrl);
+  if (!sheetId) throw new Error("Invalid Google Sheets ID or URL.");
+
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+  const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+  if (!res.ok) {
+    throw new Error(`Google Sheets responded with HTTP ${res.status}. Make sure Link Sharing is set to 'Anyone with the link can view'.`);
+  }
+  const csv = await res.text();
+  const rows = parseCsv(csv);
+  if (rows.length < 2) return [];
+
+  const headers = rows[0];
+  const items = [];
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r];
+    const formResponses = {};
+    let email = "";
+    let timestamp = new Date().toISOString();
+
+    headers.forEach((h, idx) => {
+      const val = row[idx] || "";
+      formResponses[h] = val;
+      if (h.toLowerCase().includes("email") && !email) email = val;
+      if (h.toLowerCase().includes("time")) timestamp = val;
+    });
+
+    items.push({
+      event_id: defaultEventId,
+      source: "google_sheet_direct",
+      submission_id: `sheet_${sheetId}_row_${r}`,
+      timestamp,
+      respondent_email: email,
+      form_responses: formResponses,
+    });
+  }
+  return items;
+}
+
 const ALLOWED_ORIGINS = new Set([
   "https://circuitron.in",
   "https://www.circuitron.in",
@@ -795,6 +879,33 @@ export default async function handler(req, res) {
 
     // 2.B. Handle Batch or Single Registrations
     const incomingItems = [];
+
+    // Direct Google Sheets Sync (pulls rows directly from linked Google Sheets)
+    if (req.query.action === "sync_sheets" || body.action === "sync_sheets") {
+      const sheets = Array.isArray(body.sheets) ? body.sheets : [];
+      if (process.env.GOOGLE_SHEET_EXHIBITION) {
+        sheets.push({ url: process.env.GOOGLE_SHEET_EXHIBITION, event_id: "project-exhibition" });
+      }
+      if (process.env.GOOGLE_SHEET_ROBOTICS) {
+        sheets.push({ url: process.env.GOOGLE_SHEET_ROBOTICS, event_id: "robo-war" });
+      }
+
+      for (const s of sheets) {
+        if (!s || !s.url) continue;
+        try {
+          const items = await fetchGoogleSheetRows(s.url, s.event_id || "project-exhibition");
+          incomingItems.push(...items);
+        } catch (err) {
+          console.warn("Google Sheet sync error for", s.url, err.message);
+          addSyncLog({
+            status: "error",
+            event_id: s.event_id || "all",
+            message: `Failed to fetch Google Sheet: ${err.message}`,
+            error_details: err.message,
+          });
+        }
+      }
+    }
 
     if (Array.isArray(body.registrations)) {
       incomingItems.push(...body.registrations);

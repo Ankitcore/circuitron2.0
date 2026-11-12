@@ -242,3 +242,28 @@ export function downloadRegistrationsCsv(eventId = "all") {
       alert("Error downloading CSV: " + err.message);
     });
 }
+
+
+export async function syncGoogleSheetsDirect(sheets = []) {
+  const token = getAdminAuthToken();
+
+  const res = await fetch("/api/registrations?action=sync_sheets", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+      "x-admin-auth": token,
+    },
+    body: JSON.stringify({
+      action: "sync_sheets",
+      sheets,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to sync Google Sheets.");
+  }
+
+  return await res.json();
+}
