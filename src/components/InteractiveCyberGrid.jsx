@@ -1,29 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getPerformanceProfile, isMobileDevice, shouldReduceMotion } from "../utils/performance";
+import { isLowEndDevice, isMobileDevice, shouldReduceMotion } from "../utils/performance";
 
-/**
- * InteractiveCyberGrid
- * Renders the signature cyberpunk PCB traces, solder pads, and telemetry watermark.
- *
- * Performance Optimizations:
- * - Profile C: Renders static SVG traces with 0 CSS animation loops and 0 mouse listeners.
- *   This preserves the visual identity without continuous GPU compositor churn.
- * - Profile B: Lightweight compositor pulses, no mouse spotlight listener.
- * - Profile A: Full interactive radar spotlight and continuous electric laser pulses.
- */
 export default function InteractiveCyberGrid() {
-  const profile = getPerformanceProfile();
-  const isMobile = isMobileDevice();
-  const reduceMotion = shouldReduceMotion();
-  const isLow = profile === "C" || reduceMotion;
-  const isHigh = profile === "A" && !isMobile && !reduceMotion;
-
+  const [isLowSpec] = useState(() => isLowEndDevice());
+  const [isMobile] = useState(() => isMobileDevice());
+  const [reduceMotion] = useState(() => shouldReduceMotion());
   const [hasPointer, setHasPointer] = useState(false);
   const spotlightRef = useRef(null);
 
   useEffect(() => {
-    // Only activate cursor spotlight on Profile A desktop devices with mouse pointer
-    if (!isHigh) return;
+    // Only activate mouse spotlight on non-touch, higher-tier desktop devices to protect 60 FPS on low-end laptops & mobile
+    if (isLowSpec || isMobile || reduceMotion) return;
 
     let ticking = false;
     const handleMouseMove = (e) => {
@@ -42,16 +29,16 @@ export default function InteractiveCyberGrid() {
 
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [hasPointer, isHigh]);
+  }, [hasPointer, isLowSpec, isMobile, reduceMotion]);
 
   return (
     <div
       className="fixed inset-0 pointer-events-none select-none overflow-hidden"
-      style={{ zIndex: 0, transform: "translateZ(0)" }}
+      style={{ zIndex: 0, willChange: "transform", transform: "translateZ(0)" }}
       aria-hidden="true"
     >
-      {/* 1. Interactive Cursor Radar Spotlight (Profile A Desktop Only) */}
-      {isHigh && hasPointer && (
+      {/* 1. Interactive Cursor Radar Spotlight (Hardware-Accelerated via CSS variable, 0 JS spring overhead) */}
+      {!isLowSpec && !isMobile && hasPointer && (
         <div
           ref={spotlightRef}
           style={{
@@ -63,13 +50,14 @@ export default function InteractiveCyberGrid() {
         />
       )}
 
-      {/* 2. Cyberpunk Vector Circuit Traces & PCB Buses */}
+      {/* 2. Cyberpunk Vector Circuit Traces & PCB Buses (Hardware-Accelerated via pure CSS) */}
       <svg
         className="absolute inset-0 w-full h-full opacity-35 md:opacity-45"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ transform: "translateZ(0)" }}
+        style={{ willChange: "transform" }}
       >
         <defs>
+          {/* Laser Gradients */}
           <linearGradient id="cyanLaser" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#00fffc" stopOpacity="0.8" />
             <stop offset="50%" stopColor="#0091ff" stopOpacity="0.4" />
@@ -93,8 +81,8 @@ export default function InteractiveCyberGrid() {
           <path d="M 1920 850 L 1550 850 L 1450 750 L 1150 750" />
         </g>
 
-        {/* DYNAMIC ELECTRIC PULSES: Only on Profile A and B */}
-        {!isLow && (
+        {/* DYNAMIC ELECTRIC PULSES: Pure CSS Keyframes on Compositor, 0 CPU Gaussian blur filter */}
+        {!reduceMotion && (
           <g stroke="url(#cyanLaser)" strokeWidth="1.8" fill="none">
             {/* Pulse 1: Top Left to Center */}
             <path
@@ -140,11 +128,11 @@ export default function InteractiveCyberGrid() {
         </g>
       </svg>
 
-      {/* 3. Floating Microchip Telemetry Glyphs */}
+      {/* 3. Floating Microchip Telemetry Glyphs (Pure CSS translate3d, 0 JS thread burden) */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className={`absolute top-1/3 left-10 text-[10px] font-mono text-cyan-400 tracking-widest hidden md:block opacity-25 ${
-            isLow ? "" : "telemetry-float-1"
+            reduceMotion ? "" : "telemetry-float-1"
           }`}
         >
           [FREQ::2.4GHz_IoT_NODE]
@@ -152,7 +140,7 @@ export default function InteractiveCyberGrid() {
 
         <div
           className={`absolute top-2/3 right-14 text-[10px] font-mono text-cyberPurple tracking-widest hidden md:block opacity-20 ${
-            isLow ? "" : "telemetry-float-2"
+            reduceMotion ? "" : "telemetry-float-2"
           }`}
         >
           [MCU::STM32_ONLINE]
@@ -160,7 +148,7 @@ export default function InteractiveCyberGrid() {
 
         <div
           className={`absolute bottom-6 sm:bottom-8 left-32 sm:left-56 md:left-72 lg:left-80 text-[8px] sm:text-[9px] font-mono text-accent tracking-wider block opacity-10 sm:opacity-15 select-none pointer-events-none whitespace-nowrap ${
-            isLow ? "" : "telemetry-float-3"
+            reduceMotion ? "" : "telemetry-float-3"
           }`}
         >
           {"[CREATED::ANKIT::EEE/327/26]"}

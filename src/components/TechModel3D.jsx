@@ -1,41 +1,29 @@
 import React, { useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { Zap, Activity } from "lucide-react";
-import { getPerformanceProfile, isMobileDevice, shouldReduceMotion } from "../utils/performance";
+import { isLowEndDevice, isMobileDevice, shouldReduceMotion } from "../utils/performance";
 
-/**
- * TechModel3D
- * Interactive Cyber Core Rig with orbital telemetry rings.
- *
- * Performance Optimizations:
- * - Profile C: Static/lightweight orbital rings, zero mouse tracking, zero spring physics.
- * - Profile B: Orbital rings with pure CSS compositor rotation, zero mouse tracking.
- * - Profile A: Full 3D mouse tilt tracking with spring physics.
- */
 export default function TechModel3D() {
-  const profile = getPerformanceProfile();
-  const isMobile = isMobileDevice();
-  const reduceMotion = shouldReduceMotion();
-  const isHigh = profile === "A" && !isMobile && !reduceMotion;
-  const isLow = profile === "C" || reduceMotion;
-
   const [hovered, setHovered] = useState(false);
+  const [isLowSpec] = useState(() => isLowEndDevice());
+  const [isMobile] = useState(() => isMobileDevice());
+  const [reduceMotion] = useState(() => shouldReduceMotion());
 
-  // Mouse tilt tracking (Only instantiated & bound on Profile A desktop)
+  // Mouse tilt tracking (Only enabled on high-tier desktop PCs with discrete mouse)
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [14, -14]), {
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [15, -15]), {
     damping: 25,
     stiffness: 120,
   });
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-14, 14]), {
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-15, 15]), {
     damping: 25,
     stiffness: 120,
   });
 
   const handleMouseMove = (e) => {
-    if (!isHigh) return;
+    if (isLowSpec || isMobile || reduceMotion) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -44,7 +32,7 @@ export default function TechModel3D() {
   };
 
   const handleMouseLeave = () => {
-    if (!isHigh) return;
+    if (isLowSpec || isMobile || reduceMotion) return;
     mouseX.set(0);
     mouseY.set(0);
     setHovered(false);
@@ -56,7 +44,7 @@ export default function TechModel3D() {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => !isMobile && setHovered(true)}
       onMouseLeave={handleMouseLeave}
-      style={{ transform: "translateZ(0)" }}
+      style={{ willChange: "transform", transform: "translateZ(0)" }}
     >
       {/* Ambient background glow: Efficient CSS radial-gradient (0 blur passes) */}
       <div
@@ -71,28 +59,28 @@ export default function TechModel3D() {
       <div className="relative w-full h-full flex items-center justify-center transform scale-[0.8] xs:scale-[0.9] sm:scale-100 transition-transform">
         {/* Floating 3D Rig */}
         <motion.div
-          style={isHigh ? { rotateX, rotateY } : undefined}
+          style={!isLowSpec && !isMobile && !reduceMotion ? { rotateX, rotateY } : undefined}
           className="relative w-full h-full flex items-center justify-center preserve-3d"
         >
           {/* Outer Ring 1: Cyan Orbit */}
           <div
-            className={`absolute w-[290px] sm:w-[330px] h-[290px] sm:h-[330px] rounded-full border border-primary/40 border-dashed pointer-events-none ${
-              isLow ? "" : "animate-spin-slow"
-            }`}
+            className="absolute w-[290px] sm:w-[330px] h-[290px] sm:h-[330px] rounded-full border border-primary/40 border-dashed animate-spin-slow pointer-events-none"
             style={{
               transform: "rotateX(65deg) rotateY(15deg) translateZ(0)",
+              willChange: "transform",
             }}
           >
             {/* Orbital Satellite Node */}
             <div className="absolute -top-1.5 left-1/2 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_#00bfff]" />
           </div>
 
-          {/* Outer Ring 2: Purple Reverse Orbit (Only on Profile A & B) */}
-          {!isLow && (
+          {/* Outer Ring 2: Purple Reverse Orbit (Hidden on reduced motion / low spec for 60 FPS) */}
+          {!reduceMotion && (
             <div
               className="absolute w-[250px] sm:w-[290px] h-[250px] sm:h-[290px] rounded-full border border-cyberPurple/40 border-t-2 border-t-cyberPurple animate-spin-reverse pointer-events-none"
               style={{
                 transform: "rotateX(-55deg) rotateY(40deg) translateZ(0)",
+                willChange: "transform",
               }}
             >
               <div className="absolute top-1/2 -right-1.5 w-2.5 h-2.5 bg-cyberPurple rounded-full shadow-[0_0_10px_#8b5cf6]" />
@@ -101,11 +89,10 @@ export default function TechModel3D() {
 
           {/* Middle Ring: Accent Cyan Ring */}
           <div
-            className={`absolute w-[200px] sm:w-[230px] h-[200px] sm:h-[230px] rounded-full border border-accent/35 pointer-events-none ${
-              isLow ? "" : "animate-spin-slow"
-            }`}
+            className="absolute w-[200px] sm:w-[230px] h-[200px] sm:h-[230px] rounded-full border border-accent/35 animate-spin-slow pointer-events-none"
             style={{
               transform: "rotateX(40deg) rotateZ(30deg) translateZ(0)",
+              willChange: "transform",
             }}
           />
 
@@ -144,9 +131,7 @@ export default function TechModel3D() {
 
           {/* Floating Telemetry Badge 1: Top Right */}
           <div
-            className={`absolute -top-1 -right-2 sm:-top-2 sm:-right-4 glass-card px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-accent/30 text-xs flex items-center space-x-1.5 sm:space-x-2 shadow-lg ${
-              isLow ? "" : "telemetry-badge-float-1"
-            }`}
+            className="absolute -top-1 -right-2 sm:-top-2 sm:-right-4 glass-card px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-accent/30 text-xs flex items-center space-x-1.5 sm:space-x-2 shadow-lg telemetry-badge-float-1"
             style={{ transform: "translateZ(45px)" }}
           >
             <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-accent" />
@@ -157,9 +142,7 @@ export default function TechModel3D() {
 
           {/* Floating Telemetry Badge 2: Bottom Left */}
           <div
-            className={`absolute -bottom-1 -left-2 sm:-bottom-2 sm:-left-4 glass-card px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-primary/30 text-xs flex items-center space-x-1.5 sm:space-x-2 shadow-lg ${
-              isLow ? "" : "telemetry-badge-float-2"
-            }`}
+            className="absolute -bottom-1 -left-2 sm:-bottom-2 sm:-left-4 glass-card px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border border-primary/30 text-xs flex items-center space-x-1.5 sm:space-x-2 shadow-lg telemetry-badge-float-2"
             style={{ transform: "translateZ(40px)" }}
           >
             <img

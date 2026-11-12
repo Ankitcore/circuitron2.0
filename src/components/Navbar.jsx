@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ArrowUpRight, Sparkles, ShieldCheck } from "lucide-react";
@@ -16,7 +16,6 @@ const navItems = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const isScrolledRef = useRef(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -24,11 +23,7 @@ export default function Navbar() {
     const handleScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          const scrolled = window.scrollY > 20;
-          if (scrolled !== isScrolledRef.current) {
-            isScrolledRef.current = scrolled;
-            setIsScrolled(scrolled);
-          }
+          setIsScrolled(window.scrollY > 20);
           ticking = false;
         });
         ticking = true;

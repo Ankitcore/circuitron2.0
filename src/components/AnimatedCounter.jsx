@@ -1,30 +1,25 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useInView, useMotionValue, animate } from "framer-motion";
-import { getPerformanceProfile, shouldReduceMotion } from "../utils/performance";
+import { shouldReduceMotion } from "../utils/performance";
 
 /**
  * AnimatedCounter
- * High-performance numerical count-up component.
- *
- * Performance Optimizations:
- * - Profile C: Immediately displays target value. Zero RAF, zero overhead.
- * - Profile A & B: Directly updates DOM `ref.current.textContent` during animation.
- *   This eliminates hundreds of React state reconciliations per second,
- *   guaranteeing smooth 60 FPS frame pacing on all devices.
+ * Smooth, 60fps numerical count-up component with viewport detection.
+ * Formats numbers elegantly (e.g., ₹1,00,000+, 500+, 20+, 100%).
  */
 export default function AnimatedCounter({
   from = 0,
   to = 100,
-  duration = 1.3,
+  duration = 1.4,
   delay = 0.1,
   prefix = "",
   suffix = "",
   decimals = 0,
   className = "",
 }) {
-  const spanRef = useRef(null);
-  const profile = getPerformanceProfile();
-  const isLow = profile === "C" || shouldReduceMotion();
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-30px" });
+  const motionVal = useMotionValue(from);
 
   const formatNumber = (val) => {
     if (decimals > 0) {
@@ -38,48 +33,32 @@ export default function AnimatedCounter({
     }
   };
 
-  const finalString = `${prefix}${formatNumber(to)}${suffix}`;
-  const initialString = isLow ? finalString : `${prefix}${formatNumber(from)}${suffix}`;
-
-  const isInView = useInView(spanRef, {
-    once: true,
-    margin: isLow ? "100px" : "-20px",
-  });
-  const motionVal = useMotionValue(from);
+  const [display, setDisplay] = useState(() => `${prefix}${formatNumber(from)}${suffix}`);
 
   useEffect(() => {
-    if (isLow) {
-      if (spanRef.current) spanRef.current.textContent = finalString;
+    // Accessibility check: immediately render final value if reduced motion is preferred
+    if (shouldReduceMotion()) {
+      setDisplay(`${prefix}${formatNumber(to)}${suffix}`);
       return;
     }
 
-    if (isInView && spanRef.current) {
-      const animDuration = profile === "B" ? duration * 0.75 : duration;
-      const animDelay = profile === "B" ? delay * 0.5 : delay;
-
+    if (isInView) {
       const controls = animate(motionVal, to, {
-        duration: animDuration,
-        delay: animDelay,
+        duration,
+        delay,
         ease: [0.22, 1, 0.36, 1],
         onUpdate: (latest) => {
-          if (spanRef.current) {
-            spanRef.current.textContent = `${prefix}${formatNumber(latest)}${suffix}`;
-          }
-        },
-        onComplete: () => {
-          if (spanRef.current) {
-            spanRef.current.textContent = finalString;
-          }
+          setDisplay(`${prefix}${formatNumber(latest)}${suffix}`);
         },
       });
 
       return () => controls.stop();
     }
-  }, [isInView, to, from, duration, delay, prefix, suffix, decimals, isLow, profile]);
+  }, [isInView, to, from, duration, delay, prefix, suffix, decimals]);
 
   return (
-    <span ref={spanRef} className={className}>
-      {initialString}
+    <span ref={ref} className={className}>
+      {display}
     </span>
   );
 }

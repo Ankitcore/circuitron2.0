@@ -1,64 +1,91 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useEffect, useState } from "react";
 import Particles from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
-import { getPerformanceProfile, shouldReduceMotion } from "../utils/performance";
+import { isLowEndDevice, isMobileDevice, shouldReduceMotion } from "../utils/performance";
 
-/**
- * ParticlesBackground
- * Subtle cyber ambient particle field.
- *
- * Performance Optimizations:
- * - Profile C / Reduced Motion: Completely disabled (returns null) for 0 canvas & 0 JS overhead.
- * - Profile B: Ultra-lightweight (10 particles, 30 FPS, zero interactive tracking).
- * - Profile A: Optimized density (22 particles, 45 FPS, lightweight hover).
- * - Removed dynamic scroll state re-rendering loop to eliminate scroll hitching entirely.
- */
 export default function ParticlesBackground() {
-  const profile = getPerformanceProfile();
-  const reduceMotion = shouldReduceMotion();
-
-  // On Profile C or reduced motion, never render canvas
-  if (profile === "C" || reduceMotion) {
-    return null;
-  }
+  const [isLowSpec] = useState(() => isLowEndDevice());
+  const [isMobile] = useState(() => isMobileDevice());
+  const [reduceMotion] = useState(() => shouldReduceMotion());
+  const [isScrolling, setIsScrolling] = useState(false);
 
   const particlesInit = useCallback(async (engine) => {
     await loadSlim(engine);
   }, []);
 
-  const isStd = profile === "B";
+  // Throttle particle rendering during active page scroll to keep scrolling at 60 FPS
+  useEffect(() => {
+    let scrollTimeout = null;
+    const handleScroll = () => {
+      if (!isScrolling) setIsScrolling(true);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        setIsScrolling(false);
+      }, 150);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+    };
+  }, [isScrolling]);
 
   const options = useMemo(() => {
+    // If user prefers reduced motion or ultra low spec, minimize particle overhead
+    if (reduceMotion) {
+      return {
+        background: { color: { value: "transparent" } },
+        fullScreen: { enable: true, zIndex: 1 },
+        fpsLimit: 30,
+        interactivity: { detectsOn: "window", events: { resize: true } },
+        particles: {
+          color: { value: ["#00fffc", "#0091ff"] },
+          links: { enable: false },
+          move: { enable: true, speed: 0.3, direction: "none", outMode: "out" },
+          number: { density: { enable: true, area: 1500 }, value: 10 },
+          opacity: { value: { min: 0.15, max: 0.4 } },
+          shape: { type: "circle" },
+          size: { value: { min: 1, max: 2.5 } },
+        },
+      };
+    }
+
+    const lowEnd = isLowSpec || isMobile;
+
     return {
       background: { color: { value: "transparent" } },
       fullScreen: { enable: true, zIndex: 1 },
-      fpsLimit: isStd ? 30 : 45,
+      fpsLimit: lowEnd ? 30 : 45,
       interactivity: {
         detectsOn: "window",
         events: {
+          // Disable mouse hover tracking on low-end/touch devices to prevent JS main thread contention
           onHover: {
-            enable: !isStd,
+            enable: !lowEnd,
             mode: "bubble",
           },
-          onClick: { enable: false },
+          onClick: { enable: !lowEnd, mode: "push" },
           resize: true,
         },
         modes: {
           bubble: {
-            distance: 100,
-            size: 3.5,
-            duration: 0.6,
-            opacity: 0.6,
+            distance: 120,
+            size: 4,
+            duration: 0.8,
+            opacity: 0.7,
           },
+          push: { quantity: 1 },
         },
       },
       particles: {
-        color: { value: ["#00fffc", "#0091ff", "#8f00ff"] },
+        color: { value: ["#00fffc", "#0091ff", "#4e75ff", "#8f00ff"] },
+        // Disable expensive Euclidean distance line links on low-end laptops and mobile
         links: {
           color: "#0091ff",
-          distance: 110,
-          enable: !isStd,
-          opacity: 0.15,
+          distance: 125,
+          enable: !lowEnd,
+          opacity: 0.18,
           width: 1,
           triangles: { enable: false },
         },
@@ -66,29 +93,28 @@ export default function ParticlesBackground() {
           enable: false,
         },
         move: {
-          enable: true,
-          speed: isStd ? 0.35 : 0.65,
+          enable: !isScrolling, // Pause particle move updates during active scroll to ensure 60 FPS scrolling
+          speed: lowEnd ? 0.5 : 0.85,
           direction: "none",
           random: true,
           straight: false,
           outMode: "out",
         },
         number: {
-          density: { enable: true, area: isStd ? 1400 : 1000 },
-          value: isStd ? 10 : 22,
+          density: { enable: true, area: lowEnd ? 1200 : 900 },
+          value: lowEnd ? 14 : 28,
         },
-        opacity: { value: { min: 0.15, max: 0.45 } },
+        opacity: { value: { min: 0.2, max: 0.55 } },
         shape: { type: "circle" },
-        size: { value: { min: 1, max: 2.5 } },
+        size: { value: { min: 1, max: 3 } },
       },
     };
-  }, [isStd]);
+  }, [isLowSpec, isMobile, reduceMotion, isScrolling]);
 
   return (
     <div
-      className="fixed top-0 left-0 w-full h-full pointer-events-none select-none"
-      style={{ zIndex: 1, transform: "translateZ(0)" }}
-      aria-hidden="true"
+      className="fixed top-0 left-0 w-full h-full pointer-events-none"
+      style={{ zIndex: 1, willChange: "transform", transform: "translateZ(0)" }}
     >
       <Particles id="tsparticles" init={particlesInit} options={options} />
     </div>
