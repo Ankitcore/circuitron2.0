@@ -11,7 +11,7 @@ import RobotMascotBackground from "./components/RobotMascotBackground";
 import PageLoader from "./components/PageLoader";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
-import { shouldReduceMotion, isLowEndDevice } from "./utils/performance";
+import { shouldReduceMotion, getPerformanceProfile } from "./utils/performance";
 
 // Direct Home page import for instantaneous 0ms landing load
 import Home from "./pages/Home";
@@ -166,7 +166,8 @@ export default function App() {
   const location = useLocation();
   const [allowParticles] = React.useState(() => {
     if (typeof window === "undefined") return false;
-    return !shouldReduceMotion() && !isLowEndDevice();
+    const profile = getPerformanceProfile();
+    return !shouldReduceMotion() && profile !== "C";
   });
 
   return (

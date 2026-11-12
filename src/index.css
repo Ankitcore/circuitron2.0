@@ -86,14 +86,33 @@
   will-change: transform;
 }
 
-/* Zero GPU Blur fallback for low-spec laptops & mobile to guarantee locked 60 FPS */
+/* Adaptive Glassmorphism Profiles */
+.perf-profile-a .glass-panel {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.perf-profile-a .glass-card {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.perf-profile-b .glass-panel,
+.perf-profile-b .glass-card {
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  background: rgba(12, 18, 52, 0.88);
+}
+
+/* Zero GPU Blur fallback for Profile C (older laptops 60Hz, budget mobile, reduced motion) */
+.perf-profile-c .glass-panel,
+.perf-profile-c .glass-card,
+.perf-profile-c .btn-secondary,
+.perf-profile-c nav,
 .low-spec-device .glass-panel,
-.low-spec-device .glass-card,
-.is-mobile .glass-card,
-.is-mobile .glass-panel {
+.low-spec-device .glass-card {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  background: #090e28 !important;
+  background: rgba(9, 14, 40, 0.95) !important;
 }
 
 /* Subtle glow enhancement on hover */
@@ -413,6 +432,36 @@ input:focus, textarea:focus, select:focus {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Mobile Momentum Touch Scrolling Optimization */
+@media (pointer: coarse) {
+  html {
+    scroll-behavior: auto; /* Native momentum scrolling on touch devices for zero-friction flick scrolling */
+  }
+}
+
+/* Profile C (Low Performance / 60Hz Smoothness Locked): Pause infinite background keyframes */
+.perf-profile-c .circuit-pulse-1,
+.perf-profile-c .circuit-pulse-2,
+.perf-profile-c .circuit-pulse-3,
+.perf-profile-c .cyber-shimmer-beam,
+.perf-profile-c .robot-swing-anim,
+.perf-profile-c .robot-float-anim,
+.perf-profile-c .telemetry-float-1,
+.perf-profile-c .telemetry-float-2,
+.perf-profile-c .telemetry-float-3,
+.perf-profile-c .telemetry-badge-float-1,
+.perf-profile-c .telemetry-badge-float-2 {
+  animation: none !important;
+}
+
+.perf-profile-c .glass-card.group:hover,
+.perf-profile-c .glass-card.card-hover:hover,
+.perf-profile-c a.glass-card:hover,
+.perf-profile-c button.glass-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Off-screen Content Visibility optimization */
