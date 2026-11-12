@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy, Users, Calendar, Award, Sparkles, ArrowRight, Zap, Target } from "lucide-react";
 import CyberProgressBar from "./CyberProgressBar";
+import AnimatedCounter from "./AnimatedCounter";
+import { cardHoverProps, buttonHoverProps, smoothEase, viewportConfig } from "../utils/motion";
 
 export default function Stats() {
   return (
@@ -55,8 +57,9 @@ export default function Stats() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true }}
+            transition={{ duration: 0.65, delay: 0.1, ease: smoothEase }}
+            viewport={viewportConfig}
+            {...cardHoverProps}
             className="md:col-span-2 glass-card p-8 rounded-2xl border border-primary/25 relative overflow-hidden group flex flex-col justify-between"
           >
             <div
@@ -66,7 +69,7 @@ export default function Stats() {
               }}
             />
             <div className="space-y-4 relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center text-primary">
+              <div className="w-12 h-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center text-primary group-hover:scale-105 transition-transform duration-300">
                 <Zap className="w-6 h-6" />
               </div>
               <h3 className="text-2xl font-bold font-orbitron text-white">
@@ -81,7 +84,7 @@ export default function Stats() {
             <div className="pt-6 relative z-10">
               <Link
                 to="/about"
-                className="inline-flex items-center space-x-2 text-accent font-semibold text-sm hover:underline"
+                className="inline-flex items-center space-x-2 text-accent font-semibold text-sm hover:underline group-hover:translate-x-1 transition-transform"
               >
                 <span>Read the Story of Circuitron</span>
                 <ArrowRight className="w-4 h-4" />
@@ -93,17 +96,17 @@ export default function Stats() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-            viewport={{ once: true }}
-            whileHover={{ y: -4 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: smoothEase }}
+            viewport={viewportConfig}
+            {...cardHoverProps}
             className="glass-card p-6 sm:p-8 rounded-2xl border border-amber-500/30 flex flex-col justify-between relative overflow-hidden group"
           >
-            <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-4 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300">
               <Trophy className="w-6 h-6" />
             </div>
             <div>
               <div className="text-3xl sm:text-4xl font-black font-orbitron text-amber-400">
-                ₹1,00,000+
+                <AnimatedCounter prefix="₹" to={100000} suffix="+" duration={1.5} delay={0.2} />
               </div>
               <h4 className="text-lg font-bold text-white mt-1">Prize Pool</h4>
               <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
@@ -114,7 +117,9 @@ export default function Stats() {
               <div className="mt-4 pt-3 border-t border-amber-500/15 space-y-1.5">
                 <div className="flex items-center justify-between text-[10px] font-mono text-amber-300/80">
                   <span>Prize Pool Backing</span>
-                  <span className="font-bold text-amber-400">100% Unlocked</span>
+                  <span className="font-bold text-amber-400">
+                    <AnimatedCounter to={100} suffix="% Unlocked" duration={1.2} delay={0.25} />
+                  </span>
                 </div>
                 <CyberProgressBar
                   value={100}
@@ -133,17 +138,17 @@ export default function Stats() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-            viewport={{ once: true }}
-            whileHover={{ y: -4 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: smoothEase }}
+            viewport={viewportConfig}
+            {...cardHoverProps}
             className="glass-card p-6 sm:p-8 rounded-2xl border border-primary/25 flex flex-col justify-between group"
           >
-            <div className="w-12 h-12 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent mb-4 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300">
               <Users className="w-6 h-6" />
             </div>
             <div>
               <div className="text-3xl sm:text-4xl font-black font-orbitron text-white">
-                500+
+                <AnimatedCounter to={500} suffix="+" duration={1.3} delay={0.3} />
               </div>
               <h4 className="text-lg font-bold text-white mt-1">Innovators</h4>
               <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
@@ -154,7 +159,9 @@ export default function Stats() {
               <div className="mt-4 pt-3 border-t border-primary/15 space-y-1.5">
                 <div className="flex items-center justify-between text-[10px] font-mono text-accent/80">
                   <span>Slot Intake</span>
-                  <span className="font-bold text-accent">85% Enrolled</span>
+                  <span className="font-bold text-accent">
+                    <AnimatedCounter to={85} suffix="% Enrolled" duration={1.2} delay={0.35} />
+                  </span>
                 </div>
                 <CyberProgressBar
                   value={85}
@@ -173,17 +180,17 @@ export default function Stats() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-            viewport={{ once: true }}
-            whileHover={{ y: -4 }}
+            transition={{ duration: 0.6, delay: 0.4, ease: smoothEase }}
+            viewport={viewportConfig}
+            {...cardHoverProps}
             className="glass-card p-6 sm:p-8 rounded-2xl border border-cyberPurple/30 flex flex-col justify-between group"
           >
-            <div className="w-12 h-12 rounded-xl bg-cyberPurple/20 border border-cyberPurple/40 flex items-center justify-center text-cyberPurple mb-4 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-xl bg-cyberPurple/20 border border-cyberPurple/40 flex items-center justify-center text-cyberPurple mb-4 shadow-sm group-hover:scale-110 transition-transform duration-300">
               <Target className="w-6 h-6" />
             </div>
             <div>
               <div className="text-3xl sm:text-4xl font-black font-orbitron text-cyberPurple">
-                20+
+                <AnimatedCounter to={20} suffix="+" duration={1.1} delay={0.4} />
               </div>
               <h4 className="text-lg font-bold text-white mt-1">Events &amp; Demos</h4>
               <p className="text-gray-400 text-xs mt-1.5 leading-relaxed">
@@ -194,7 +201,9 @@ export default function Stats() {
               <div className="mt-4 pt-3 border-t border-cyberPurple/15 space-y-1.5">
                 <div className="flex items-center justify-between text-[10px] font-mono text-cyberPurple/90">
                   <span>Arena Specs</span>
-                  <span className="font-bold text-cyberPurple">92% Ready</span>
+                  <span className="font-bold text-cyberPurple">
+                    <AnimatedCounter to={92} suffix="% Ready" duration={1.2} delay={0.45} />
+                  </span>
                 </div>
                 <CyberProgressBar
                   value={92}
@@ -213,8 +222,9 @@ export default function Stats() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.5, ease: smoothEase }}
+            viewport={viewportConfig}
+            {...cardHoverProps}
             className="md:col-span-2 lg:col-span-3 glass-card p-8 rounded-2xl border border-primary/25 flex flex-col sm:flex-row items-center justify-between gap-6"
           >
             <div className="space-y-2 text-center sm:text-left">
@@ -230,7 +240,7 @@ export default function Stats() {
               </p>
             </div>
 
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-shrink-0">
+            <motion.div {...buttonHoverProps} className="flex-shrink-0">
               <Link to="/events" className="btn-primary">
                 <span>Explore Events</span>
                 <ArrowRight className="w-4 h-4" />

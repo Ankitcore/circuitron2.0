@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { events } from "../data/events";
 import { Bot, Cpu, Sparkles, ExternalLink, ArrowRight, ShieldCheck, Zap } from "lucide-react";
 import CyberProgressBar from "./CyberProgressBar";
+import AnimatedCounter from "./AnimatedCounter";
+import { cardHoverProps, buttonHoverProps, smoothEase, viewportConfig } from "../utils/motion";
 
 export default function FeaturedEvents() {
   const featured = events.slice(0, 3);
@@ -68,8 +70,9 @@ export default function FeaturedEvents() {
               key={event.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.15 }}
-              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.15, ease: smoothEase }}
+              viewport={viewportConfig}
+              {...cardHoverProps}
               className="glass-card rounded-2xl p-7 border border-primary/20 flex flex-col justify-between group relative overflow-hidden"
             >
               {/* Corner tech accent */}
@@ -78,7 +81,7 @@ export default function FeaturedEvents() {
               <div className="space-y-5">
                 {/* Top Row: Icon & Category */}
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-darkNavy/80 border border-primary/30 flex items-center justify-center shadow-md">
+                  <div className="w-12 h-12 rounded-xl bg-darkNavy/80 border border-primary/30 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
                     {getEventIcon(event.id)}
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getBadgeStyle(event.category)}`}>
@@ -114,7 +117,13 @@ export default function FeaturedEvents() {
                   <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
                     <span>REGISTRATION SLOTS</span>
                     <span className="text-accent font-semibold">
-                      {event.id === 1 ? "80% Reserved" : event.id === 2 ? "90% Reserved" : "75% Reserved"}
+                      <AnimatedCounter
+                        from={0}
+                        to={event.id === 1 ? 80 : event.id === 2 ? 90 : 75}
+                        suffix="% Reserved"
+                        duration={1.1}
+                        delay={0.15 + index * 0.08}
+                      />
                     </span>
                   </div>
                   <CyberProgressBar
@@ -133,31 +142,25 @@ export default function FeaturedEvents() {
               {/* Action Buttons */}
               <div className="pt-6 mt-6 border-t border-white/10 flex items-center space-x-3">
                 {event.registrationLink ? (
-                  <a
+                  <motion.a
                     href={event.registrationLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1"
+                    {...buttonHoverProps}
+                    className="flex-1 btn-primary py-2.5 text-xs font-bold flex items-center justify-center space-x-1.5"
                   >
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full btn-primary py-2.5 text-xs font-bold"
-                    >
-                      <span>Register Now</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </motion.button>
-                  </a>
+                    <span>Register Now</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </motion.a>
                 ) : (
                   <Link to="/events" className="flex-1">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="w-full btn-secondary py-2.5 text-xs font-bold"
+                    <motion.div
+                      {...buttonHoverProps}
+                      className="w-full btn-secondary py-2.5 text-xs font-bold flex items-center justify-center space-x-1.5"
                     >
                       <span>Event Specs</span>
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </motion.button>
+                    </motion.div>
                   </Link>
                 )}
               </div>
@@ -169,12 +172,12 @@ export default function FeaturedEvents() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4, ease: smoothEase }}
+          viewport={viewportConfig}
           className="text-center mt-16"
         >
           <Link to="/events" className="inline-block">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn-secondary">
+            <motion.div {...buttonHoverProps} className="btn-secondary">
               <span>View All Events &amp; Rulebooks</span>
               <ArrowRight className="w-4 h-4" />
             </motion.div>

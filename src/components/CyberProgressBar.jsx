@@ -1,9 +1,11 @@
 import React from "react";
 import { motion } from "framer-motion";
+import AnimatedCounter from "./AnimatedCounter";
 
 /**
  * CyberProgressBar
  * Lightweight, GPU-accelerated, high-performance cybernetic progress bar.
+ * Animates from 0% to configured value with smooth easing on viewport entry.
  * Uses pure CSS for repeating shimmer reflection to eliminate JS main thread overhead.
  */
 export default function CyberProgressBar({
@@ -12,19 +14,25 @@ export default function CyberProgressBar({
   height = "h-1.5",
   borderColor = "border-primary/20",
   delay = 0.2,
-  duration = 1.0,
+  duration = 1.1,
   inView = true,
   showShimmer = true,
   showGlowTip = true,
+  label = null,
+  showPercentage = false,
+  percentagePrefix = "",
+  percentageSuffix = "%",
+  percentageClassName = "text-accent font-bold",
   className = "",
 }) {
-  const targetWidth = typeof value === "number" ? `${Math.min(100, Math.max(0, value))}%` : value;
+  const numericValue = typeof value === "number" ? Math.min(100, Math.max(0, value)) : parseInt(value, 10) || 100;
+  const targetWidth = `${numericValue}%`;
 
   const motionProps = inView
     ? {
         initial: { width: 0 },
         whileInView: { width: targetWidth },
-        viewport: { once: true, margin: "-15px" },
+        viewport: { once: true, margin: "-20px" },
       }
     : {
         initial: { width: 0 },
@@ -32,33 +40,52 @@ export default function CyberProgressBar({
       };
 
   return (
-    <div
-      className={`w-full ${height} bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border ${borderColor} relative ${className}`}
-      style={{ willChange: "transform", transform: "translateZ(0)" }}
-    >
-      <motion.div
-        {...motionProps}
-        transition={{
-          duration,
-          delay,
-          ease: [0.22, 1, 0.36, 1],
-        }}
-        className={`h-full bg-gradient-to-r ${gradient} rounded-full relative overflow-hidden`}
-        style={{ willChange: "width" }}
-      >
-        {/* Hardware-accelerated CSS Shimmer (0 JS RAF cycles) */}
-        {showShimmer && (
-          <div
-            className="absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-white/35 to-transparent pointer-events-none cyber-shimmer-beam"
-            style={{ willChange: "transform" }}
-          />
-        )}
+    <div className={`w-full space-y-1 ${className}`}>
+      {(label || showPercentage) && (
+        <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
+          {label && <span>{label}</span>}
+          {showPercentage && (
+            <AnimatedCounter
+              from={0}
+              to={numericValue}
+              prefix={percentagePrefix}
+              suffix={percentageSuffix}
+              delay={delay}
+              duration={duration}
+              className={percentageClassName}
+            />
+          )}
+        </div>
+      )}
 
-        {/* Leading edge neon micro beacon */}
-        {showGlowTip && (
-          <div className="absolute right-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_8px_#ffffff] rounded-full" />
-        )}
-      </motion.div>
+      <div
+        className={`w-full ${height} bg-darkNavy/80 rounded-full overflow-hidden p-[0.5px] border ${borderColor} relative`}
+        style={{ willChange: "transform", transform: "translateZ(0)" }}
+      >
+        <motion.div
+          {...motionProps}
+          transition={{
+            duration,
+            delay,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className={`h-full bg-gradient-to-r ${gradient} rounded-full relative overflow-hidden`}
+          style={{ willChange: "width" }}
+        >
+          {/* Hardware-accelerated CSS Shimmer (0 JS RAF cycles) */}
+          {showShimmer && (
+            <div
+              className="absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-white/35 to-transparent pointer-events-none cyber-shimmer-beam"
+              style={{ willChange: "transform" }}
+            />
+          )}
+
+          {/* Leading edge neon micro beacon */}
+          {showGlowTip && (
+            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_8px_#ffffff] rounded-full" />
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 }

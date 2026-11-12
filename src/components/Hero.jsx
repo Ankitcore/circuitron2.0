@@ -4,6 +4,8 @@ import { Calendar, MapPin, Download, ArrowRight, Sparkles, Trophy, Users, Bot, E
 import TechModel3D from "./TechModel3D";
 import CountdownTimer from "./CountdownTimer";
 import CyberProgressBar from "./CyberProgressBar";
+import AnimatedCounter from "./AnimatedCounter";
+import { buttonHoverProps, cardHoverProps, smoothEase } from "../utils/motion";
 
 export default function Hero() {
   return (
@@ -115,8 +117,7 @@ export default function Hero() {
                 href="https://forms.gle/mNU3damnJBMfnmSU7"
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                {...buttonHoverProps}
                 className="btn-primary w-full sm:w-auto text-sm py-3 px-6"
               >
                 <span>Register for TechXpo 2.O</span>
@@ -127,8 +128,7 @@ export default function Hero() {
                 href="https://drive.google.com/file/d/1BnXjrzGn_Y86PqJAFMarpxXRjEKq6CjT/view?usp=sharing"
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                {...buttonHoverProps}
                 className="btn-secondary w-full sm:w-auto text-sm py-3 px-6"
               >
                 <Download className="w-4 h-4" />
@@ -142,7 +142,7 @@ export default function Hero() {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.3 }}
+            transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
             className="lg:col-span-5 flex flex-col items-center justify-center mt-4 lg:mt-0"
           >
             <TechModel3D />
@@ -152,13 +152,15 @@ export default function Hero() {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                whileHover={{ y: -3, scale: 1.02 }}
+                transition={{ duration: 0.5, delay: 0.4, ease: smoothEase }}
+                {...cardHoverProps}
                 className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
               >
                 <div>
                   <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-yellow-400 mx-auto mb-1" />
-                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">₹100K+</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">
+                    <AnimatedCounter prefix="₹" to={100} suffix="K+" duration={1.2} delay={0.4} />
+                  </div>
                   <div className="text-[9px] sm:text-[10px] text-gray-400">Prize Pool</div>
                 </div>
                 {/* Micro Progress Bar */}
@@ -178,13 +180,15 @@ export default function Hero() {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                whileHover={{ y: -3, scale: 1.02 }}
+                transition={{ duration: 0.5, delay: 0.5, ease: smoothEase }}
+                {...cardHoverProps}
                 className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
               >
                 <div>
                   <Bot className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary mx-auto mb-1" />
-                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">3 Arenas</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">
+                    <AnimatedCounter to={3} suffix=" Arenas" duration={1.0} delay={0.5} />
+                  </div>
                   <div className="text-[9px] sm:text-[10px] text-gray-400">Combat &amp; Race</div>
                 </div>
                 {/* Micro Progress Bar */}
@@ -204,13 +208,15 @@ export default function Hero() {
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-                whileHover={{ y: -3, scale: 1.02 }}
+                transition={{ duration: 0.5, delay: 0.6, ease: smoothEase }}
+                {...cardHoverProps}
                 className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
               >
                 <div>
                   <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-accent mx-auto mb-1" />
-                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">500+</div>
+                  <div className="text-[11px] sm:text-xs font-bold text-white font-orbitron">
+                    <AnimatedCounter to={500} suffix="+" duration={1.2} delay={0.6} />
+                  </div>
                   <div className="text-[9px] sm:text-[10px] text-gray-400">Innovators</div>
                 </div>
                 {/* Micro Progress Bar */}

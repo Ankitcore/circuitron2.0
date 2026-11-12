@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { cardHoverProps, smoothEase, viewportConfig } from "../utils/motion";
 import {
   getVisibleFaculty,
   getVisibleExecutives,
@@ -103,9 +104,14 @@ export default function Team() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto gap-8">
-              {faculty.map((mentor) => (
-                <div
+              {faculty.map((mentor, idx) => (
+                <motion.div
                   key={mentor.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={viewportConfig}
+                  transition={{ duration: 0.55, delay: idx * 0.1, ease: smoothEase }}
+                  {...cardHoverProps}
                   className="glass-card p-8 rounded-3xl border border-primary/25 flex flex-col items-center text-center group"
                 >
                   <div className="relative w-36 h-36 mb-6">
@@ -133,7 +139,7 @@ export default function Team() {
                       </span>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -161,9 +167,14 @@ export default function Team() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-              {executives.map((exec) => (
-                <div
+              {executives.map((exec, idx) => (
+                <motion.div
                   key={exec.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={viewportConfig}
+                  transition={{ duration: 0.5, delay: (idx % 4) * 0.08, ease: smoothEase }}
+                  {...cardHoverProps}
                   className="glass-card p-8 rounded-3xl border border-primary/25 flex flex-col items-center text-center group hover:border-accent/40 transition-all duration-300"
                 >
                   <div className="relative w-36 h-36 mb-6 flex-shrink-0">
@@ -188,7 +199,7 @@ export default function Team() {
                       </p>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -216,9 +227,14 @@ export default function Team() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {core.map((member) => (
-                <div
+              {core.map((member, idx) => (
+                <motion.div
                   key={member.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={viewportConfig}
+                  transition={{ duration: 0.5, delay: (idx % 4) * 0.07, ease: smoothEase }}
+                  {...cardHoverProps}
                   className="glass-card p-6 rounded-2xl border border-primary/20 flex flex-col items-center text-center group hover:border-primary/50"
                 >
                   <div className="relative w-28 h-28 mb-4">
@@ -238,7 +254,7 @@ export default function Team() {
                       {member.department}
                     </span>
                   )}
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -266,13 +282,18 @@ export default function Team() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {customTeams.map((member) => {
+              {customTeams.map((member, idx) => {
                 const tKey = normalizeTierKey(member.tierKey || member.tier || member.category, member.id);
                 const cfg = TIER_CONFIG[tKey] || TIER_CONFIG.participant;
 
                 return (
-                  <div
+                  <motion.div
                     key={member.id || member.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={viewportConfig}
+                    transition={{ duration: 0.5, delay: (idx % 4) * 0.07, ease: smoothEase }}
+                    {...cardHoverProps}
                     className="glass-card p-6 rounded-2xl border border-white/10 hover:border-cyan-400/40 flex flex-col items-center text-center group transition-all duration-300"
                   >
                     <div className="relative w-28 h-28 mb-4">
@@ -308,7 +329,7 @@ export default function Team() {
                         {member.department}
                       </span>
                     )}
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>

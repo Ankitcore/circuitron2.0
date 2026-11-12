@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { cardHoverProps, smoothEase, viewportConfig } from "../utils/motion";
 import { scheduleDays } from "../data/schedule";
 import { Clock, MapPin, Sparkles, AlertCircle, Info, CalendarCheck } from "lucide-react";
 
@@ -79,15 +80,15 @@ export default function Schedule() {
                 {dayGroup.events.map((event, idx) => (
                   <motion.div
                     key={idx}
-                    initial={{ opacity: 0, x: -15 }}
+                    initial={{ opacity: 0, x: -18 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-40px" }}
+                    viewport={viewportConfig}
                     transition={{
-                      duration: 0.5,
+                      duration: 0.55,
                       delay: idx * 0.07,
-                      ease: [0.25, 0.1, 0.25, 1],
+                      ease: smoothEase,
                     }}
-                    whileHover={{ x: 3 }}
+                    whileHover={{ x: 5, transition: { duration: 0.2 } }}
                     className="relative glass-card p-4 sm:p-6 rounded-2xl border border-primary/20 group hover:border-accent/50 transition-all duration-300"
                   >
                     {/* Glowing Node on the timeline */}

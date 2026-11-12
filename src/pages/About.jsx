@@ -2,6 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Lightbulb, Award, Users, CheckCircle, Sparkles, Target, Compass, Rocket } from "lucide-react";
 import CyberProgressBar from "../components/CyberProgressBar";
+import AnimatedCounter from "../components/AnimatedCounter";
+import { cardHoverProps, smoothEase, viewportConfig } from "../utils/motion";
 
 export default function About() {
   const itemVariants = {
@@ -142,9 +144,9 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-              whileHover={{ y: -4 }}
+              viewport={viewportConfig}
+              transition={{ duration: 0.6, delay: 0.1, ease: smoothEase }}
+              {...cardHoverProps}
               className="glass-card p-6 sm:p-8 rounded-2xl border border-primary/25 text-center space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-4">
@@ -161,7 +163,7 @@ export default function About() {
               <div className="pt-3 border-t border-primary/15 space-y-1">
                 <div className="flex justify-between text-[10px] font-mono text-gray-400">
                   <span>Lab Prototyping Access</span>
-                  <span className="text-primary font-bold">100% Equipped</span>
+                  <span className="text-primary font-bold"><AnimatedCounter to={100} suffix="% Equipped" duration={1.1} delay={0.25} /></span>
                 </div>
                 <CyberProgressBar
                   value={100}
@@ -179,9 +181,9 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              whileHover={{ y: -4 }}
+              viewport={viewportConfig}
+              transition={{ duration: 0.6, delay: 0.2, ease: smoothEase }}
+              {...cardHoverProps}
               className="glass-card p-6 sm:p-8 rounded-2xl border border-accent/25 text-center space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-4">
@@ -198,7 +200,7 @@ export default function About() {
               <div className="pt-3 border-t border-accent/15 space-y-1">
                 <div className="flex justify-between text-[10px] font-mono text-gray-400">
                   <span>Applied Project Success</span>
-                  <span className="text-accent font-bold">95% Verified</span>
+                  <span className="text-accent font-bold"><AnimatedCounter to={95} suffix="% Verified" duration={1.1} delay={0.35} /></span>
                 </div>
                 <CyberProgressBar
                   value={95}
@@ -216,9 +218,9 @@ export default function About() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              whileHover={{ y: -4 }}
+              viewport={viewportConfig}
+              transition={{ duration: 0.6, delay: 0.3, ease: smoothEase }}
+              {...cardHoverProps}
               className="glass-card p-6 sm:p-8 rounded-2xl border border-cyberPurple/25 text-center space-y-4 flex flex-col justify-between"
             >
               <div className="space-y-4">
@@ -235,7 +237,7 @@ export default function About() {
               <div className="pt-3 border-t border-cyberPurple/15 space-y-1">
                 <div className="flex justify-between text-[10px] font-mono text-gray-400">
                   <span>Cross-Branch Synergy</span>
-                  <span className="text-cyberPurple font-bold">100% Unified</span>
+                  <span className="text-cyberPurple font-bold"><AnimatedCounter to={100} suffix="% Unified" duration={1.1} delay={0.45} /></span>
                 </div>
                 <CyberProgressBar
                   value={100}

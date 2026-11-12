@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CyberProgressBar from "../components/CyberProgressBar";
+import AnimatedCounter from "../components/AnimatedCounter";
+import { cardHoverProps, buttonHoverProps, smoothEase, viewportConfig } from "../utils/motion";
 import {
   events,
   exhibitionGroups,
@@ -189,8 +191,11 @@ export default function Events() {
             {exhibitionGroups.map((grp) => (
               <motion.div
                 key={grp.id}
-                whileHover={{ y: -6 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 25 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={viewportConfig}
+                transition={{ duration: 0.6, delay: grp.id * 0.12, ease: smoothEase }}
+                {...cardHoverProps}
                 className={`glass-card rounded-3xl p-7 sm:p-8 border-2 ${grp.borderColor} flex flex-col justify-between relative overflow-hidden shadow-xl bg-gradient-to-b ${grp.bgGradient}`}
               >
                 {/* Background Watermark */}
@@ -306,7 +311,7 @@ export default function Events() {
             </h2>
             <div className="inline-block px-6 py-2 rounded-2xl bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 border border-accent/40 shadow-neon">
               <span className="text-3xl sm:text-5xl font-black font-orbitron text-accent tracking-wider">
-                ₹1,00,000
+                <AnimatedCounter prefix="₹" to={100000} duration={1.6} delay={0.2} />
               </span>
             </div>
             <p className="text-gray-300 max-w-xl mx-auto text-sm sm:text-base">
@@ -528,13 +533,13 @@ export default function Events() {
                 onClick={() => setSelectedEvent(event)}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                viewport={viewportConfig}
                 transition={{
-                  duration: 0.5,
-                  delay: index * 0.06,
-                  ease: [0.25, 0.1, 0.25, 1],
+                  duration: 0.55,
+                  delay: (index % 6) * 0.07,
+                  ease: smoothEase,
                 }}
-                whileHover={{ y: -4 }}
+                {...cardHoverProps}
                 className="glass-card rounded-3xl p-7 border border-primary/20 flex flex-col justify-between cursor-pointer group hover:border-accent/50 relative overflow-hidden shadow-xl"
               >
                 <div className="space-y-5">
@@ -587,7 +592,7 @@ export default function Events() {
                     <div className="flex items-center justify-between text-[10px] font-mono text-gray-400">
                       <span>REGISTRATION QUOTA</span>
                       <span className="text-accent font-semibold">
-                        {event.id === 1 ? "80% Filled" : event.id === 2 ? "90% Filled" : "75% Filled"}
+                        <AnimatedCounter from={0} to={event.id === 1 ? 80 : event.id === 2 ? 90 : 75} suffix="% Filled" duration={1.1} delay={0.12 + (index % 3) * 0.08} />
                       </span>
                     </div>
                     <CyberProgressBar
