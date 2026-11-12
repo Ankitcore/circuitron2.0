@@ -941,8 +941,10 @@ export default async function handler(req, res) {
     // Persist to Disk & Cloud KV
     saveRegistrationsToDisk();
     if (kv) {
-      saveToKv(kv, "circuitron:registrations", Array.from(registrationsStore.values())).catch(() => {});
-      saveToKv(kv, "circuitron:sync_logs", syncLogsStore.slice(-100)).catch(() => {});
+      try {
+        await saveToKv(kv, "circuitron:registrations", Array.from(registrationsStore.values()));
+        await saveToKv(kv, "circuitron:sync_logs", syncLogsStore.slice(-100));
+      } catch (err) {}
     }
 
     // Record sync log
@@ -1001,7 +1003,9 @@ export default async function handler(req, res) {
 
     saveRegistrationsToDisk();
     if (kv) {
-      saveToKv(kv, "circuitron:registrations", Array.from(registrationsStore.values())).catch(() => {});
+      try {
+        await saveToKv(kv, "circuitron:registrations", Array.from(registrationsStore.values()));
+      } catch (err) {}
     }
 
     return res.status(200).json({
@@ -1033,7 +1037,9 @@ export default async function handler(req, res) {
     registrationsStore.delete(targetId);
     saveRegistrationsToDisk();
     if (kv) {
-      saveToKv(kv, "circuitron:registrations", Array.from(registrationsStore.values())).catch(() => {});
+      try {
+        await saveToKv(kv, "circuitron:registrations", Array.from(registrationsStore.values()));
+      } catch (err) {}
     }
 
     addSyncLog({
