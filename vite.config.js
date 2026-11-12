@@ -15,6 +15,7 @@ function localApiPlugin() {
             else if (endpoint === 'admin-session') mod = await import('./api/admin-session.js');
             else if (endpoint === 'contact') mod = await import('./api/contact.js');
             else if (endpoint === 'upload') mod = await import('./api/upload.js');
+            else if (endpoint === 'registrations') mod = await import('./api/registrations.js');
 
             if (mod && mod.default) {
               const chunks = [];

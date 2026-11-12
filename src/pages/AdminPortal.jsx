@@ -76,6 +76,7 @@ import {
   getAdminSessionId,
   checkServerSessionActive,
 } from "../utils/adminAuth";
+import RegistrationManagement from "../components/RegistrationManagement";
 
 export default function AdminPortal() {
   const navigate = useNavigate();
@@ -1054,6 +1055,18 @@ export default function AdminPortal() {
 
         {/* Tab Selection Bar */}
         <div className="flex border-b border-white/10 gap-2 sm:gap-4 overflow-x-auto no-scrollbar pb-1">
+          <button
+            onClick={() => setActiveTab("registrations")}
+            className={`flex items-center space-x-2 py-3 px-4 sm:px-6 rounded-2xl text-xs sm:text-sm font-orbitron font-bold transition-all whitespace-nowrap ${
+              activeTab === "registrations"
+                ? "bg-primary/20 border border-primary/40 text-accent shadow-neon"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            <span>Registration Management</span>
+          </button>
+
           <button
             onClick={() => setActiveTab("roster")}
             className={`flex items-center space-x-2 py-3 px-4 sm:px-6 rounded-2xl text-xs sm:text-sm font-orbitron font-bold transition-all whitespace-nowrap ${
@@ -2480,6 +2493,13 @@ Priya Singh, Line Follower, Dept. of ECE, CyberSquad`}
               </div>
             </div>
           </div>
+        )}
+
+        {/* ================================================================== */}
+        {/* TAB 5: REGISTRATION MANAGEMENT (GOOGLE FORMS INTEGRATION)          */}
+        {/* ================================================================== */}
+        {activeTab === "registrations" && (
+          <RegistrationManagement />
         )}
 
         {/* ================================================================== */}
