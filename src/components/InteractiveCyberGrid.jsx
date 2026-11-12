@@ -147,11 +147,11 @@ export default function InteractiveCyberGrid() {
         </div>
 
         <div
-          className={`absolute bottom-16 sm:bottom-24 left-4 sm:left-1/4 text-[8px] sm:text-[9px] font-mono text-accent tracking-wider block opacity-10 sm:opacity-15 ${
+          className={`absolute bottom-6 sm:bottom-8 left-32 sm:left-56 md:left-72 lg:left-80 text-[8px] sm:text-[9px] font-mono text-accent tracking-wider block opacity-10 sm:opacity-15 select-none pointer-events-none whitespace-nowrap ${
             reduceMotion ? "" : "telemetry-float-3"
           }`}
         >
-          {"[CREATED::ANKIT::327]"}
+          {"[CREATED::ANKIT::EEE/327/26]"}
         </div>
       </div>
     </div>

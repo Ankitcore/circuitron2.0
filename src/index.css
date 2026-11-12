@@ -372,8 +372,8 @@ input:focus, textarea:focus, select:focus {
   will-change: transform, opacity;
 }
 @keyframes telemetryFloat3 {
-  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.18; }
-  50% { transform: translate3d(0, -8px, 0); opacity: 0.35; }
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.10; }
+  50% { transform: translate3d(0, -6px, 0); opacity: 0.18; }
 }
 
 .telemetry-badge-float-1 {
