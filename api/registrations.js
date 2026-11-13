@@ -392,46 +392,59 @@ function determineEvent(rawEventId = "", formResponses = {}, formUrl = "", formT
     if (id === "project-exhibition" || id === "exhibition") return { id: "project-exhibition", name: "Project Exhibition" };
     if (id === "robo-war" || id === "robowar") return { id: "robo-war", name: "Robo War" };
     if (id === "robo-race" || id === "roborace") return { id: "robo-race", name: "Robo Race" };
-    if (id === "robotics") {
-      // Check responses for robo-war vs robo-race
-      const fullText = JSON.stringify(formResponses).toLowerCase();
-      if (fullText.includes("war")) return { id: "robo-war", name: "Robo War" };
-      if (fullText.includes("race")) return { id: "robo-race", name: "Robo Race" };
-      return { id: "robo-war", name: "Robo War" };
-    }
-    return { id: rawEventId, name: rawEventId };
   }
 
-  // Inspect formUrl
+  // 1. Inspect specific answer values (NOT keys/questions, which may mention other events)
+  for (const [key, value] of Object.entries(formResponses || {})) {
+    const k = key.toLowerCase();
+    const v = (Array.isArray(value) ? value.join(" ") : String(value || "")).toLowerCase().trim();
+
+    // Check if this question is asking for event/competition selection
+    if (k.includes("event") || k.includes("competition") || k.includes("choose") || k.includes("select") || k.includes("category")) {
+      if (v.includes("race")) {
+        return { id: "robo-race", name: "Robo Race" };
+      }
+      if (v.includes("war")) {
+        return { id: "robo-war", name: "Robo War" };
+      }
+      if (v.includes("exhibition") || v.includes("eklavya") || v.includes("lakshya") || v.includes("arjuna")) {
+        return { id: "project-exhibition", name: "Project Exhibition" };
+      }
+    }
+  }
+
+  // 2. Direct exact value check across any field's value
+  for (const [, value] of Object.entries(formResponses || {})) {
+    const v = (Array.isArray(value) ? value.join(" ") : String(value || "")).toLowerCase().trim();
+    if (v === "robo race" || v === "roborace") return { id: "robo-race", name: "Robo Race" };
+    if (v === "robo war" || v === "robowar") return { id: "robo-war", name: "Robo War" };
+  }
+
+  // 3. Inspect formUrl or formTitle
   if (formUrl && formUrl.includes("mNU3damnJBMfnmSU7")) {
     return { id: "project-exhibition", name: "Project Exhibition" };
   }
-  if (formUrl && formUrl.includes("EGqdueaPzzKsWuuBA")) {
-    const fullText = JSON.stringify(formResponses).toLowerCase();
-    if (fullText.includes("race") && !fullText.includes("war")) {
-      return { id: "robo-race", name: "Robo Race" };
-    }
-    return { id: "robo-war", name: "Robo War" };
-  }
-
-  // Inspect formTitle or questions
-  const context = (formTitle + " " + JSON.stringify(formResponses)).toLowerCase();
-  if (context.includes("robo war") || context.includes("robowar")) {
-    return { id: "robo-war", name: "Robo War" };
-  }
-  if (context.includes("robo race") || context.includes("roborace")) {
-    return { id: "robo-race", name: "Robo Race" };
-  }
-  if (
-    context.includes("exhibition") ||
-    context.includes("eklavya") ||
-    context.includes("lakshya") ||
-    context.includes("arjuna") ||
-    context.includes("project")
-  ) {
+  if (formTitle && (formTitle.toLowerCase().includes("exhibition") || formTitle.toLowerCase().includes("registration"))) {
     return { id: "project-exhibition", name: "Project Exhibition" };
   }
 
+  // 4. Check if Project Exhibition group in values
+  for (const [key, value] of Object.entries(formResponses || {})) {
+    const k = key.toLowerCase();
+    const v = (Array.isArray(value) ? value.join(" ") : String(value || "")).toLowerCase().trim();
+    if (
+      k.includes("eklavya") || k.includes("lakshya") || k.includes("arjuna") ||
+      v.includes("eklavya") || v.includes("lakshya") || v.includes("arjuna") ||
+      k.includes("project") || v.includes("project")
+    ) {
+      return { id: "project-exhibition", name: "Project Exhibition" };
+    }
+  }
+
+  // Default fallback
+  if (rawEventId) {
+    return { id: rawEventId, name: rawEventId };
+  }
   return { id: "project-exhibition", name: "Project Exhibition" };
 }
 
