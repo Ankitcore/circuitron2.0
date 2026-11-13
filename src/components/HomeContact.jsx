@@ -180,7 +180,7 @@ export default function HomeContact() {
               </div>
 
               <a
-                href="https://maps.app.goo.gl/wdN6EByf8EanFVx36"
+                href="https://www.google.com/maps/place/RVS+College+of+Engineering+and+Technology/@22.8053067,86.2738051,764m/data=!3m2!1e3!4b1!4m6!3m5!1s0x39f5e30ff76d3319:0x4986ace5ea086802!8m2!3d22.8053067!4d86.2738051!16s%2Fg%2F11b6gcq2xv?entry=ttu&g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="glass-card p-5 rounded-xl border border-primary/20 hover:border-purple-500/40 flex items-start space-x-4 transition-all duration-300 group block"
