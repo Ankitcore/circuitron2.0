@@ -180,7 +180,7 @@ export default function HomeContact() {
               </div>
 
               <a
-                href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                href="https://maps.app.goo.gl/wdN6EByf8EanFVx36"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="glass-card p-5 rounded-xl border border-primary/20 hover:border-purple-500/40 flex items-start space-x-4 transition-all duration-300 group block"

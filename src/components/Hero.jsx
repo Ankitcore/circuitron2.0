@@ -91,7 +91,7 @@ export default function Hero() {
                 <span className="font-semibold text-white">30 November 2026</span>
               </div>
               <a
-                href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                href="https://maps.app.goo.gl/wdN6EByf8EanFVx36"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 bg-darkNavy/80 hover:bg-darkNavy px-3.5 py-2 rounded-xl border border-primary/20 hover:border-primary/50 transition-all group"

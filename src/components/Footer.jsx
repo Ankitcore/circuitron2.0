@@ -147,7 +147,7 @@ export default function Footer() {
           {/* Campus Coordinates (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <a
-              href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+              href="https://maps.app.goo.gl/wdN6EByf8EanFVx36"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center space-x-2.5 group transition-colors"
@@ -166,7 +166,7 @@ export default function Footer() {
             </a>
             <div className="space-y-3 text-sm text-gray-300">
               <a
-                href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                href="https://maps.app.goo.gl/wdN6EByf8EanFVx36"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start space-x-3 group transition-colors"

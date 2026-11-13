@@ -416,7 +416,7 @@ export default function Contact() {
 
               <div className="pt-4 mt-2 border-t border-primary/10">
                 <a
-                  href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                  href="https://maps.app.goo.gl/wdN6EByf8EanFVx36"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full inline-flex items-center justify-center space-x-2 py-2 px-3 rounded-xl bg-darkNavy/80 hover:bg-purple-500/20 border border-purple-500/30 text-white font-orbitron text-xs font-bold transition-all"
@@ -940,7 +940,7 @@ export default function Contact() {
                     <span>Directions</span>
                   </a>
                   <a
-                    href="https://maps.app.goo.gl/PxfFwyV8UVVcCkex8"
+                    href="https://maps.app.goo.gl/wdN6EByf8EanFVx36"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-2.5 py-1 rounded-lg bg-accent/20 hover:bg-accent/30 border border-accent/40 text-accent hover:text-white flex items-center space-x-1 text-[11px] font-bold transition-colors"
