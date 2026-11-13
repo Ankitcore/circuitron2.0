@@ -57,7 +57,7 @@ export default function RegistrationManagement() {
   const [selectedEvent, setSelectedEvent] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedCollege, setSelectedCollege] = useState("all");
-  const [duplicateFilter, setDuplicateFilter] = useState("all"); // 'all' | 'duplicates_only' | 'no_duplicates'
+  const [duplicateFilter, setDuplicateFilter] = useState("no_duplicates"); // 'no_duplicates' (default) | 'all' | 'duplicates_only'
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState("newest"); // 'newest' | 'oldest' | 'name'
   const [page, setPage] = useState(1);
@@ -790,9 +790,9 @@ function syncAllHistoricalRows() {
             onChange={(e) => { setDuplicateFilter(e.target.value); setPage(1); }}
             className="py-2 px-3 rounded-xl bg-white/5 border border-white/10 text-gray-300 text-xs font-mono focus:border-primary/50 focus:outline-none"
           >
-            <option value="all" className="bg-darkNavy text-white">All Submissions</option>
+            <option value="no_duplicates" className="bg-darkNavy text-emerald-400">Unique Participants (Clean)</option>
+            <option value="all" className="bg-darkNavy text-white">Show All Submissions</option>
             <option value="duplicates_only" className="bg-darkNavy text-amber-400">Duplicates Only</option>
-            <option value="no_duplicates" className="bg-darkNavy text-emerald-400">Exclude Duplicates</option>
           </select>
 
           {/* College Filter */}

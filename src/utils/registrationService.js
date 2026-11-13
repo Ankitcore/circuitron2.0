@@ -21,7 +21,25 @@ export function getLocalRegistrationsCache() {
 export function saveLocalRegistrationsCache(list) {
   if (typeof window === "undefined" || !Array.isArray(list)) return;
   try {
-    localStorage.setItem(REGISTRATIONS_CACHE_KEY, JSON.stringify(list));
+    // Deduplicate by participant identity (event_id + email/phone), keeping the newest submission
+    const uniqueMap = new Map();
+    const sorted = [...list].sort((a, b) => new Date(b.submitted_at || 0) - new Date(a.submitted_at || 0));
+    sorted.forEach((r) => {
+      if (!r) return;
+      const email = (r.participant_details?.email || "").toLowerCase().trim();
+      const rawPhone = (r.participant_details?.phone || "").replace(/[^0-9]/g, "");
+      const phone = rawPhone.length >= 10 ? rawPhone.slice(-10) : "";
+      const event = (r.event_id || "").toLowerCase().trim();
+      const key = email
+        ? `${event}::email::${email}`
+        : phone
+        ? `${event}::phone::${phone}`
+        : `${event}::id::${r.registration_id}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, r);
+      }
+    });
+    localStorage.setItem(REGISTRATIONS_CACHE_KEY, JSON.stringify(Array.from(uniqueMap.values())));
   } catch (e) {}
 }
 

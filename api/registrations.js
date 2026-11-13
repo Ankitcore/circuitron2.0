@@ -601,26 +601,53 @@ export default async function handler(req, res) {
 
     const allList = Array.from(registrationsStore.values());
 
-    // Check duplicate submissions (same email + same event submitted multiple times)
-    const emailEventCounter = new Map();
-    allList.forEach((r) => {
+    // Deduplicate and annotate submissions
+    // Sort all records newest first
+    const sortedAll = [...allList].sort((a, b) => new Date(b.submitted_at || 0) - new Date(a.submitted_at || 0));
+
+    const participantCounter = new Map();
+    const seenPrimary = new Set();
+
+    // Pass 1: count submissions per participant per event
+    sortedAll.forEach((r) => {
       const email = (r.participant_details?.email || "").toLowerCase().trim();
+      const rawPhone = (r.participant_details?.phone || "").replace(/[^0-9]/g, "");
+      const phone = rawPhone.length >= 10 ? rawPhone.slice(-10) : "";
       const event = (r.event_id || "").toLowerCase().trim();
-      if (email && event) {
-        const key = `${event}::${email}`;
-        emailEventCounter.set(key, (emailEventCounter.get(key) || 0) + 1);
-      }
+
+      const identityKey = email
+        ? `${event}::email::${email}`
+        : phone
+        ? `${event}::phone::${phone}`
+        : `${event}::sub::${r.submission_id || r.registration_id}`;
+
+      participantCounter.set(identityKey, (participantCounter.get(identityKey) || 0) + 1);
     });
 
-    // Annotate duplicate flag
-    const annotatedList = allList.map((r) => {
+    // Pass 2: mark newest submission as primary, older duplicates as is_duplicate_copy
+    const annotatedList = sortedAll.map((r) => {
       const email = (r.participant_details?.email || "").toLowerCase().trim();
+      const rawPhone = (r.participant_details?.phone || "").replace(/[^0-9]/g, "");
+      const phone = rawPhone.length >= 10 ? rawPhone.slice(-10) : "";
       const event = (r.event_id || "").toLowerCase().trim();
-      const count = email && event ? emailEventCounter.get(`${event}::${email}`) || 1 : 1;
+
+      const identityKey = email
+        ? `${event}::email::${email}`
+        : phone
+        ? `${event}::phone::${phone}`
+        : `${event}::sub::${r.submission_id || r.registration_id}`;
+
+      const totalCount = participantCounter.get(identityKey) || 1;
+      const isFirst = !seenPrimary.has(identityKey);
+      if (isFirst) {
+        seenPrimary.add(identityKey);
+      }
+
       return {
         ...r,
-        is_duplicate: count > 1,
-        duplicate_count: count,
+        is_duplicate: totalCount > 1,
+        is_duplicate_copy: !isFirst,
+        duplicate_count: totalCount,
       };
     });
 
@@ -715,12 +742,16 @@ export default async function handler(req, res) {
       filtered = filtered.filter((r) => (r.verification_status || "pending").toLowerCase() === statusParam);
     }
 
-    // Filter: Duplicate
-    const dupParam = (req.query.duplicate || "all").toLowerCase().trim();
+    // Filter: Duplicate / Unique
+    // Default: 'no_duplicates' (displays unique participants, hides duplicate copies)
+    const dupParam = (req.query.duplicate || "no_duplicates").toLowerCase().trim();
     if (dupParam === "duplicates_only") {
       filtered = filtered.filter((r) => r.is_duplicate);
-    } else if (dupParam === "no_duplicates") {
-      filtered = filtered.filter((r) => !r.is_duplicate);
+    } else if (dupParam === "all") {
+      // Show all raw submissions including duplicate copies
+    } else {
+      // Default: 'no_duplicates' or 'unique' - keeps the primary (newest) submission for each participant
+      filtered = filtered.filter((r) => !r.is_duplicate_copy);
     }
 
     // Filter: College
@@ -1000,17 +1031,24 @@ export default async function handler(req, res) {
         item.submission_id || extracted.phone || submittedAt
       );
 
-      // Check if registration with same submission_id or fingerprint exists
+      // Robust deduplication lookup
+      const normEmail = (extracted.email || "").toLowerCase().trim();
+      const rawPhone = (extracted.phone || "").replace(/[^0-9]/g, "");
+      const normPhone = rawPhone.length >= 10 ? rawPhone.slice(-10) : "";
+
       let existingRecord = null;
       for (const reg of registrationsStore.values()) {
-        if (
-          (item.submission_id && reg.submission_id === item.submission_id) ||
-          reg.fingerprint === fingerprint ||
-          (reg.event_id === eventMeta.id &&
-            reg.participant_details?.email?.toLowerCase() === extracted.email?.toLowerCase() &&
-            extracted.email &&
-            reg.submitted_at === submittedAt)
-        ) {
+        const regEmail = (reg.participant_details?.email || "").toLowerCase().trim();
+        const regRawPhone = (reg.participant_details?.phone || "").replace(/[^0-9]/g, "");
+        const regPhone = regRawPhone.length >= 10 ? regRawPhone.slice(-10) : "";
+
+        const sameSubmissionId = Boolean(item.submission_id && reg.submission_id === item.submission_id);
+        const sameFingerprint = Boolean(reg.fingerprint && reg.fingerprint === fingerprint);
+        const sameEvent = (reg.event_id || "").toLowerCase() === eventMeta.id.toLowerCase();
+        const sameEmail = Boolean(sameEvent && normEmail && regEmail === normEmail);
+        const samePhone = Boolean(sameEvent && normPhone && regPhone === normPhone);
+
+        if (sameSubmissionId || sameFingerprint || sameEmail || samePhone) {
           existingRecord = reg;
           break;
         }
