@@ -1,32 +1,29 @@
 /**
  * ============================================================================
  * CIRCUITRON: PROJECT EXHIBITION / REGISTRATION SYNCHRONIZER
- * TechXpo 2.O — Official Google Apps Script Integration
+ * TechXpo 2.O — Official Integration (Universal: Form & Sheet Compatible)
  * Website: https://www.circuitron.in
  * ============================================================================
  * 
- * This script is specifically configured for:
- * "REGISTRATION FORM / PROJECT EXHIBITION (Eklavya, Lakshya, Arjuna)"
+ * Works 100% whether opened from GOOGLE FORMS or GOOGLE SHEETS!
  * 
- * It automatically sends all project exhibition submissions to the
- * Project Exhibition tab in the Circuitron Admin Dashboard, while preserving
- * all category selections (Eklavya, Lakshya, Arjuna) and team details.
+ * Automatically sends registrations into 'Project Exhibition' on the Admin
+ * Dashboard, capturing their group (Eklavya, Lakshya, Arjuna) and team info.
  * 
  * INSTRUCTIONS:
- * 1. Open the Google Form or Google Sheet for Project Exhibition / Registration.
- * 2. Click: Extensions > Apps Script (or Tools > Script editor).
- * 3. Delete any existing code and PASTE THIS ENTIRE SCRIPT.
- * 4. In the top toolbar dropdown, select "installTrigger" and click "Run".
- *    (Accept Google's permission prompt if asked).
- * 5. (Optional) Select "syncAllHistoricalRows" and click "Run" to import
- *    all past responses into the website immediately!
+ * 1. Click the "⏹ Stop" button if the debugger is paused.
+ * 2. Delete all existing code in this editor (Ctrl+A -> Backspace).
+ * 3. Paste this ENTIRE code.
+ * 4. Click the Save icon (Ctrl+S).
+ * 5. In the toolbar, select "installTrigger" and click "▷ Run" (NOT Debug).
+ * 6. (Optional) Select "syncAllHistoricalRows" and click "▷ Run" to import all existing responses!
  */
 
 const CONFIG = {
   // Destination Webhook URL (Circuitron Production API)
   CIRCUITRON_WEBHOOK_URL: "https://www.circuitron.in/api/registrations",
 
-  // Integration Secret
+  // Integration Secret (matches backend REGISTRATION_SYNC_SECRET)
   SYNC_SECRET: "circuitron_sync_secure_2026",
 
   // Dedicated Event Identifier
@@ -34,24 +31,38 @@ const CONFIG = {
 };
 
 /**
- * 1. Real-Time Trigger: Runs automatically whenever a participant submits the form
+ * Universal alert dialog helper (works in both Forms and Sheets)
+ */
+function showAlert(message) {
+  try {
+    FormApp.getUi().alert(message);
+    return;
+  } catch (e) {}
+
+  try {
+    SpreadsheetApp.getUi().alert(message);
+    return;
+  } catch (e) {}
+
+  console.log(message);
+}
+
+/**
+ * 1. Real-Time Trigger: Runs automatically when a participant submits
  */
 function onFormSubmit(e) {
   try {
     console.log("⚡ [Project Exhibition] New form submission detected, initiating sync...");
-
     var payload = {};
 
-    // Triggered directly from Google Form
+    // Direct Google Form trigger
     if (e && e.response) {
       var itemResponses = e.response.getItemResponses();
       var formResponses = {};
 
       for (var i = 0; i < itemResponses.length; i++) {
         var item = itemResponses[i];
-        var question = item.getItem().getTitle();
-        var answer = item.getResponse();
-        formResponses[question] = answer;
+        formResponses[item.getItem().getTitle()] = item.getResponse();
       }
 
       payload = {
@@ -63,7 +74,7 @@ function onFormSubmit(e) {
         form_responses: formResponses,
       };
     }
-    // Triggered from linked Google Sheet
+    // Linked Google Sheet trigger
     else if (e && e.namedValues) {
       var namedResponses = {};
       for (var key in e.namedValues) {
@@ -82,11 +93,9 @@ function onFormSubmit(e) {
         form_responses: namedResponses,
       };
     } else {
-      console.warn("⚠️ Unsupported event object received:", e);
       return;
     }
 
-    // Post to Circuitron Backend API
     var response = postToCircuitron(payload);
     console.log("✅ [Project Exhibition] Webhook response:", response);
   } catch (err) {
@@ -95,58 +104,111 @@ function onFormSubmit(e) {
 }
 
 /**
- * 2. Historical Sync: Imports ALL existing submissions from the Google Sheet
+ * 2. Historical Sync: Universal importer that supports BOTH Google Forms and Google Sheets
  */
 function syncAllHistoricalRows() {
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = sheet.getDataRange().getValues();
-
-    if (!data || data.length < 2) {
-      var emptyMsg = "No response rows found in this sheet.";
-      console.log(emptyMsg);
-      try { SpreadsheetApp.getUi().alert(emptyMsg); } catch (e) {}
-      return;
-    }
-
-    var headers = data[0];
     var registrations = [];
 
-    for (var r = 1; r < data.length; r++) {
-      var row = data[r];
-      var formResponses = {};
-      var email = "";
-      var timestamp = new Date().toISOString();
+    // Check if opened inside Google Forms
+    var form = null;
+    try {
+      form = FormApp.getActiveForm();
+    } catch (e) {}
 
-      for (var c = 0; c < headers.length; c++) {
-        var headerName = String(headers[c]).trim();
-        var cellValue = row[c];
+    if (form) {
+      console.log("📝 Detected Google Form container: " + form.getTitle());
+      var formResponsesList = form.getResponses();
 
-        if (cellValue instanceof Date) {
-          formResponses[headerName] = cellValue.toISOString();
-          if (headerName.toLowerCase().indexOf("time") !== -1) {
-            timestamp = cellValue.toISOString();
-          }
-        } else {
-          formResponses[headerName] = String(cellValue);
-        }
-
-        if (headerName.toLowerCase().indexOf("email") !== -1 && !email) {
-          email = String(cellValue).trim();
-        }
+      if (!formResponsesList || formResponsesList.length === 0) {
+        showAlert("No responses submitted to this Google Form yet.");
+        return;
       }
 
-      registrations.push({
-        event_id: CONFIG.EVENT_ID,
-        source: "google_sheet_historical",
-        submission_id: "row_" + (r + 1) + "_" + (email || r),
-        timestamp: timestamp,
-        respondent_email: email,
-        form_responses: formResponses,
-      });
+      for (var i = 0; i < formResponsesList.length; i++) {
+        var resp = formResponsesList[i];
+        var items = resp.getItemResponses();
+        var responsesObj = {};
+
+        for (var j = 0; j < items.length; j++) {
+          var item = items[j];
+          responsesObj[item.getItem().getTitle()] = item.getResponse();
+        }
+
+        var respondentEmail = resp.getRespondentEmail() || responsesObj["Email Address"] || responsesObj["Email"] || "";
+        var ts = resp.getTimestamp() ? resp.getTimestamp().toISOString() : new Date().toISOString();
+
+        registrations.push({
+          event_id: CONFIG.EVENT_ID,
+          source: "google_form_historical",
+          submission_id: resp.getId() || ("form_resp_" + i),
+          timestamp: ts,
+          respondent_email: respondentEmail,
+          form_responses: responsesObj,
+        });
+      }
+    }
+    // Check if opened inside Google Sheets
+    else {
+      var ss = null;
+      try {
+        ss = SpreadsheetApp.getActiveSpreadsheet();
+      } catch (e) {}
+
+      if (ss) {
+        console.log("📊 Detected Google Sheet container: " + ss.getName());
+        var sheet = ss.getActiveSheet();
+        var data = sheet.getDataRange().getValues();
+
+        if (!data || data.length < 2) {
+          showAlert("No response rows found in this sheet.");
+          return;
+        }
+
+        var headers = data[0];
+
+        for (var r = 1; r < data.length; r++) {
+          var row = data[r];
+          var sheetResponses = {};
+          var email = "";
+          var timestamp = new Date().toISOString();
+
+          for (var c = 0; c < headers.length; c++) {
+            var headerName = String(headers[c]).trim();
+            var cellValue = row[c];
+
+            if (cellValue instanceof Date) {
+              sheetResponses[headerName] = cellValue.toISOString();
+              if (headerName.toLowerCase().indexOf("time") !== -1) {
+                timestamp = cellValue.toISOString();
+              }
+            } else {
+              sheetResponses[headerName] = String(cellValue);
+            }
+
+            if (headerName.toLowerCase().indexOf("email") !== -1 && !email) {
+              email = String(cellValue).trim();
+            }
+          }
+
+          registrations.push({
+            event_id: CONFIG.EVENT_ID,
+            source: "google_sheet_historical",
+            submission_id: "row_" + (r + 1) + "_" + (email || r),
+            timestamp: timestamp,
+            respondent_email: email,
+            form_responses: sheetResponses,
+          });
+        }
+      } else {
+        throw new Error("Could not detect active Google Form or Google Sheet.");
+      }
     }
 
-    console.log("📦 Sending " + registrations.length + " historical exhibition registration(s) to Circuitron...");
+    if (registrations.length === 0) {
+      showAlert("No registrations found to synchronize.");
+      return;
+    }
 
     // Send in batches of 50
     var batchSize = 50;
@@ -154,52 +216,37 @@ function syncAllHistoricalRows() {
 
     for (var b = 0; b < registrations.length; b += batchSize) {
       var chunk = registrations.slice(b, b + batchSize);
-      var payload = {
+      postToCircuitron({
         event_id: CONFIG.EVENT_ID,
-        source: "google_sheet_batch",
+        source: "google_historical_batch",
         registrations: chunk,
-      };
-
-      postToCircuitron(payload);
+      });
       totalImported += chunk.length;
-      console.log("Synced batch: " + totalImported + "/" + registrations.length);
     }
 
     var msg = "🎉 Successfully synchronized " + totalImported + " Project Exhibition registrations into the Circuitron Admin Dashboard!";
     console.log(msg);
-    try {
-      SpreadsheetApp.getUi().alert(msg);
-    } catch (e) {}
+    showAlert(msg);
   } catch (err) {
-    console.error("❌ Error syncing historical rows:", err.message);
-    try {
-      SpreadsheetApp.getUi().alert("Error syncing: " + err.message);
-    } catch (e) {}
+    console.error("❌ Error syncing historical responses:", err.message);
+    showAlert("Error syncing: " + err.message);
   }
 }
 
 /**
- * 3. Connection Test: Pings the Circuitron Backend API
+ * 3. Connection Test
  */
 function testWebhookConnection() {
   try {
-    var payload = {
+    var res = postToCircuitron({
       action: "ping",
       source: "project_exhibition_sync_test",
       timestamp: new Date().toISOString(),
-    };
-
-    var res = postToCircuitron(payload);
-    console.log("Connection Test Result:", res);
+    });
     var alertMsg = "Connection Successful!\n\nCircuitron Webhook is online and authenticated.\nServer Response: " + JSON.stringify(res);
-    try {
-      SpreadsheetApp.getUi().alert(alertMsg);
-    } catch (e) {}
+    showAlert(alertMsg);
   } catch (err) {
-    console.error("❌ Connection failed:", err.message);
-    try {
-      SpreadsheetApp.getUi().alert("Connection Failed: " + err.message);
-    } catch (e) {}
+    showAlert("Connection Failed: " + err.message);
   }
 }
 
@@ -224,18 +271,14 @@ function postToCircuitron(payload) {
   var content = res.getContentText();
 
   if (statusCode >= 200 && statusCode < 300) {
-    try {
-      return JSON.parse(content);
-    } catch (e) {
-      return content;
-    }
+    try { return JSON.parse(content); } catch (e) { return content; }
   } else {
     throw new Error("HTTP " + statusCode + ": " + content);
   }
 }
 
 /**
- * 5. Automatic Trigger Installer: Run this ONCE to bind onFormSubmit
+ * 5. Automatic Trigger Installer: Binds onFormSubmit automatically
  */
 function installTrigger() {
   try {
@@ -246,36 +289,29 @@ function installTrigger() {
       }
     }
 
-    // Try installing for Google Form
+    // Try Google Form container
     try {
       var form = FormApp.getActiveForm();
       if (form) {
-        ScriptApp.newTrigger("onFormSubmit")
-          .forForm(form)
-          .onFormSubmit()
-          .create();
-        console.log("✅ Trigger successfully bound to Google Form!");
-        try { SpreadsheetApp.getUi().alert("Trigger successfully activated for Google Form!"); } catch (e) {}
+        ScriptApp.newTrigger("onFormSubmit").forForm(form).onFormSubmit().create();
+        showAlert("✅ Trigger successfully activated for Google Form!\nEvery new submission will now automatically sync to Circuitron.");
         return;
       }
     } catch (err) {}
 
-    // Try installing for Google Sheet
+    // Try Google Sheet container
     try {
       var ss = SpreadsheetApp.getActiveSpreadsheet();
       if (ss) {
-        ScriptApp.newTrigger("onFormSubmit")
-          .forSpreadsheet(ss)
-          .onFormSubmit()
-          .create();
-        console.log("✅ Trigger successfully bound to Google Sheet!");
-        try { SpreadsheetApp.getUi().alert("Trigger successfully activated for Google Sheet!"); } catch (e) {}
+        ScriptApp.newTrigger("onFormSubmit").forSpreadsheet(ss).onFormSubmit().create();
+        showAlert("✅ Trigger successfully activated for Google Sheet!\nEvery new submission will now automatically sync to Circuitron.");
         return;
       }
     } catch (err) {}
 
-    console.log("Trigger configured.");
+    showAlert("Could not detect active Form or Sheet. Please ensure you opened Apps Script from inside Google Forms or Google Sheets.");
   } catch (e) {
-    console.error("Trigger installation error:", e.message);
+    console.error("Trigger error:", e.message);
+    showAlert("Error installing trigger: " + e.message);
   }
 }
