@@ -164,6 +164,7 @@ function RouteMetadataUpdater() {
 
 export default function App() {
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
   const [allowParticles] = React.useState(() => {
     if (typeof window === "undefined") return false;
     return !shouldReduceMotion() && !isLowEndDevice();
@@ -211,9 +212,9 @@ export default function App() {
           </AnimatePresence>
         </Suspense>
       </main>
-      <Footer />
-      <ScrollToTop />
-      <FloatingWhatsApp />
+      {!isAdmin && <Footer />}
+      {!isAdmin && <ScrollToTop />}
+      {!isAdmin && <FloatingWhatsApp />}
       <SpeedInsights />
       <Analytics />
     </div>

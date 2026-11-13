@@ -887,7 +887,7 @@ export default function Contact() {
 
                 <iframe
                   title="RVSCET Jamshedpur Campus Map"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.368545802167!2d86.27123017582524!3d22.80530667932822!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f5e30ff76d3319%3A0x4986ace5ea086802!2sRVS%20College%20of%20Engineering%20and%20Technology!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3678.8475914619997!2d86.2624!3d22.8153!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f5e49226b9a8f7%3A0x6b135c363d64c1e4!2sRVS%20College%20of%20Engineering%20and%20Technology%2C%20Jamshedpur!5e0!3m2!1sen!2sin!4v1710000000000!5m2!1sen!2sin"
                   width="100%"
                   height="100%"
                   onLoad={() => setMapLoaded(true)}

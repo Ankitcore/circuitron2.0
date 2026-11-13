@@ -30,6 +30,7 @@ import {
   Sparkles,
   Info,
   CheckCheck,
+  X,
 } from "lucide-react";
 import {
   fetchRegistrations,
@@ -510,7 +511,7 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 right-6 z-50 p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 backdrop-blur-md shadow-2xl flex items-center space-x-3 text-sm font-bold font-mono"
+            className="fixed top-20 right-6 z-[100000] p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 backdrop-blur-md shadow-2xl flex items-center space-x-3 text-sm font-bold font-mono"
           >
             <CheckCheck className="w-5 h-5 text-emerald-400" />
             <span>{successToast}</span>
@@ -1077,14 +1078,14 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
             onClick={() => setSelectedRegDetails(null)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="glass-card max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-primary/40 space-y-6 shadow-2xl relative my-8 bg-darkNavy text-white"
+              className="max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-primary/40 space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.95)] relative my-auto bg-[#0a0f29] text-white"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -1108,11 +1109,12 @@ function syncAllHistoricalRows() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setSelectedRegDetails(null)}
-                  className="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-2.5 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white border border-white/10 text-gray-300 transition-all cursor-pointer flex-shrink-0"
                   aria-label="Close"
                 >
-                  &times;
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
@@ -1275,14 +1277,14 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
             onClick={() => setShowWebhookGuide(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="glass-card max-w-3xl w-full p-6 sm:p-8 rounded-3xl border border-primary/40 space-y-6 shadow-2xl relative my-8 bg-darkNavy text-white"
+              className="max-w-3xl w-full p-6 sm:p-8 rounded-3xl border border-primary/40 space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.95)] relative my-auto bg-[#0a0f29] text-white"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -1303,10 +1305,12 @@ function syncAllHistoricalRows() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setShowWebhookGuide(false)}
-                  className="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-2.5 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white border border-white/10 text-gray-300 transition-all cursor-pointer flex-shrink-0"
+                  aria-label="Close"
                 >
-                  &times;
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
@@ -1429,14 +1433,14 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
             onClick={() => setShowImportModal(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="glass-card max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-accent/40 space-y-6 shadow-2xl relative my-8 bg-darkNavy text-white"
+              className="max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-accent/40 space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.95)] relative my-auto bg-[#0a0f29] text-white"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -1457,10 +1461,12 @@ function syncAllHistoricalRows() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setShowImportModal(false)}
-                  className="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-2.5 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white border border-white/10 text-gray-300 transition-all cursor-pointer flex-shrink-0"
+                  aria-label="Close"
                 >
-                  &times;
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
@@ -1584,14 +1590,14 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
             onClick={() => setShowSheetsModal(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="glass-card max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-emerald-500/40 space-y-6 shadow-2xl relative my-8 bg-darkNavy text-white"
+              className="max-w-2xl w-full p-6 sm:p-8 rounded-3xl border border-emerald-500/40 space-y-6 shadow-[0_0_50px_rgba(0,0,0,0.95)] relative my-auto bg-[#0a0f29] text-white"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -1612,10 +1618,12 @@ function syncAllHistoricalRows() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setShowSheetsModal(false)}
-                  className="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+                  className="p-2.5 rounded-xl bg-white/10 hover:bg-rose-500 hover:text-white border border-white/10 text-gray-300 transition-all cursor-pointer flex-shrink-0"
+                  aria-label="Close"
                 >
-                  &times;
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
