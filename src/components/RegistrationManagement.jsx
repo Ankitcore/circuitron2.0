@@ -1078,7 +1078,7 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 py-8 overflow-y-auto"
             onClick={() => setSelectedRegDetails(null)}
           >
             <motion.div
@@ -1277,7 +1277,7 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 py-8 overflow-y-auto"
             onClick={() => setShowWebhookGuide(false)}
           >
             <motion.div
@@ -1433,7 +1433,7 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 py-8 overflow-y-auto"
             onClick={() => setShowImportModal(false)}
           >
             <motion.div
@@ -1590,7 +1590,7 @@ function syncAllHistoricalRows() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center p-3 sm:p-6 pt-20 sm:pt-24 pb-12 overflow-y-auto"
+            className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 py-8 overflow-y-auto"
             onClick={() => setShowSheetsModal(false)}
           >
             <motion.div

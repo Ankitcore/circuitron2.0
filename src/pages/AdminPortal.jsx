@@ -844,7 +844,7 @@ export default function AdminPortal() {
   // ==========================================================================
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen pt-28 pb-20 flex items-center justify-center px-4">
+      <div className="min-h-screen pt-12 sm:pt-16 pb-20 flex items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -938,7 +938,7 @@ export default function AdminPortal() {
   // VIEW: AUTHENTICATED ADMIN PORTAL
   // ==========================================================================
   return (
-    <div className="min-h-screen pt-28 pb-20">
+    <div className="min-h-screen pt-8 sm:pt-12 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Top Header & Admin Status Bar */}
@@ -959,6 +959,15 @@ export default function AdminPortal() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 relative z-10">
+            <Link
+              to="/"
+              className="px-3.5 py-2.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 hover:text-white text-xs font-mono font-bold flex items-center space-x-1.5 transition-all shadow-sm"
+              title="Return to Public Website Home"
+            >
+              <Home className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Back to Site</span>
+            </Link>
+
             <Link
               to="/verify"
               className="btn-secondary text-xs py-2.5 px-4 font-bold flex items-center space-x-1.5"

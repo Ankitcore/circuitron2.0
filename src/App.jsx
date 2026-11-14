@@ -172,7 +172,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#050816] text-white relative selection:bg-accent selection:text-darkNavy overflow-x-hidden w-full max-w-full">
-      <ScrollProgressBar />
+      {!isAdmin && <ScrollProgressBar />}
       <RouteMetadataUpdater />
       <Suspense fallback={null}>
         <InteractiveCyberGrid />
@@ -191,8 +191,8 @@ export default function App() {
         className="fixed inset-0 circuit-bg-glow pointer-events-none"
         style={{ zIndex: 0, willChange: "transform", transform: "translateZ(0)" }}
       />
-      <Navbar />
-      <main className="relative z-10">
+      {!isAdmin && <Navbar />}
+      <main className="relative">
         <Suspense fallback={<PageLoader />}>
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
