@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { galleryItems } from "../data/gallery";
 import { Sparkles, ZoomIn, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { gentleEase } from "../utils/motion";
 
 export default function Gallery() {
   const [selectedIdx, setSelectedIdx] = useState(null);
@@ -68,7 +69,7 @@ export default function Gallery() {
           <motion.div
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
             className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
           />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">

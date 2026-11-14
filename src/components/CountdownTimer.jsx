@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, Zap } from "lucide-react";
 import CyberProgressBar from "./CyberProgressBar";
+import { gentleEase } from "../utils/motion";
 
 // Target countdown deadline: 29th November 2026 at 11:59:00 PM IST
 const TARGET_DATE = new Date("2026-11-29T23:59:00+05:30").getTime();
@@ -42,13 +43,13 @@ export default function CountdownTimer() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.55, ease: gentleEase }}
       className="inline-flex flex-col items-center p-2.5 xs:p-3 sm:p-4 rounded-2xl glass-card border border-primary/30 max-w-full sm:max-w-xl mx-auto shadow-neon group"
     >
       <div className="flex items-center space-x-1.5 sm:space-x-2 text-[10px] sm:text-xs font-orbitron font-semibold text-accent mb-2.5 sm:mb-3 tracking-wider">
-        <Clock className="w-3.5 h-3.5 animate-spin-slow flex-shrink-0" />
+        <Clock className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
         <span className="truncate">COUNTDOWN TO TECHXPO 2.O</span>
       </div>
 
@@ -56,14 +57,14 @@ export default function CountdownTimer() {
         {timeUnits.map((unit, index) => (
           <motion.div
             key={unit.label}
-            initial={{ opacity: 0, scale: 0.9, y: 8 }}
+            initial={{ opacity: 0, scale: 0.94, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{
-              duration: 0.5,
-              delay: 0.2 + index * 0.08,
-              ease: [0.25, 0.1, 0.25, 1],
+              duration: 0.45,
+              delay: 0.15 + index * 0.06,
+              ease: gentleEase,
             }}
-            whileHover={{ y: -2, scale: 1.03 }}
+            whileHover={{ y: -2, scale: 1.02 }}
             className="flex flex-col items-center justify-center bg-darkNavy/70 px-2 py-1.5 xs:px-2.5 xs:py-2 sm:px-4 sm:py-3 rounded-xl border border-primary/20 min-w-[50px] xs:min-w-[58px] sm:min-w-[85px] transition-colors group-hover:border-primary/40"
           >
             <span className="font-orbitron font-extrabold text-base xs:text-xl sm:text-3xl text-white tracking-wider">

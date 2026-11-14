@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { facultyCoordinators, executiveTeam } from "../data/team";
 import { Users, ArrowRight, Sparkles, Shield } from "lucide-react";
+import { gentleEase } from "../utils/motion";
 
 function HomeAvatar({ src, name }) {
   const [hasError, setHasError] = useState(false);
@@ -35,9 +36,9 @@ export default function HomeTeam() {
         
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, ease: gentleEase }}
           viewport={{ once: true }}
           className="text-center space-y-4 mb-16"
         >
@@ -48,7 +49,13 @@ export default function HomeTeam() {
           <h2 className="text-4xl sm:text-5xl font-black font-orbitron gradient-text">
             Meet Our Leadership
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
+            className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
+          />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
             Guiding technology research and driving student excellence across RVSCET. Meet the mentors and student executives leading Circuitron.
           </p>
@@ -59,9 +66,9 @@ export default function HomeTeam() {
           {showcase.map((member, index) => (
             <motion.div
               key={member.name}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.08, ease: gentleEase }}
               viewport={{ once: true }}
               className="glass-card rounded-2xl p-6 border border-primary/20 flex flex-col items-center text-center group relative overflow-hidden justify-between w-full sm:w-[calc(50%-16px)] lg:w-[calc(33.333%-16px)] xl:w-[calc(20%-20px)] min-w-[220px]"
             >

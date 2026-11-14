@@ -25,6 +25,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
+import { gentleEase } from "../utils/motion";
 
 const inquiryCategories = [
   "General TechXpo 2.O Inquiry",
@@ -235,7 +236,7 @@ export default function Contact() {
           <motion.div
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
             className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
           />
 

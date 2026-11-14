@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Lightbulb, Award, Users, CheckCircle, Sparkles, Target, Compass, Rocket } from "lucide-react";
 import CyberProgressBar from "../components/CyberProgressBar";
 import AnimatedCounter from "../components/AnimatedCounter";
-import { cardHoverProps, smoothEase, viewportConfig } from "../utils/motion";
+import { cardHoverProps, smoothEase, gentleEase, viewportConfig } from "../utils/motion";
 
 export default function About() {
   const itemVariants = {
@@ -29,7 +29,12 @@ export default function About() {
           }}
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: gentleEase }}
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4"
+        >
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-semibold text-primary">
             <Sparkles className="w-3.5 h-3.5" />
             <span>ORIGIN &amp; MISSION</span>
@@ -37,11 +42,16 @@ export default function About() {
           <h1 className="text-4xl sm:text-6xl font-black font-orbitron gradient-text">
             About TechXpo 2.O &amp; Circuitron
           </h1>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
+            className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
+          />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
             Discover the legacy behind the flagship technical symposium and the vision that empowers students to build next-generation hardware.
           </p>
-        </div>
+        </motion.div>
       </section>
 
       {/* Story of Circuitron */}

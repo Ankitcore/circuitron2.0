@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageSquare, CheckCircle2, Sparkles, AlertCircle } from "lucide-react";
+import { gentleEase } from "../utils/motion";
 
 export default function HomeContact() {
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
@@ -91,9 +92,9 @@ export default function HomeContact() {
           
           {/* Left Column: Direct Info */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
+            initial={{ opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: gentleEase }}
             viewport={{ once: true }}
             className="lg:col-span-5 space-y-8"
           >
@@ -105,7 +106,13 @@ export default function HomeContact() {
               <h2 className="text-4xl sm:text-5xl font-black font-orbitron gradient-text">
                 Connect With Us
               </h2>
-              <div className="w-20 h-1 bg-gradient-to-r from-primary to-accent rounded-full" />
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
+                className="w-20 h-1 bg-gradient-to-r from-primary to-accent rounded-full origin-left"
+              />
               <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
                 Have questions regarding event rulebooks, team registrations, travel guidance, or campus accommodation?
                 Drop us a line and our organizing team will assist promptly.

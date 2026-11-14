@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Trophy, Users, Calendar, Award, Sparkles, ArrowRight, Zap, Target } from "lucide-react";
 import CyberProgressBar from "./CyberProgressBar";
 import AnimatedCounter from "./AnimatedCounter";
-import { cardHoverProps, buttonHoverProps, smoothEase, viewportConfig } from "../utils/motion";
+import { cardHoverProps, buttonHoverProps, smoothEase, gentleEase, viewportConfig } from "../utils/motion";
 
 export default function Stats() {
   return (
@@ -21,9 +21,9 @@ export default function Stats() {
         
         {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, ease: gentleEase }}
           viewport={{ once: true }}
           className="text-center space-y-4 mb-16"
         >
@@ -38,7 +38,7 @@ export default function Stats() {
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
             className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
           />
           <p className="text-gray-300 max-w-3xl mx-auto text-base sm:text-lg leading-relaxed">
@@ -55,9 +55,9 @@ export default function Stats() {
           
           {/* Bento Item 1 (Wide): Big Impact */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, delay: 0.1, ease: smoothEase }}
+            transition={{ duration: 0.6, delay: 0.1, ease: gentleEase }}
             viewport={viewportConfig}
             {...cardHoverProps}
             className="md:col-span-2 glass-card p-8 rounded-2xl border border-primary/25 relative overflow-hidden group flex flex-col justify-between"

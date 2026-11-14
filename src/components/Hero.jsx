@@ -5,7 +5,7 @@ import TechModel3D from "./TechModel3D";
 import CountdownTimer from "./CountdownTimer";
 import CyberProgressBar from "./CyberProgressBar";
 import AnimatedCounter from "./AnimatedCounter";
-import { buttonHoverProps, cardHoverProps, smoothEase } from "../utils/motion";
+import { buttonHoverProps, cardHoverProps, smoothEase, gentleEase } from "../utils/motion";
 
 export default function Hero() {
   return (
@@ -30,16 +30,16 @@ export default function Hero() {
           
           {/* Left Column: Hero Content */}
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.65, ease: gentleEase }}
             className="lg:col-span-7 space-y-5 sm:space-y-6 text-center lg:text-left"
           >
             {/* Announcement Top Pill */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.5, delay: 0.1, ease: gentleEase }}
               className="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 rounded-full glass-panel border border-primary/30 text-[11px] sm:text-xs font-semibold text-accent shadow-neon max-w-full truncate"
             >
               <img
@@ -47,15 +47,16 @@ export default function Hero() {
                 alt="RVSCET Logo"
                 className="w-4 h-4 object-contain flex-shrink-0"
               />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
               <span className="truncate">Flagship Tech Symposium &bull; RVSCET Jamshedpur</span>
             </motion.div>
 
             {/* Giant Title */}
             <div className="space-y-2">
               <motion.h1
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ opacity: 0, scale: 0.97, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2, ease: gentleEase }}
                 className="text-3xl xs:text-4xl sm:text-6xl lg:text-7xl font-black font-orbitron tracking-tight"
               >
                 <span className="gradient-text block">TechXpo 2.O</span>
@@ -68,7 +69,7 @@ export default function Hero() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.5, delay: 0.32, ease: gentleEase }}
                 className="inline-block"
               >
                 <p className="text-sm xs:text-base sm:text-xl lg:text-2xl font-bold font-orbitron tracking-wider text-accent uppercase">
@@ -78,14 +79,24 @@ export default function Hero() {
             </div>
 
             {/* Subtitle Description */}
-            <p className="text-sm sm:text-base lg:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            <motion.p
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.42, ease: gentleEase }}
+              className="text-sm sm:text-base lg:text-lg text-gray-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+            >
               Organized by{" "}
               <span className="text-primary font-bold">Circuitron</span> &mdash;
               The Premier IoT and Embedded System Club of RVS College of Engineering &amp; Technology, Jamshedpur.
-            </p>
+            </motion.p>
 
             {/* Event Key Details */}
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-4 text-xs sm:text-sm text-gray-300">
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5, ease: gentleEase }}
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 sm:gap-4 text-xs sm:text-sm text-gray-300"
+            >
               <div className="flex items-center space-x-2 bg-darkNavy/80 px-3.5 py-2 rounded-xl border border-primary/20">
                 <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
                 <span className="font-semibold text-white">30 November 2026</span>
@@ -104,7 +115,7 @@ export default function Hero() {
                 />
                 <span className="font-semibold text-white group-hover:text-accent transition-colors">RVSCET Campus, Jamshedpur</span>
               </a>
-            </div>
+            </motion.div>
 
             {/* Countdown Component */}
             <div className="pt-2">
@@ -112,7 +123,12 @@ export default function Hero() {
             </div>
 
             {/* Action CTA Buttons */}
-            <div className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.6, ease: gentleEase }}
+              className="pt-3 sm:pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4"
+            >
               <motion.a
                 href="https://forms.gle/mNU3damnJBMfnmSU7"
                 target="_blank"
@@ -135,14 +151,14 @@ export default function Hero() {
                 <span>Official Brochure</span>
                 <ExternalLink className="w-3.5 h-3.5 ml-1 opacity-80" />
               </motion.a>
-            </div>
+            </motion.div>
           </motion.div>
 
           {/* Right Column: 3D Tech Model Rig */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.3, ease: smoothEase }}
+            transition={{ duration: 0.85, delay: 0.25, ease: gentleEase }}
             className="lg:col-span-5 flex flex-col items-center justify-center mt-4 lg:mt-0"
           >
             <TechModel3D />
@@ -150,9 +166,9 @@ export default function Hero() {
             {/* Highlights Chips Below 3D Model */}
             <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-sm mt-6 sm:mt-8">
               <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4, ease: smoothEase }}
+                initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.38, ease: gentleEase }}
                 {...cardHoverProps}
                 className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
               >
@@ -178,9 +194,9 @@ export default function Hero() {
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.5, ease: smoothEase }}
+                initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.48, ease: gentleEase }}
                 {...cardHoverProps}
                 className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
               >
@@ -206,9 +222,9 @@ export default function Hero() {
               </motion.div>
 
               <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.6, ease: smoothEase }}
+                initial={{ opacity: 0, y: 12, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.58, ease: gentleEase }}
                 {...cardHoverProps}
                 className="glass-card p-2.5 sm:p-3 rounded-xl text-center border border-primary/20 flex flex-col justify-between"
               >

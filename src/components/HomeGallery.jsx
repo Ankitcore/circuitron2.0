@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Image as ImageIcon, ArrowRight, Sparkles, ZoomIn } from "lucide-react";
+import { gentleEase } from "../utils/motion";
 
 const previewImages = [
   {
@@ -37,9 +38,9 @@ export default function HomeGallery() {
         
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, ease: gentleEase }}
           viewport={{ once: true }}
           className="text-center space-y-4 mb-16"
         >
@@ -50,7 +51,13 @@ export default function HomeGallery() {
           <h2 className="text-4xl sm:text-5xl font-black font-orbitron gradient-text">
             Event Highlights &amp; Media
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
+            className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
+          />
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg">
             Experience the electrifying atmosphere, fierce robotics clashes, and game-changing innovations from our previous chapters.
           </p>
@@ -61,11 +68,11 @@ export default function HomeGallery() {
           {previewImages.map((img, index) => (
             <motion.div
               key={img.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.09, ease: gentleEase }}
               viewport={{ once: true }}
-              whileHover={{ y: -6 }}
+              whileHover={{ y: -5 }}
               className="group relative rounded-2xl overflow-hidden glass-panel border border-primary/20 aspect-video sm:aspect-[4/3] shadow-lg"
             >
               <img

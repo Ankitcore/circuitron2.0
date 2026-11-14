@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CyberProgressBar from "../components/CyberProgressBar";
 import AnimatedCounter from "../components/AnimatedCounter";
-import { cardHoverProps, buttonHoverProps, smoothEase, viewportConfig } from "../utils/motion";
+import { cardHoverProps, buttonHoverProps, smoothEase, gentleEase, viewportConfig } from "../utils/motion";
 import {
   events,
   exhibitionGroups,
@@ -87,7 +87,12 @@ export default function Events() {
           }}
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: gentleEase }}
+          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6"
+        >
           <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-xs font-semibold text-accent">
             <Sparkles className="w-3.5 h-3.5" />
             <span>THREE ARENAS &bull; ONE DAY</span>
@@ -102,7 +107,12 @@ export default function Events() {
             </p>
           </div>
 
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.75, delay: 0.2, ease: gentleEase }}
+            className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full origin-center"
+          />
 
           <p className="text-gray-300 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
             A one-day technology exhibition and multi-track championship for school, diploma, and undergraduate innovators across India.
@@ -165,7 +175,7 @@ export default function Events() {
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ================= SECTION: WHO CAN PARTICIPATE (THREE GROUPS) ================= */}
